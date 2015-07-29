@@ -1,0 +1,6 @@
+<div class="bio">
+    <span ng-repeat="span in card.bio.structure">
+        <a href="#{{span.ref}}" ng-if="span.type == 'link'" ng-click="open(span.ref)">{{span.text}}</a>
+        <span ng-if="span.type == 'span'">{{span.text}}</span>
+    </span> 
+</div>

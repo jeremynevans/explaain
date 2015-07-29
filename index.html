@@ -1,0 +1,90 @@
+<!doctype html>
+<html data-ng-app="app">
+
+<head>
+    <link rel="stylesheet" href="https://necolas.github.io/normalize.css/3.0.2/normalize.css">
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.4/angular-material.min.css">
+    <link href='//fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <meta name="viewport" content="initial-scale=1" />
+    <link rel="stylesheet" href="css/explaain.css">
+
+    <title>Explaain</title>
+</head>
+
+<body ng-controller="ExplaainCtrl">
+    <h1 class="logo">Explaain</h1>
+    <div>
+        <i class="material-icons action-icon edit-mode edit-mode-{{editMode}}" ng-click="toggleEditMode()">build</i>
+        <i class="material-icons action-icon refresh-all" ng-show="editMode" ng-click="updateEverything()">autorenew</i>
+        <i class="material-icons action-icon new-card" ng-show="editMode" ng-click="addNewCard({}, true, true, false)">queue</i>
+        <ul class="cards" ng-keyup="createCardFromSelection($event)">
+            <form ng-submit="$event.preventDefault()">
+                <md-autocomplete md-no-cache="false" md-selected-item="ctrl.selectedItem" md-search-text-change="search()" md-search-text="query" md-selected-item-change="open(card.objectID);" md-items="card in hits" md-item-text="card.title" md-min-length="0" md-floating-label="Search for cards..."
+                style="font-size: 26px; font-weight: 300;">
+                    <md-item-template>
+                        <div class="header-image">
+                            <img class="image face" ng-src="{{ card.image.value || 'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png' }}" />
+                        </div>
+                        <div class="header-text">
+                            <span md-highlight-text="query" md-highlight-flags="^i">{{card.title}}</span>
+                            <h4>{{ card.subtitle }}</h4>
+                        </div>
+                        <!-- class="md-3-line card"> -->
+                        <!--<span md-highlight-text="query" md-highlight-flags="^i">{{card.title}}</span>-->
+                        <!--<img ng-src="{{ card.image.value || 'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png' }}" class="image face" alt="{{card.title}}">-->
+                        <!--<div class="md-list-item-text">-->
+                        <!--    <h3>{{ card.title }}</h3>-->
+                        <!--<h4>{{ card.subtitle}}</h4>-->
+                        <!--<p>{{ card.bio.value | limitTo : 100}}...</p>-->
+                        <!--</div>-->
+                        <!--<md-divider ng-if="!$last"></md-divider>-->
+                    </md-item-template>
+                    <md-not-found>
+                        No matches found for "{{query}}".
+                    </md-not-found>
+                </md-autocomplete>
+            </form>
+            <!--<form name="userForm" style="font-size: 26px; font-weight: 300;">-->
+            <!--    <md-input-container>-->
+            <!--        <label>Search for cards</label>-->
+            <!--        <input ng-keyup="search()" ng-model="query">-->
+            <!--    </md-input-container>-->
+            <!--</form>-->
+            <!--<md-content>-->
+            <!--    <md-list>-->
+            <!--        <md-list-item class="md-3-line card" ng-repeat="card in hits">-->
+            <!--            <img ng-src="{{ card.image.value || 'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png' }}" class="image face" alt="{{card.title}}">-->
+            <!--            <div class="md-list-item-text">-->
+            <!--                <h3>{{ card.title }}</h3>-->
+            <!--                <h4>{{ card.subtitle}}</h4>-->
+            <!--                <p>{{ card.bio.value | limitTo : 100}}...</p>-->
+            <!--            </div>-->
+            <!--            <md-divider ng-if="!$last"></md-divider>-->
+            <!--        </md-list-item>-->
+            <!--    </md-list>-->
+            <!--</md-content>-->
+            <ng-card ng-repeat="card in cards | filter:showingFilter | orderBy: 'atFront' | limitTo: -6"></ng-card>
+        </ul>
+    </div>
+
+    <!-- Angular Dependencies -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0-beta.3/angular-route.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0-beta.3/angular-sanitize.min.js"></script>
+    <!-- Angular Material Dependencies -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-aria.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.4/angular-material.min.js"></script>
+    <!-- Firebase -->
+    <script src="https://cdn.firebase.com/js/client/2.2.4/firebase.js"></script>
+    <!-- AngularFire -->
+    <script src="https://cdn.firebase.com/libs/angularfire/1.1.1/angularfire.min.js"></script>
+    <!-- Angolia -->
+    <script src="//cdn.jsdelivr.net/algoliasearch/3/algoliasearch.angular.min.js"></script>
+    <script src="//cdn.jsdelivr.net/algoliasearch.helper/2/algoliasearch.helper.min.js"></script>
+    <!-- Custom -->
+    <script src="js/explaain.js"></script>
+</body>
+
+</html>
