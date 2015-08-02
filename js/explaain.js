@@ -8,12 +8,12 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
     
     
 
-    var cardsRef = new Firebase("https://explaain-v2-1.firebaseio.com/cards");
-    var keywordsRef = new Firebase("https://explaain-v2-1.firebaseio.com/keywords");
+    var cardsRef = new Firebase(firebaseRoot + "/cards");
+    var keywordsRef = new Firebase(firebaseRoot + "/keywords");
 
     // var algoliasearch = require('algoliasearch');
     var client = algoliasearch('RR6V7DE8C8', 'b96680f1343093d8822d98eb58ef0d6b');
-    var index = client.initIndex('cards');
+    var index = client.initIndex(algoliaIndex);
 
     // create a synchronized array
     $scope.cards = $firebaseArray(cardsRef);
@@ -158,7 +158,7 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
             text: bio,
             type: 'span'
         }];
-        var tempKeywordsRef = new Firebase("https://explaain-v2-1.firebaseio.com/keywords");
+            var tempKeywordsRef = new Firebase(firebaseRoot + "/keywords");
         // tempKeywordsRef.orderByChild("keywordLength").on("child_added", function(snapshot) {
         //     console.log(snapshot.val());
         // });
@@ -220,7 +220,7 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
     };
 
     $scope.deleteCardKeywords = function(key) {
-        var tempKeywordsRef = new Firebase("https://explaain-v2-1.firebaseio.com/keywords");
+        var tempKeywordsRef = new Firebase(firebaseRoot + "/keywords");
         tempKeywordsRef.orderByChild("ref").equalTo(key).on("child_added", function(snapshot) {
             $scope.deleteKeyword(snapshot.key());
         });
@@ -242,10 +242,14 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
             $scope.cards[i].editing = false;
             $scope.cards[i].justCreated = false;
             $scope.cards[i].showing = Math.round(Math.random() * 10 / 19);
-            var bio = $scope.cards[i].bio.value;
-            $scope.cards[i].bio.structure = $scope.structureBio($scope.cards.$keyAt(i), bio, $scope.keywords);
-            $scope.cards[i].assets = {};
-            $scope.cards[i].variations = {};
+            // var bio = $scope.cards[i].bio.value;
+            // $scope.cards[i].bio.structure = $scope.structureBio($scope.cards.$keyAt(i), bio, $scope.keywords);
+            // $scope.cards[i].assets = {};
+            // $scope.cards[i].variations = {};
+            
+            $scope.cards[i].bio = {};
+            $scope.cards[i].bio = $scope.cards[i].assets.bio[0];
+            
             $scope.cards.$save(i).then(function(ref) {
                 successCount++;
                 if (successCount == $scope.cards.length) {
@@ -268,7 +272,7 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
     $scope.updateEverything = function() {
         $scope.updateAllBios();
         $scope.updateAllKeywords();
-        $scope.reImportToAngolia();
+        $scope.reImportToAlgolia();
     };
 
     $scope.updateCard = function(key, card) {
@@ -406,7 +410,7 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
         }
     }
 
-    $scope.reImportToAngolia = function() {
+    $scope.reImportToAlgolia = function() {
         // Get all data from Firebase
         cardsRef.on('value', reindexIndex);
 
@@ -457,7 +461,7 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
 
 
 
-    //Angolia Search
+    //Algolia Search
 
     $scope.hits = [];
     $scope.query = '';
