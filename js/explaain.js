@@ -242,13 +242,8 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
             $scope.cards[i].editing = false;
             $scope.cards[i].justCreated = false;
             $scope.cards[i].showing = Math.round(Math.random() * 10 / 19);
-            // var bio = $scope.cards[i].bio.value;
-            // $scope.cards[i].bio.structure = $scope.structureBio($scope.cards.$keyAt(i), bio, $scope.keywords);
-            // $scope.cards[i].assets = {};
-            // $scope.cards[i].variations = {};
-            
-            $scope.cards[i].bio = {};
-            $scope.cards[i].bio = $scope.cards[i].assets.bio[0];
+            var bio = $scope.cards[i].bio.value;
+            $scope.cards[i].bio.structure = $scope.structureBio($scope.cards.$keyAt(i), bio, $scope.keywords);
             
             $scope.cards.$save(i).then(function(ref) {
                 successCount++;
