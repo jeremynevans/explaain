@@ -158,7 +158,7 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
             text: bio,
             type: 'span'
         }];
-            var tempKeywordsRef = new Firebase(firebaseRoot + "/keywords");
+        var tempKeywordsRef = new Firebase(firebaseRoot + "/keywords");
         // tempKeywordsRef.orderByChild("keywordLength").on("child_added", function(snapshot) {
         //     console.log(snapshot.val());
         // });
