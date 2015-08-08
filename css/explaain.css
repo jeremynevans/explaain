@@ -68,6 +68,10 @@ body {
     background-size: 50px 50px;
 }
 
+md-input-container.md-default-theme .md-input {
+    font-family: 'Lato', sans-serif;
+}
+
 .material-icons.action-icon {
     opacity: 0.4;
     outline: 0;
@@ -298,6 +302,7 @@ li.card {
 .card md-input-container {
     padding: 8px 0;
 }
+
 
 .md-autocomplete-suggestions li {
     line-height: inherit;
