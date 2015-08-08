@@ -32,40 +32,12 @@
                             <span md-highlight-text="query" md-highlight-flags="^i">{{card.title}}</span>
                             <h4>{{ card.subtitle }}</h4>
                         </div>
-                        <!-- class="md-3-line card"> -->
-                        <!--<span md-highlight-text="query" md-highlight-flags="^i">{{card.title}}</span>-->
-                        <!--<img ng-src="{{ card.image.value || 'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png' }}" class="image face" alt="{{card.title}}">-->
-                        <!--<div class="md-list-item-text">-->
-                        <!--    <h3>{{ card.title }}</h3>-->
-                        <!--<h4>{{ card.subtitle}}</h4>-->
-                        <!--<p>{{ card.bio.value | limitTo : 100}}...</p>-->
-                        <!--</div>-->
-                        <!--<md-divider ng-if="!$last"></md-divider>-->
                     </md-item-template>
                     <md-not-found>
                         No matches found for "{{query}}".
                     </md-not-found>
                 </md-autocomplete>
             </form>
-            <!--<form name="userForm" style="font-size: 26px; font-weight: 300;">-->
-            <!--    <md-input-container>-->
-            <!--        <label>Search for cards</label>-->
-            <!--        <input ng-keyup="search()" ng-model="query">-->
-            <!--    </md-input-container>-->
-            <!--</form>-->
-            <!--<md-content>-->
-            <!--    <md-list>-->
-            <!--        <md-list-item class="md-3-line card" ng-repeat="card in hits">-->
-            <!--            <img ng-src="{{ card.image.value || 'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png' }}" class="image face" alt="{{card.title}}">-->
-            <!--            <div class="md-list-item-text">-->
-            <!--                <h3>{{ card.title }}</h3>-->
-            <!--                <h4>{{ card.subtitle}}</h4>-->
-            <!--                <p>{{ card.bio.value | limitTo : 100}}...</p>-->
-            <!--            </div>-->
-            <!--            <md-divider ng-if="!$last"></md-divider>-->
-            <!--        </md-list-item>-->
-            <!--    </md-list>-->
-            <!--</md-content>-->
             <div id="spinner" class="spinner">
                 <div class="rect1"></div>
                 <div class="rect2"></div>
@@ -74,7 +46,6 @@
                 <div class="rect5"></div>
             </div>
             <ng-card ng-repeat="card in localCards | filter:showingFilter | orderBy: 'atFront' | limitTo: -6"></ng-card>
-            <!-- need to put the following back in: | filter:showingFilter -->
         </ul>
     </div>
 
