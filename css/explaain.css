@@ -108,12 +108,13 @@ md-input-container.md-default-theme .md-input {
 
 h1.logo {
     text-align: center;
-    font-size: 5em;
+    font-size: 6em;
     margin: 0;
-    padding: 1em;
+    padding: 1em 0 0.6em 0;
     text-transform: lowercase;
     font-weight: 800;
     color: #ff6e73;
+    letter-spacing: -3px;
 }
 
 ul.cards {
