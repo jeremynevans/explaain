@@ -2,7 +2,7 @@
     <i class="material-icons action-icon close" ng-click="close(card)">close</i>
     <i class="material-icons action-icon edit" ng-show="editMode" ng-click="toggleEditCard(card)">create</i>
     <i class="material-icons action-icon delete" ng-show="editMode" ng-click="deleteCard(card.$id, card)">delete</i>
-    <div class="display-fields" ng-hide="card.editing">
+    <div class="display-fields" ng-hide="localCardRefs[card.$id].editing">
         <div class="header">
             <div class="header-image">
                 <img class="image" ng-src="{{ card.image.value || 'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png' }}" />
@@ -14,7 +14,7 @@
         </div>
         <ng-bio></ng-bio>
     </div>
-    <div class="editing-fields" ng-show="card.editing">
+    <div class="editing-fields" ng-show="localCardRefs[card.$id].editing">
         <form name="editCardForm">
             <div layout layout-sm="column">
                 <md-input-container flex="50">

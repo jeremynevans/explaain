@@ -1,54 +1,82 @@
+function clog(myText) {
+    // console.log(myText);
+};
+
+
 var app = angular.module('app', ['firebase', 'ngMaterial', 'algoliasearch', 'ngRoute', 'ngSanitize']).
-controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $mdSidenav, algolia) {
-    
-    $scope.clog = function(myText) {
-        console.log(myText);
-    };
-    
-    
-    
+controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseObject, $http, $mdToast, $mdSidenav, algolia) {
 
-    var cardsRef = new Firebase(firebaseRoot + "/cards");
-    var keywordsRef = new Firebase(firebaseRoot + "/keywords");
 
-    // var algoliasearch = require('algoliasearch');
+
+
+
+    var singleCardRef = new Firebase(firebaseRoot + "/cards/-Jtu1T1dCkU7cgdVh-I9");
+
+    // var algoliasearch = require('algoliasearch'); //For some reason this is here but should remain commented as it doesn't seem to work!
     var client = algoliasearch('RR6V7DE8C8', 'b96680f1343093d8822d98eb58ef0d6b');
     var index = client.initIndex(algoliaIndex);
 
-    // create a synchronized array
+    singleCardRef.once("value", function(snap) {
+        clog("initial data loaded!");
+        clog($firebaseObject(singleCardRef));
+        var element = document.getElementById("spinner");
+        element.parentNode.removeChild(element);
+        $scope.localCards[0] = $firebaseObject(singleCardRef);
+        $scope.localCardRefs[$scope.localCards[0].$id] = {};
+        $scope.localCardRefs[$scope.localCards[0].$id].ref = 0;
+        $scope.localCardRefs[$scope.localCards[0].$id].showing = true;
+        $scope.localCardRefs[$scope.localCards[0].$id].atFront = true;
+        $scope.localCardRefs[$scope.localCards[0].$id].editing = false;
+    });
+    $scope.localCards = [];
+    //Remember the positions of objects in the $scope.cards array don't match up to the positions of objects in the $scope.localCards array
+    $scope.localCardRefs = {};
+
+    var cardsRef = new Firebase(firebaseRoot + "/cards");
     $scope.cards = $firebaseArray(cardsRef);
+    var keywordsRef = new Firebase(firebaseRoot + "/keywords");
     $scope.keywords = $firebaseArray(keywordsRef);
-    $scope.cardStack = [];
+    
     $scope.frontCard;
     $scope.editMode = false;
 
-    $scope.cardProp = function(card, property) { //$eval not working
-        var string = "card.assets." + property + "[card.variations[0]." + property + "].value";
-        var value = $scope.$eval(string);
-        return value;
+    $scope.showingFilter = function(card) {
+        var localCardRef = $scope.localCardRefs[card.$id];
+        return localCardRef.showing;
     };
 
-    $scope.showingFilter = function(card) {
-        return card.showing;
+    $scope.importCard = function(key) {
+        var tempCardsRef = new Firebase(firebaseRoot + "/cards/" + key);
+        $scope.localCards.push($firebaseObject(tempCardsRef));
+        $scope.localCardRefs[key] = {};
+        $scope.localCardRefs[key].ref =  $scope.localCards.length - 1;
+        return $scope.localCardRefs[key];
+    };
+
+    $scope.reImportCard = function(key) {
+        var tempCardsRef = new Firebase(firebaseRoot + "/cards/" + key);
+        var card = $scope.localCards[$scope.localCardRefs[key]];
+        card = $firebaseObject(tempCardsRef);
     };
 
     $scope.open = function(key) {
-        if ($scope.cards.$getRecord(key) !== null) {
-            $scope.cards.$getRecord(key).showing = true;
-            for (var i = 0; i < $scope.cards.length; i++) {
-                $scope.cards[i].atFront = false;
-            }
-            $scope.cards.$getRecord(key).atFront = true;
+        var localCardRef = $scope.localCardRefs[key];
+        if (localCardRef === undefined) {
+            localCardRef = $scope.importCard(key);
         }
+        var card = $scope.localCards[localCardRef.ref];
+        for (var i = 0; i < $scope.localCards.length; i++) {
+            $scope.localCards[i].atFront = false;
+        }
+        localCardRef.showing = true;
+        localCardRef.atFront = true;
+        localCardRef.editing = false;
     };
 
     $scope.close = function(card) {
-        card.showing = false;
-        card.atFront = false;
-    };
-
-    $scope.setUpCardStack = function() {
-        // $scope.cardStack = 
+        var localCardRef = $scope.localCardRefs[card.$id];
+        localCardRef.showing = false;
+        localCardRef.atFront = false;
     };
 
     $scope.toggleEditMode = function() {
@@ -62,11 +90,12 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
     };
 
     $scope.toggleEditCard = function(card) {
-        if (card.editing === undefined) {
-            card.editing = true;
-        }
-        else {
-            card.editing = !card.editing;
+        var localCardRef = $scope.localCardRefs[card.$id];
+        
+        if (localCardRef.editing === undefined) {
+            localCardRef.editing = true;
+        } else {
+            localCardRef.editing = !localCardRef.editing;
         }
     };
 
@@ -80,14 +109,12 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
         }
         card.bio.structure = [];
         card.bio.structure = $scope.structureBio(-1, card.bio.value, $scope.keywords);
-        card.showing = true;
-        card.atFront = false;
-        // card.editing = editing;
+        
         card.id = card.title.replace(" ", "-").toLowerCase();
 
         $scope.cards.$add(card).then(function(ref) {
             var key = ref.key();
-            $scope.cards.$indexFor(key); // returns location in the array
+            var newCard = $scope.cards[$scope.cards.$indexFor(key)]; // returns location in the array
             if (card.title.length > 0) {
                 $scope.showSimpleToast("Success! You've added a new card called " + card.title);
             }
@@ -97,14 +124,21 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
             if (open) {
                 $scope.open(key);
             }
-            $scope.cards.$getRecord(key).editing = justCreated;
+        
+            var localCardRef = $scope.localCardRefs[newCard.$id];
+            localCardRef.showing = true;
+            localCardRef.atFront = false;
+            // localCardRef.editing = editing;
+            
             var newkeyword = {
                 keyword: card.title,
                 ref: key
             };
             $scope.addNewKeyword(newkeyword, false);
             if (autoPopulate == 'wikipedia') {
-                //Nothing here yet
+                localCardRef.editing = false;
+            } else {
+                localCardRef.editing = true;
             }
         });
     };
@@ -124,7 +158,7 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
                 }
                 card.image.value = data.query.pages[0].thumbnail.source;
                 if (inScope) {
-                    $scope.card = card;
+                    $scope.card = card; //Not sure how this works or whether it's necessary
                 }
                 else {
                     return card;
@@ -227,16 +261,20 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
     };
 
     $scope.updateBios = function(keyword) {
+        //Needs updating now we have localCards?
         for (var i = 0; i < $scope.cards.length; i++) {
             var bio = $scope.cards[i].bio.value;
             if (bio.indexOf(keyword.keyword) != -1) {
                 $scope.cards[i].bio.structure = $scope.structureBio($scope.cards.$keyAt(i), bio, $scope.keywords);
-                $scope.cards.$save(i).then(function(ref) {});
+                $scope.cards.$save(i).then(function(ref) {
+                    $scope.reImportCard($scope.cards[i].$id);
+                });
             }
         }
     };
 
     $scope.updateAllBios = function() {
+        //Needs updating now we have localCards?
         var successCount = 0;
         for (var i = 0; i < $scope.cards.length; i++) {
             $scope.cards[i].editing = false;
@@ -244,9 +282,10 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
             $scope.cards[i].showing = Math.round(Math.random() * 10 / 19);
             var bio = $scope.cards[i].bio.value;
             $scope.cards[i].bio.structure = $scope.structureBio($scope.cards.$keyAt(i), bio, $scope.keywords);
-            
+
             $scope.cards.$save(i).then(function(ref) {
                 successCount++;
+                $scope.reImportCard($scope.cards[i].$id);
                 if (successCount == $scope.cards.length) {
                     $scope.showSimpleToast("Success! You've updated all cards.");
                 }
@@ -271,21 +310,24 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
     };
 
     $scope.updateCard = function(key, card) {
+        var localCardRef = $scope.localCardRefs[key];
         var index = $scope.cards.$indexFor(key);
         $scope.cards[index] = card;
         card.bio.structure = $scope.structureBio(-1, card.bio.value, $scope.keywords);
         $scope.cards.$save(card).then(function(ref) {
-            card.editing = false;
+            localCardRef.editing = false;
             $scope.showSimpleToast("Success! You've updated the card " + card.title);
         });
     };
 
     $scope.deleteCard = function(key, card) {
+        var title = card.title;
         var index = $scope.cards.$indexFor(key);
         $scope.cards[index] = card;
+        $scope.localCards.splice($scope.localCardRefs[key].ref, 1);
         $scope.cards.$remove(card).then(function(ref) {
             $scope.deleteCardKeywords(key);
-            $scope.showSimpleToast("Success! You've deleted the card " + card.title);
+            $scope.showSimpleToast("Success! You've deleted the card " + title);
         });
     };
 
@@ -355,15 +397,15 @@ controller('ExplaainCtrl', function($scope, $firebaseArray, $http, $mdToast, $md
         }
     }
 
-    $scope.editingCard = function(card) {
-        if (card.justCreated === true) {
-            card.justCreated = false;
-            return true;
-        }
-        else {
-            return false;
-        }
-    };
+    // $scope.editingCard = function(card) {
+    //     if (card.justCreated === true) {
+    //         card.justCreated = false;
+    //         return true;
+    //     }
+    //     else {
+    //         return false;
+    //     }
+    // };
 
 
 

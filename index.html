@@ -9,6 +9,8 @@
     <meta name="viewport" content="initial-scale=1" />
     <link rel="stylesheet" href="css/explaain.css">
 
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+    
     <title>Explaain</title>
 </head>
 
@@ -64,12 +66,19 @@
             <!--        </md-list-item>-->
             <!--    </md-list>-->
             <!--</md-content>-->
-            <ng-card ng-repeat="card in cards | filter:showingFilter | orderBy: 'atFront' | limitTo: -6"></ng-card>
+            <div id="spinner" class="spinner">
+                <div class="rect1"></div>
+                <div class="rect2"></div>
+                <div class="rect3"></div>
+                <div class="rect4"></div>
+                <div class="rect5"></div>
+            </div>
+            <ng-card ng-repeat="card in localCards | filter:showingFilter | orderBy: 'atFront' | limitTo: -6"></ng-card>
+            <!-- need to put the following back in: | filter:showingFilter -->
         </ul>
     </div>
 
     <!-- Angular Dependencies -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0-beta.3/angular-route.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0-beta.3/angular-sanitize.min.js"></script>
     <!-- Angular Material Dependencies -->
