@@ -38,8 +38,8 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.keywords = $firebaseArray(keywordsRef);
     
     $scope.orderedKeywords = [];
-    var tempKeywordsRef = new Firebase(firebaseRoot + "/keywords");
-    tempKeywordsRef.orderByChild("keywordLength").on("child_added", function(snapshot) {
+    var tempScopeKeywordsRef = new Firebase(firebaseRoot + "/keywords");
+    tempScopeKeywordsRef.orderByChild("keywordLength").on("child_added", function(snapshot) {
         $scope.orderedKeywords.push(snapshot.val());
     });
 
@@ -56,13 +56,24 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         $scope.localCards.push($firebaseObject(tempCardsRef));
         $scope.localCardRefs[key] = {};
         $scope.localCardRefs[key].ref = $scope.localCards.length - 1;
+        $scope.localCardRefs[key].keywords = $scope.getCardKeywords(key);
+        clog($scope.localCardRefs);
         return $scope.localCardRefs[key];
     };
 
     $scope.reImportCard = function(key) {
         var tempCardsRef = new Firebase(firebaseRoot + "/cards/" + key);
         var card = $scope.localCards[$scope.localCardRefs[key]];
+        $scope.localCardRefs[key].keywords = $scope.getCardKeywords(key);
         card = $firebaseObject(tempCardsRef);
+    };
+    
+    $scope.getCardKeywords = function(key) {
+        var cardKeywords = [];
+        tempScopeKeywordsRef.orderByChild("ref").equalTo(key).on("child_added", function(snapshot) {
+            cardKeywords.push(snapshot.val());
+        });
+        return cardKeywords;
     };
 
     $scope.open = function(key) {

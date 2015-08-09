@@ -43,6 +43,13 @@
                 </md-input-container>
             </div>
             <div layout layout-sm="column">
+                <md-input-container flex> {{cardsRef[card.$id].keywords[0]}}
+                    <md-chips ng-model="cardsRef[card.$id].keywords" placeholder="Enter a new keyword" delete-button-label="Remove Keyword" delete-hint="Press delete to remove keyword" secondary-placeholder="+Keyword">
+                        <md-chip-template> {{$chip.keyword}} </md-chip-template>
+                    </md-chips>
+                </md-input-container>
+            </div>
+            <div layout layout-sm="column">
                 <md-input-container>
                     <md-button class="md-raised md-primary" ng-click="updateCard(card.$id, card)">Update</md-button>
                 </md-input-container>
