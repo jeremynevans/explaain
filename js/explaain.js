@@ -37,10 +37,10 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     var keywordsRef = new Firebase(firebaseRoot + "/keywords");
     $scope.keywords = $firebaseArray(keywordsRef);
     
-
+    $scope.orderedKeywords = [];
     var tempKeywordsRef = new Firebase(firebaseRoot + "/keywords");
     tempKeywordsRef.orderByChild("keywordLength").on("child_added", function(snapshot) {
-        console.log(snapshot.val());
+        $scope.orderedKeywords.push(snapshot.val());
     });
 
     $scope.frontCard;
@@ -115,7 +115,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             card.bio.value = "";
         }
         card.bio.structure = [];
-        card.bio.structure = $scope.structureBio(-1, card.bio.value, $scope.keywords);
+        card.bio.structure = $scope.structureBio(-1, card.bio.value, $scope.orderedKeywords);
 
         card.id = card.title.replace(" ", "-").toLowerCase();
 
@@ -287,7 +287,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             $scope.cards[i].justCreated = false;
             $scope.cards[i].showing = Math.round(Math.random() * 10 / 19);
             var bio = $scope.cards[i].bio.value;
-            $scope.cards[i].bio.structure = $scope.structureBio($scope.cards.$keyAt(i), bio, $scope.keywords);
+            $scope.cards[i].bio.structure = $scope.structureBio($scope.cards.$keyAt(i), bio, $scope.orderedKeywords);
 
             $scope.cards.$save(i).then(function(ref) {
                 successCount++;
@@ -319,7 +319,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         var localCardRef = $scope.localCardRefs[key];
         var index = $scope.cards.$indexFor(key);
         $scope.cards[index] = card;
-        card.bio.structure = $scope.structureBio(-1, card.bio.value, $scope.keywords);
+        card.bio.structure = $scope.structureBio(-1, card.bio.value, $scope.orderedKeywords);
         $scope.cards.$save(card).then(function(ref) {
             localCardRef.editing = false;
             $scope.showSimpleToast("Success! You've updated the card " + card.title);
