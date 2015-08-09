@@ -4,7 +4,7 @@
 <head>
     <link rel="stylesheet" href="https://necolas.github.io/normalize.css/3.0.2/normalize.css">
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.4/angular-material.min.css">
-    <link href='//fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <meta name="viewport" content="initial-scale=1" />
     <link rel="stylesheet" href="css/explaain.css">
@@ -22,7 +22,7 @@
         <i class="material-icons action-icon new-card" ng-show="editMode" ng-click="addNewCard({}, true, true, false)">queue</i>
         <ul class="cards" ng-keyup="createCardFromSelection($event)">
             <form ng-submit="$event.preventDefault()">
-                <md-autocomplete md-no-cache="false" md-selected-item="ctrl.selectedItem" md-search-text-change="search()" md-search-text="query" md-selected-item-change="open(card.objectID);" md-items="card in hits" md-item-text="card.title" md-min-length="0" md-floating-label="Search for cards..."
+                <md-autocomplete md-no-cache="true" md-min-length="1" md-autoselect="true" md-selected-item="ctrl.selectedItem" md-search-text-change="search()" md-search-text="query" md-selected-item-change="open(card.objectID);" md-items="card in hits" md-item-text="card.title" md-floating-label="Search for cards..."
                 style="font-size: 26px; font-weight: 300;">
                     <md-item-template>
                         <div class="header-image">

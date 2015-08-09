@@ -1,5 +1,5 @@
 function clog(myText) {
-    // console.log(myText);
+    console.log(myText);
 };
 
 
@@ -37,6 +37,12 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     var keywordsRef = new Firebase(firebaseRoot + "/keywords");
     $scope.keywords = $firebaseArray(keywordsRef);
     
+
+    var tempKeywordsRef = new Firebase(firebaseRoot + "/keywords");
+    tempKeywordsRef.orderByChild("keywordLength").on("child_added", function(snapshot) {
+        console.log(snapshot.val());
+    });
+
     $scope.frontCard;
     $scope.editMode = false;
 
@@ -49,7 +55,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         var tempCardsRef = new Firebase(firebaseRoot + "/cards/" + key);
         $scope.localCards.push($firebaseObject(tempCardsRef));
         $scope.localCardRefs[key] = {};
-        $scope.localCardRefs[key].ref =  $scope.localCards.length - 1;
+        $scope.localCardRefs[key].ref = $scope.localCards.length - 1;
         return $scope.localCardRefs[key];
     };
 
@@ -91,10 +97,11 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
     $scope.toggleEditCard = function(card) {
         var localCardRef = $scope.localCardRefs[card.$id];
-        
+
         if (localCardRef.editing === undefined) {
             localCardRef.editing = true;
-        } else {
+        }
+        else {
             localCardRef.editing = !localCardRef.editing;
         }
     };
@@ -109,7 +116,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         }
         card.bio.structure = [];
         card.bio.structure = $scope.structureBio(-1, card.bio.value, $scope.keywords);
-        
+
         card.id = card.title.replace(" ", "-").toLowerCase();
 
         $scope.cards.$add(card).then(function(ref) {
@@ -124,12 +131,12 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             if (open) {
                 $scope.open(key);
             }
-        
+
             var localCardRef = $scope.localCardRefs[newCard.$id];
             localCardRef.showing = true;
             localCardRef.atFront = false;
             // localCardRef.editing = editing;
-            
+
             var newkeyword = {
                 keyword: card.title,
                 ref: key
@@ -137,7 +144,8 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             $scope.addNewKeyword(newkeyword, false);
             if (autoPopulate == 'wikipedia') {
                 localCardRef.editing = false;
-            } else {
+            }
+            else {
                 localCardRef.editing = true;
             }
         });
@@ -192,10 +200,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             text: bio,
             type: 'span'
         }];
-        var tempKeywordsRef = new Firebase(firebaseRoot + "/keywords");
-        // tempKeywordsRef.orderByChild("keywordLength").on("child_added", function(snapshot) {
-        //     console.log(snapshot.val());
-        // });
+    
         for (var j = 0; j < keywords.length; j++) {
             if (id == -1 || keywords[j].ref != id) {
                 for (var k = 0; k < structuredBio.length;) {
@@ -234,6 +239,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         if (newkeyword.keyword.length < 2) {
             return;
         }
+        newkeyword.keywordLength = newkeyword.keyword.length * -1;
         $scope.keywords.$add(newkeyword).then(function(ref) {
             var id = ref.key();
             $scope.keywords.$indexFor(id); // returns location in the array
@@ -261,7 +267,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     };
 
     $scope.updateBios = function(keyword) {
-        //Needs updating now we have localCards?
+        //Needs updating now we have localCards!
         for (var i = 0; i < $scope.cards.length; i++) {
             var bio = $scope.cards[i].bio.value;
             if (bio.indexOf(keyword.keyword) != -1) {
@@ -274,7 +280,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     };
 
     $scope.updateAllBios = function() {
-        //Needs updating now we have localCards?
+        //Needs updating now we have localCards!
         var successCount = 0;
         for (var i = 0; i < $scope.cards.length; i++) {
             $scope.cards[i].editing = false;
@@ -295,7 +301,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
     $scope.updateAllKeywords = function() {
         for (var i = 0; i < $scope.keywords.length; i++) {
-            // $scope.keywords[i].keywordLength = $scope.keywords[i].length;
+            $scope.keywords[i].keywordLength = $scope.keywords[i].keyword.length * -1;
             $scope.keywords.$save(i);
             if ($scope.cards.$getRecord($scope.keywords[i].ref) === null) {
                 $scope.keywords.$remove(i);
@@ -379,6 +385,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     }
 
     $scope.createCardFromSelection = function($event, autoPopulate) {
+        clog('creating card');
         var selectedText = getSelectedText();
         if (selectedText) {
             var newCard = {
@@ -409,43 +416,6 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
 
 
-
-
-    $scope.importToAlgolia = function() {
-        // Get all data from Firebase
-        cardsRef.on('value', initIndex);
-
-        function initIndex(dataSnapshot) {
-            // Array of data to index
-            var objectsToIndex = [];
-
-            // Get all objects
-            var values = dataSnapshot.val();
-
-            // Process each Firebase ojbect
-            for (var key in values) {
-                if (values.hasOwnProperty(key)) {
-                    // Get current Firebase object
-                    var firebaseObject = values[key];
-
-                    // Specify Algolia's objectID using the Firebase object key
-                    firebaseObject.objectID = key;
-
-                    // Add object for indexing
-                    objectsToIndex.push(firebaseObject);
-                }
-            }
-
-            // Add or update new objects
-            index.saveObjects(objectsToIndex, function(err, content) {
-                if (err) {
-                    throw err;
-                }
-
-                console.log('Firebase<>Algolia import done');
-            });
-        }
-    }
 
     $scope.reImportToAlgolia = function() {
         // Get all data from Firebase
@@ -495,6 +465,49 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     }
 
 
+    // Listen for changes to Firebase data
+    cardsRef.on('child_added', addOrUpdateObject);
+    cardsRef.on('child_changed', addOrUpdateObject);
+
+    function addOrUpdateObject(dataSnapshot) {
+        clog('add');
+        // Get Firebase object
+        var firebaseObject = dataSnapshot.val();
+
+        // Specify Algolia's objectID using the Firebase object key
+        firebaseObject.objectID = dataSnapshot.key();
+
+        // Add or update object
+        index.saveObject(firebaseObject, function(err, content) {
+            if (err) {
+                throw err;
+            }
+
+            console.log('Firebase<>Algolia object saved');
+        });
+    }
+
+
+
+    // Listen for changes to Firebase data
+    cardsRef.on('child_removed', removeIndex);
+
+    function removeIndex(dataSnapshot) {
+        clog('remove');
+        // Get Algolia's objectID from the Firebase object key
+        var objectID = dataSnapshot.key();
+
+        // Remove the object from Algolia
+        index.deleteObject(objectID, function(err, content) {
+            if (err) {
+                throw err;
+            }
+
+            console.log('Firebase<>Algolia object deleted');
+        });
+    }
+
+
 
 
 
@@ -505,10 +518,11 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.initRun = true;
     $scope.search = function() {
         index.search($scope.query, {
-                hitsPerPage: 10
+                hitsPerPage: 20
             },
             function(err, content) {
                 if (err || $scope.query != content.query) {
+                    clog('error');
                     return;
                 }
                 $scope.hits = content.hits;
