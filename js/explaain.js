@@ -10,24 +10,24 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
 
 
-    var singleCardRef = new Firebase(firebaseRoot + "/cards/-Jtu1T1dCkU7cgdVh-I9");
+    // var singleCardRef = new Firebase(firebaseRoot + "/cards/-Jtu1T1dCkU7cgdVh-I9");
 
     // var algoliasearch = require('algoliasearch'); //For some reason this is here but should remain commented as it doesn't seem to work!
     var client = algoliasearch('RR6V7DE8C8', 'b96680f1343093d8822d98eb58ef0d6b');
     var index = client.initIndex(algoliaIndex);
 
-    singleCardRef.once("value", function(snap) {
-        clog("initial data loaded!");
-        clog($firebaseObject(singleCardRef));
-        var element = document.getElementById("spinner");
-        element.parentNode.removeChild(element);
-        $scope.localCards[0] = $firebaseObject(singleCardRef);
-        $scope.localCardRefs[$scope.localCards[0].$id] = {};
-        $scope.localCardRefs[$scope.localCards[0].$id].ref = 0;
-        $scope.localCardRefs[$scope.localCards[0].$id].showing = true;
-        $scope.localCardRefs[$scope.localCards[0].$id].atFront = true;
-        $scope.localCardRefs[$scope.localCards[0].$id].editing = false;
-    });
+    // singleCardRef.once("value", function(snap) {
+    //     clog("initial data loaded!");
+    //     clog($firebaseObject(singleCardRef));
+    //     var element = document.getElementById("spinner");
+    //     element.parentNode.removeChild(element);
+    //     // $scope.localCards[0] = $firebaseObject(singleCardRef);
+    //     // $scope.localCardRefs[$scope.localCards[0].$id] = {};
+    //     // $scope.localCardRefs[$scope.localCards[0].$id].ref = 0;
+    //     // $scope.localCardRefs[$scope.localCards[0].$id].showing = true;
+    //     // $scope.localCardRefs[$scope.localCards[0].$id].atFront = true;
+    //     // $scope.localCardRefs[$scope.localCards[0].$id].editing = false;
+    // });
     $scope.localCards = [];
     //Remember the positions of objects in the $scope.cards array don't match up to the positions of objects in the $scope.localCards array
     $scope.localCardRefs = {};
@@ -36,7 +36,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.cards = $firebaseArray(cardsRef);
     var keywordsRef = new Firebase(firebaseRoot + "/keywords");
     $scope.keywords = $firebaseArray(keywordsRef);
-    
+
     $scope.orderedKeywords = [];
     var tempScopeKeywordsRef = new Firebase(firebaseRoot + "/keywords");
     tempScopeKeywordsRef.orderByChild("keywordLength").on("child_added", function(snapshot) {
@@ -44,16 +44,23 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     });
 
     $scope.frontCard;
-    $scope.editMode = false;
+    $scope.editMode = true;
 
     $scope.showingFilter = function(card) {
         var localCardRef = $scope.localCardRefs[card.$id];
         return localCardRef.showing;
     };
 
-    $scope.importCard = function(key) {
+    $scope.importCard = function(key, firstCard) {
         var tempCardsRef = new Firebase(firebaseRoot + "/cards/" + key);
-        $scope.localCards.push($firebaseObject(tempCardsRef));
+        var newCard = $firebaseObject(tempCardsRef);
+        if (firstCard) {
+            newCard.$loaded().then(function(data) {
+                var element = document.getElementById("spinner");
+                element.parentNode.removeChild(element);
+            });
+        }
+        $scope.localCards.push(newCard);
         $scope.localCardRefs[key] = {};
         $scope.localCardRefs[key].ref = $scope.localCards.length - 1;
         $scope.localCardRefs[key].keywords = $scope.getCardKeywords(key);
@@ -64,22 +71,25 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.reImportCard = function(key) {
         var tempCardsRef = new Firebase(firebaseRoot + "/cards/" + key);
         var card = $scope.localCards[$scope.localCardRefs[key]];
-        $scope.localCardRefs[key].keywords = $scope.getCardKeywords(key);
+        // $scope.localCardRefs[key].keywords = $scope.getCardKeywords(key);
         card = $firebaseObject(tempCardsRef);
     };
-    
+
     $scope.getCardKeywords = function(key) {
         var cardKeywords = [];
         tempScopeKeywordsRef.orderByChild("ref").equalTo(key).on("child_added", function(snapshot) {
-            cardKeywords.push(snapshot.val());
+            var keyword = snapshot.val();
+            keyword.$id = snapshot.key();
+            clog(keyword);
+            cardKeywords.push(keyword);
         });
         return cardKeywords;
     };
 
-    $scope.open = function(key) {
+    $scope.open = function(key, firstCard) {
         var localCardRef = $scope.localCardRefs[key];
         if (localCardRef === undefined) {
-            localCardRef = $scope.importCard(key);
+            localCardRef = $scope.importCard(key, firstCard);
         }
         var card = $scope.localCards[localCardRef.ref];
         for (var i = 0; i < $scope.localCards.length; i++) {
@@ -88,6 +98,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         localCardRef.showing = true;
         localCardRef.atFront = true;
         localCardRef.editing = false;
+        return card;
     };
 
     $scope.close = function(card) {
@@ -211,7 +222,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             text: bio,
             type: 'span'
         }];
-    
+
         for (var j = 0; j < keywords.length; j++) {
             if (id == -1 || keywords[j].ref != id) {
                 for (var k = 0; k < structuredBio.length;) {
@@ -246,6 +257,15 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         return structuredBio;
     };
 
+    $scope.appendKeyword = function(keyword, card) {
+        var newkeyword = {
+            keyword: keyword,
+            ref: card.$id
+        };
+        $scope.addNewKeyword(newkeyword, true);
+        return newkeyword;
+    }
+
     $scope.addNewKeyword = function(newkeyword, showToast) {
         if (newkeyword.keyword.length < 2) {
             return;
@@ -262,6 +282,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     };
 
     $scope.deleteKeyword = function(key) {
+        console.log(key);
         var keywordToDelete = $scope.keywords.$getRecord(key);
         var tempKeyword = keywordToDelete;
         $scope.keywords.$remove(keywordToDelete).then(function(ref) {
@@ -545,6 +566,13 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     };
     $scope.search();
 
+
+
+
+
+    //Open first card
+    var tempCard1 = $scope.open('-Jtu1T1dCkU7cgdVh-I9', true);
+    tempCard1.editing = false;
 
 });
 
