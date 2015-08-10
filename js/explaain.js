@@ -37,14 +37,9 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     var keywordsRef = new Firebase(firebaseRoot + "/keywords");
     $scope.keywords = $firebaseArray(keywordsRef);
 
-    $scope.orderedKeywords = [];
-    var tempScopeKeywordsRef = new Firebase(firebaseRoot + "/keywords");
-    tempScopeKeywordsRef.orderByChild("keywordLength").on("child_added", function(snapshot) {
-        $scope.orderedKeywords.push(snapshot.val());
-    });
 
     $scope.frontCard;
-    $scope.editMode = true;
+    $scope.editMode = false;
 
     $scope.showingFilter = function(card) {
         var localCardRef = $scope.localCardRefs[card.$id];
@@ -73,6 +68,16 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         var card = $scope.localCards[$scope.localCardRefs[key]];
         // $scope.localCardRefs[key].keywords = $scope.getCardKeywords(key);
         card = $firebaseObject(tempCardsRef);
+    };
+
+    $scope.cardImported = function(key) {
+        if ($scope.localCardRefs[key].ref !== undefined) {
+            console.log('The card ' + key + ' is imported');
+            return true;
+        }
+        else {
+            return false;
+        }
     };
 
     $scope.getCardKeywords = function(key) {
@@ -263,7 +268,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             ref: card.$id
         };
         $scope.addNewKeyword(newkeyword, true);
-        $scope.localCardRefs[card.$id].keywords[$scope.localCardRefs[card.$id].keywords.length-1].pop(); //This shouldn't be necessary, it's because two new ones are created. Not even sure which one gets deleted!
+        $scope.localCardRefs[card.$id].keywords[$scope.localCardRefs[card.$id].keywords.length - 1].pop(); //This shouldn't be necessary, it's because two new ones are created. Not even sure which one gets deleted!
         return newkeyword;
     }
 
@@ -299,6 +304,13 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         });
     };
 
+    $scope.reorderKeywords = function() {
+        $scope.orderedKeywords = [];
+        tempScopeKeywordsRef.orderByChild("keywordLength").on("child_added", function(snapshot) {
+            $scope.orderedKeywords.push(snapshot.val());
+        });
+    };
+
     $scope.updateBios = function(keyword) {
         //Needs updating now we have localCards!
         for (var i = 0; i < $scope.cards.length; i++) {
@@ -315,17 +327,20 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.updateAllBios = function() {
         //Needs updating now we have localCards!
         var successCount = 0;
-        for (var i = 0; i < $scope.cards.length; i++) {
-            $scope.cards[i].editing = false;
-            $scope.cards[i].justCreated = false;
-            $scope.cards[i].showing = Math.round(Math.random() * 10 / 19);
-            var bio = $scope.cards[i].bio.value;
-            $scope.cards[i].bio.structure = $scope.structureBio($scope.cards.$keyAt(i), bio, $scope.orderedKeywords);
+        $scope.reorderKeywords(); //Nothing there yet
+        var allCards = $firebaseArray(cardsRef);
+        for (var i = 0; i < allCards.length; i++) {
+            allCards[i].editing = false;
+            allCards[i].justCreated = false;
+            var bio = allCards[i].bio.value;
+            allCards[i].bio.structure = $scope.structureBio(allCards.$keyAt(i), bio, $scope.orderedKeywords);
 
-            $scope.cards.$save(i).then(function(ref) {
+            allCards.$save(i).then(function(ref) {
                 successCount++;
-                $scope.reImportCard($scope.cards[i].$id);
-                if (successCount == $scope.cards.length) {
+                if ($scope.cardImported(allCards[i].$id)) {
+                    $scope.reImportCard(allCards[i].$id);
+                }
+                if (successCount == allCards.length) {
                     $scope.showSimpleToast("Success! You've updated all cards.");
                 }
             });
@@ -568,6 +583,12 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.search();
 
 
+
+
+    //Create $scope.orderedKeywords
+    $scope.orderedKeywords = [];
+    var tempScopeKeywordsRef = new Firebase(firebaseRoot + "/keywords");
+    $scope.reorderKeywords();
 
 
 
