@@ -263,6 +263,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             ref: card.$id
         };
         $scope.addNewKeyword(newkeyword, true);
+        $scope.localCardRefs[card.$id].keywords[$scope.localCardRefs[card.$id].keywords.length-1].pop(); //This shouldn't be necessary, it's because two new ones are created. Not even sure which one gets deleted!
         return newkeyword;
     }
 
