@@ -2,41 +2,34 @@ function clog(myText) {
     console.log(myText);
 };
 
+function clogyo() {
+    console.log('Yo');
+};
+
+
+var ctrlKeyDown = false;
+
+
 
 var app = angular.module('app', ['firebase', 'ngMaterial', 'algoliasearch', 'ngRoute', 'ngSanitize']).
 controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseObject, $http, $mdToast, $mdSidenav, algolia) {
 
 
 
+    var clientAlgolia = algoliasearch('RR6V7DE8C8', 'b96680f1343093d8822d98eb58ef0d6b');
+    var indexAlgolia = clientAlgolia.initIndex(algoliaIndex);
 
-
-    // var singleCardRef = new Firebase(firebaseRoot + "/cards/-Jtu1T1dCkU7cgdVh-I9");
-
-    // var algoliasearch = require('algoliasearch'); //For some reason this is here but should remain commented as it doesn't seem to work!
-    var client = algoliasearch('RR6V7DE8C8', 'b96680f1343093d8822d98eb58ef0d6b');
-    var index = client.initIndex(algoliaIndex);
-
-    // singleCardRef.once("value", function(snap) {
-    //     clog("initial data loaded!");
-    //     clog($firebaseObject(singleCardRef));
-    //     var element = document.getElementById("spinner");
-    //     element.parentNode.removeChild(element);
-    //     // $scope.localCards[0] = $firebaseObject(singleCardRef);
-    //     // $scope.localCardRefs[$scope.localCards[0].$id] = {};
-    //     // $scope.localCardRefs[$scope.localCards[0].$id].ref = 0;
-    //     // $scope.localCardRefs[$scope.localCards[0].$id].showing = true;
-    //     // $scope.localCardRefs[$scope.localCards[0].$id].atFront = true;
-    //     // $scope.localCardRefs[$scope.localCards[0].$id].editing = false;
-    // });
     $scope.localCards = [];
     //Remember the positions of objects in the $scope.cards array don't match up to the positions of objects in the $scope.localCards array
     $scope.localCardRefs = {};
 
-    var cardsRef = new Firebase(firebaseRoot + "/cards");
-    $scope.cards = $firebaseArray(cardsRef);
+    var firebaseRef = new Firebase(firebaseRoot);
+    var firebaseCardsRef = firebaseRef.child("cards");
+    $scope.globalCards = $firebaseArray(firebaseCardsRef);
+
+
     var keywordsRef = new Firebase(firebaseRoot + "/keywords");
     $scope.keywords = $firebaseArray(keywordsRef);
-
 
     $scope.frontCard;
     $scope.editMode = false;
@@ -59,7 +52,6 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         $scope.localCardRefs[key] = {};
         $scope.localCardRefs[key].ref = $scope.localCards.length - 1;
         $scope.localCardRefs[key].keywords = $scope.getCardKeywords(key);
-        clog($scope.localCardRefs);
         return $scope.localCardRefs[key];
     };
 
@@ -71,7 +63,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     };
 
     $scope.cardImported = function(key) {
-        if ($scope.localCardRefs[key].ref !== undefined) {
+        if ($scope.localCardRefs[key] !== undefined) {
             console.log('The card ' + key + ' is imported');
             return true;
         }
@@ -85,7 +77,6 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         tempScopeKeywordsRef.orderByChild("ref").equalTo(key).on("child_added", function(snapshot) {
             var keyword = snapshot.val();
             keyword.$id = snapshot.key();
-            clog(keyword);
             cardKeywords.push(keyword);
         });
         return cardKeywords;
@@ -146,9 +137,9 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
         card.id = card.title.replace(" ", "-").toLowerCase();
 
-        $scope.cards.$add(card).then(function(ref) {
+
+        $scope.globalCards.$add(card).then(function(ref) {
             var key = ref.key();
-            var newCard = $scope.cards[$scope.cards.$indexFor(key)]; // returns location in the array
             if (card.title.length > 0) {
                 $scope.showSimpleToast("Success! You've added a new card called " + card.title);
             }
@@ -159,22 +150,18 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
                 $scope.open(key);
             }
 
-            var localCardRef = $scope.localCardRefs[newCard.$id];
+            var localCardRef = $scope.localCardRefs[key];
             localCardRef.showing = true;
-            localCardRef.atFront = false;
-            // localCardRef.editing = editing;
+            localCardRef.atFront = true;
+            localCardRef.editing = true;
 
             var newkeyword = {
                 keyword: card.title,
                 ref: key
             };
             $scope.addNewKeyword(newkeyword, false);
-            if (autoPopulate == 'wikipedia') {
-                localCardRef.editing = false;
-            }
-            else {
-                localCardRef.editing = true;
-            }
+
+            $scope.algoliaAdd(card);
         });
     };
 
@@ -273,14 +260,12 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     }
 
     $scope.addNewKeyword = function(newkeyword, showToast) {
-        if (newkeyword.keyword.length < 2) {
+        if (newkeyword.keyword.length < 1) {
             return;
         }
         newkeyword.keywordLength = newkeyword.keyword.length * -1;
         $scope.keywords.$add(newkeyword).then(function(ref) {
-            var id = ref.key();
-            $scope.keywords.$indexFor(id); // returns location in the array
-            $scope.updateBios(newkeyword);
+            $scope.updateBiosFromKeyword(newkeyword);
             if (showToast) {
                 $scope.showSimpleToast("Success! You've added the keyword \"" + newkeyword.keyword + "\"");
             }
@@ -288,11 +273,10 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     };
 
     $scope.deleteKeyword = function(key) {
-        console.log(key);
         var keywordToDelete = $scope.keywords.$getRecord(key);
         var tempKeyword = keywordToDelete;
         $scope.keywords.$remove(keywordToDelete).then(function(ref) {
-            $scope.updateBios(tempKeyword);
+            $scope.updateBiosFromKeyword(tempKeyword);
             $scope.showSimpleToast("Success! You've deleted the keyword \"" + tempKeyword.keyword + "\"");
         });
     };
@@ -304,31 +288,39 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         });
     };
 
-    $scope.reorderKeywords = function() {
+    $scope.reorderKeywords = function(callback) {
         $scope.orderedKeywords = [];
         tempScopeKeywordsRef.orderByChild("keywordLength").on("child_added", function(snapshot) {
             $scope.orderedKeywords.push(snapshot.val());
+            if (callback && typeof(callback) === "function") {
+                callback();
+            }
         });
     };
 
-    $scope.updateBios = function(keyword) {
-        //Needs updating now we have localCards!
-        for (var i = 0; i < $scope.cards.length; i++) {
-            var bio = $scope.cards[i].bio.value;
+    $scope.updateBiosFromKeyword = function(keyword) {
+        //Should this use Algolia to search through bios?
+        //Slightly updated now we have localCards, but still not quite right
+        $scope.reorderKeywords(); //Need a callback here to finish this before proceeding
+        for (var i = 0; i < $scope.globalCards.length; i++) {
+            var bio = $scope.globalCards[i].bio.value;
             if (bio.indexOf(keyword.keyword) != -1) {
-                $scope.cards[i].bio.structure = $scope.structureBio($scope.cards.$keyAt(i), bio, $scope.keywords);
-                $scope.cards.$save(i).then(function(ref) {
-                    $scope.reImportCard($scope.cards[i].$id);
+                $scope.globalCards[i].bio.structure = $scope.structureBio($scope.globalCards.$keyAt(i), bio, $scope.orderedKeywords);
+                $scope.globalCards.$save(i).then(function(ref) {
+                    var key = ref.key();
+                    if ($scope.cardImported(key)) {
+                        $scope.reImportCard(key);
+                    }
                 });
             }
         }
     };
 
     $scope.updateAllBios = function() {
-        //Needs updating now we have localCards!
+        //Slightly updated now we have localCards, but still not quite right
         var successCount = 0;
-        $scope.reorderKeywords(); //Nothing there yet
-        var allCards = $firebaseArray(cardsRef);
+        $scope.reorderKeywords(); //Need a callback here to finish this before proceeding
+        var allCards = $firebaseArray(firebaseCardsRef);
         for (var i = 0; i < allCards.length; i++) {
             allCards[i].editing = false;
             allCards[i].justCreated = false;
@@ -336,9 +328,10 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             allCards[i].bio.structure = $scope.structureBio(allCards.$keyAt(i), bio, $scope.orderedKeywords);
 
             allCards.$save(i).then(function(ref) {
+                var key = ref.key();
                 successCount++;
-                if ($scope.cardImported(allCards[i].$id)) {
-                    $scope.reImportCard(allCards[i].$id);
+                if ($scope.cardImported(key)) {
+                    $scope.reImportCard(key);
                 }
                 if (successCount == allCards.length) {
                     $scope.showSimpleToast("Success! You've updated all cards.");
@@ -351,36 +344,49 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         for (var i = 0; i < $scope.keywords.length; i++) {
             $scope.keywords[i].keywordLength = $scope.keywords[i].keyword.length * -1;
             $scope.keywords.$save(i);
-            if ($scope.cards.$getRecord($scope.keywords[i].ref) === null) {
+            if ($scope.globalCards.$getRecord($scope.keywords[i].ref) === null) {
                 $scope.keywords.$remove(i);
             }
         }
     };
 
     $scope.updateEverything = function() {
-        $scope.updateAllBios();
+        //All of this needs callbacks
         $scope.updateAllKeywords();
-        $scope.reImportToAlgolia();
+        $scope.updateAllBios();
+        // $scope.reorderKeywords($scope.updateAllBios);
+        if (ctrlKeyDown) {
+            $scope.reImportToAlgolia();
+        }
     };
 
     $scope.updateCard = function(key, card) {
         var localCardRef = $scope.localCardRefs[key];
-        var index = $scope.cards.$indexFor(key);
-        $scope.cards[index] = card;
+        var index = $scope.globalCards.$indexFor(key);
+        $scope.globalCards[index] = card;
         card.bio.structure = $scope.structureBio(-1, card.bio.value, $scope.orderedKeywords);
-        $scope.cards.$save(card).then(function(ref) {
+        $scope.globalCards.$save(card).then(function(ref) {
             localCardRef.editing = false;
+            $scope.algoliaUpdate(key, card);
             $scope.showSimpleToast("Success! You've updated the card " + card.title);
         });
     };
 
     $scope.deleteCard = function(key, card) {
         var title = card.title;
-        var index = $scope.cards.$indexFor(key);
-        $scope.cards[index] = card;
+            console.log(1);
+        var index = $scope.globalCards.$indexFor(key);
+            console.log(2);
+        $scope.globalCards[index] = card;
+            console.log(3);
         $scope.localCards.splice($scope.localCardRefs[key].ref, 1);
-        $scope.cards.$remove(card).then(function(ref) {
+            console.log(4);
+        $scope.globalCards.$remove(card).then(function(ref) {
+            console.log(1);
             $scope.deleteCardKeywords(key);
+            console.log(2);
+            $scope.algoliaDelete(key);
+            console.log(3);
             $scope.showSimpleToast("Success! You've deleted the card " + title);
         });
     };
@@ -443,14 +449,28 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         }
     };
 
-    document.onkeyup = function($event) {
-        if (event.keyCode == 67) {
-            $scope.createCardFromSelection($event, -1);
+
+
+
+    window.onkeydown = function(event) {
+        ctrlKeyDown = event.ctrlKey;
+    };
+
+    window.onkeyup = function(event) {
+        ctrlKeyDown = event.ctrlKey;
+    };
+    
+    
+    
+
+    document.onkeyup = function(event) {
+        if (event.keyCode == 67 && !ctrlKeyDown) {
+            $scope.createCardFromSelection(event, -1);
         }
         else if (event.keyCode == 87) {
-            // $scope.createCardFromSelection($event, 'wikipedia');
+            // $scope.createCardFromSelection(event, 'wikipedia');
         }
-    }
+    };
 
     // $scope.editingCard = function(card) {
     //     if (card.justCreated === true) {
@@ -465,9 +485,9 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
 
 
-    $scope.reImportToAlgolia = function() {
+    $scope.reImportToAlgolia = function() { //Use this VERY RARELY!!!!!
         // Get all data from Firebase
-        cardsRef.on('value', reindexIndex);
+        firebaseCardsRef.on('value', reindexIndex);
 
         function reindexIndex(dataSnapshot) {
             // Array of objects to index
@@ -475,7 +495,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
             // Create a temp index
             var tempIndexName = 'cards_temp';
-            var tempIndex = client.initIndex(tempIndexName);
+            var tempIndex = clientAlgolia.initIndex(tempIndexName);
 
             // Get all objects
             var values = dataSnapshot.val();
@@ -495,13 +515,13 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             }
 
             // Add or update new objects
-            index.saveObjects(objectsToIndex, function(err, content) {
+            indexAlgolia.saveObjects(objectsToIndex, function(err, content) {
                 if (err) {
                     throw err;
                 }
 
                 // Overwrite main index with temp index
-                client.moveIndex(tempIndexName, 'cards', function(err, content) {
+                clientAlgolia.moveIndex(tempIndexName, 'cards', function(err, content) {
                     if (err) {
                         throw err;
                     }
@@ -513,49 +533,33 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     }
 
 
-    // Listen for changes to Firebase data
-    cardsRef.on('child_added', addOrUpdateObject);
-    cardsRef.on('child_changed', addOrUpdateObject);
 
-    function addOrUpdateObject(dataSnapshot) {
-        clog('add');
-        // Get Firebase object
-        var firebaseObject = dataSnapshot.val();
-
-        // Specify Algolia's objectID using the Firebase object key
-        firebaseObject.objectID = dataSnapshot.key();
-
-        // Add or update object
-        index.saveObject(firebaseObject, function(err, content) {
-            if (err) {
-                throw err;
-            }
-
-            console.log('Firebase<>Algolia object saved');
+    $scope.algoliaAdd = function(card) {
+        var myObjectID = card.$id;
+        indexAlgolia.addObject(card, myObjectID, function(err, content) {
+            console.log('Algolia - added card:');
+            console.log(card);
         });
-    }
+    };
 
-
-
-    // Listen for changes to Firebase data
-    cardsRef.on('child_removed', removeIndex);
-
-    function removeIndex(dataSnapshot) {
-        clog('remove');
-        // Get Algolia's objectID from the Firebase object key
-        var objectID = dataSnapshot.key();
-
-        // Remove the object from Algolia
-        index.deleteObject(objectID, function(err, content) {
-            if (err) {
-                throw err;
-            }
-
-            console.log('Firebase<>Algolia object deleted');
+    $scope.algoliaUpdate = function(key, card) {
+        console.log(card);
+        console.log(key);
+        card.objectID = key;
+        card.$$conf = null; //Probably not necessary to delete all of this (only to prevent "TypeError: Converting circular structure to JSON" error)
+        indexAlgolia.saveObject(card, function(err, content) {
+            console.log('Algolia - updated card:');
+            // console.log(card);
         });
-    }
+    };
 
-
+    $scope.algoliaDelete = function(key) {
+        indexAlgolia.deleteObject(key, function(error) {
+            if (!error) {
+                console.log('Algolia - deleted card:');
+            }
+        });
+    };
 
 
 
@@ -565,7 +569,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.query = '';
     $scope.initRun = true;
     $scope.search = function() {
-        index.search($scope.query, {
+        indexAlgolia.search($scope.query, {
                 hitsPerPage: 20
             },
             function(err, content) {
@@ -589,7 +593,6 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.orderedKeywords = [];
     var tempScopeKeywordsRef = new Firebase(firebaseRoot + "/keywords");
     $scope.reorderKeywords();
-
 
 
     //Open first card
