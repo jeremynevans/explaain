@@ -596,7 +596,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
 
     //Open first card
-    var tempCard1 = $scope.open('-Jtu1T1dCkU7cgdVh-I9', true);
+    var tempCard1 = $scope.open(initialCard, true);
     tempCard1.editing = false;
 
 });
