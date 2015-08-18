@@ -20,9 +20,9 @@
         <i class="material-icons action-icon edit-mode edit-mode-{{editMode}}" ng-click="toggleEditMode()">build</i>
         <i class="material-icons action-icon refresh-all" ng-show="editMode" ng-click="updateEverything()">autorenew</i>
         <i class="material-icons action-icon new-card" ng-show="editMode" ng-click="addNewCard({}, true, true, false)">queue</i>
-        <ul class="cards" ng-keyup="createCardFromSelection($event)">
+        <ul class="cards">
             <form ng-submit="$event.preventDefault()">
-                <md-autocomplete md-no-cache="true" md-min-length="1" md-autoselect="true" md-selected-item="ctrl.selectedItem" md-search-text-change="search()" md-search-text="query" md-selected-item-change="open(card.objectID);" md-items="card in hits" md-item-text="card.title" md-floating-label="Search for cards..."
+                <md-autocomplete md-no-cache="true" md-min-length="1" md-autoselect="false" md-selected-item="ctrl.selectedItem" md-search-text-change="search()" md-search-text="query" md-selected-item-change="open(card.objectID);" md-items="card in hits" md-item-text="card.title" md-floating-label="Search for cards..."
                 style="font-size: 26px; font-weight: 300;">
                     <md-item-template>
                         <div class="header-image">

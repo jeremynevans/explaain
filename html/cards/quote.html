@@ -1,0 +1,36 @@
+<div class="display-fields quote">
+    <img class="quote" src="images/quote.png" ng-hide="localCardRefs[card.$id].editing">
+    <ng-structured-text data="card.bio" open-card="open(cardToOpen)" editing="localCardRefs[card.$id].editing" class="text quote"></ng-structured-text>
+    <div class="header">
+        <ng-image class="header-image" editing="localCardRefs[card.$id].editing" image="card.image" backup="'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png'"></ng-image>
+        <div class="header-text">
+            <ng-title title="card.title" editing="localCardRefs[card.$id].editing"></ng-title>
+            <ng-subtitle subtitle="card.subtitle" editing="localCardRefs[card.$id].editing"></ng-subtitle>
+        </div>
+    </div>
+</div>
+<div class="editing-fields" ng-show="localCardRefs[card.$id].editing">
+    <form name="editCardForm">
+        <div layout layout-sm="column">
+            <md-input-container>
+                <md-button class="md-raised md-primary" ng-click="populateFromWikipedia(card, true)">Populate from Wikipedia</md-button>
+            </md-input-container>
+            <md-input-container flex> </md-input-container>
+        </div>
+        <div layout layout-sm="column">
+            <md-chips ng-model="localCardRefs[card.$id].keywords" placeholder="Enter a new keyword" delete-button-label="Remove Keyword" delete-hint="Press delete to remove keyword" secondary-placeholder="+Keyword" md-on-append="appendKeyword($chip, card)">
+                <md-chip-template> {{$chip.keyword}} </md-chip-template>
+                <button md-chip-remove class="md-chip-remove ng-scope" ng-click="deleteKeyword($chip.$id)"><md-icon md-svg-icon="md-close" class="ng-isolate-scope md-default-theme" aria-hidden="true"></md-icon></button>
+            </md-chips>
+        </div>
+        <div layout layout-sm="column">
+            <md-input-container>
+                <md-button class="md-raised md-primary" ng-click="updateCard(card.$id, card)">Update</md-button>
+            </md-input-container>
+            <md-input-container flex> </md-input-container>
+            <md-input-container>
+                <md-button class="md-raised md-warn" ng-click="deleteCard(card.$id, card)">Delete</md-button>
+            </md-input-container>
+        </div>
+    </form>
+</div>

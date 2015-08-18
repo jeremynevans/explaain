@@ -1,0 +1,10 @@
+<div class="embed-container" ng-hide="editing">
+    <div ng-bind-html="embed.code | sanitize"></div>
+</div>
+
+<div layout layout-sm="column" ng-show="editing">
+    <md-input-container flex>
+        <label>Embed Code</label>
+        <input ng-model="embed.code">
+    </md-input-container>
+</div>

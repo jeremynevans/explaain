@@ -1,0 +1,13 @@
+<div class="text structured-text" ng-hide="editing">
+    <span ng-repeat="span in text.structure">
+        <a href="#{{span.ref}}" ng-if="span.type == 'link'" ng-click="reverse(span.ref)">{{span.text}}</a>
+        <span ng-if="span.type == 'span'">{{span.text}}</span>
+    </span>
+</div>
+
+<div layout layout-sm="column" ng-show="editing">
+    <md-input-container flex>
+        <label>Bio</label>
+        <textarea ng-model="text.value" columns="1" md-maxlength="450"></textarea>
+    </md-input-container>
+</div>

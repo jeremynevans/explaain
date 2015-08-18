@@ -1,0 +1,13 @@
+<!--<div class="format-container" ng-hide="editing">-->
+<!--    <h4>{{ format }}</h4>-->
+<!--</div>-->
+
+
+<div layout layout-sm="column" ng-show="editing">
+    <md-input-container flex>
+        <label>Format</label>
+        <md-select ng-model="format">
+            <md-option ng-repeat="format in formatOptions" value="{{format}}">{{format}}</md-option>
+        </md-select>
+    </md-input-container>
+</div>

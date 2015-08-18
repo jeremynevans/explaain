@@ -1,0 +1,10 @@
+<div class="image-container" ng-hide="editing">
+    <img class="image" ng-src="{{ image.value || backupImageSrc }}">
+</div>
+
+<div layout layout-sm="column"  ng-show="editing">
+    <md-input-container flex>
+        <label>Image URL</label>
+        <input ng-model="image.value">
+    </md-input-container>
+</div>

@@ -1,0 +1,8 @@
+<h3 ng-hide="editing">{{ title }}</h3>
+
+<div layout layout-sm="column" ng-show="editing">
+    <md-input-container flex>
+        <label>Title</label>
+        <input ng-model="title">
+    </md-input-container>
+</div>

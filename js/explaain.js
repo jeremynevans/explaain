@@ -8,7 +8,7 @@ function clogyo() {
 
 
 var ctrlKeyDown = false;
-
+var cardToOpen = ''; //This is not a good way of doing it
 
 
 var app = angular.module('app', ['firebase', 'ngMaterial', 'algoliasearch', 'ngRoute', 'ngSanitize']).
@@ -33,6 +33,14 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
     $scope.frontCard;
     $scope.editMode = false;
+    
+    
+    $scope.formatOptions = [
+        'profile',
+        'quote'
+    ];
+    
+    
 
     $scope.showingFilter = function(card) {
         var localCardRef = $scope.localCardRefs[card.$id];
@@ -83,8 +91,19 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     };
 
     $scope.open = function(key, firstCard) {
+        if (key === undefined) {
+            key = cardToOpen;
+            if (key === undefined || key == "") {
+                console.log('no card selected, aborting open()');
+                return;
+            }
+        }
         var localCardRef = $scope.localCardRefs[key];
+        console.log(key);
+        console.log($scope.localCardRefs);
+        console.log(localCardRef);
         if (localCardRef === undefined) {
+            console.log(2);
             localCardRef = $scope.importCard(key, firstCard);
         }
         var card = $scope.localCards[localCardRef.ref];
@@ -125,6 +144,13 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     };
 
     $scope.addNewCard = function(card, open, justCreated, autoPopulate) {
+        card.dateCreated = Date.now();
+        
+        card.format = prompt("What format should the new card take?", "profile")
+        
+        if (card.format === undefined) {
+            card.format = 'profile';
+        }
         if (card.title === undefined) {
             card.title = '';
         }
@@ -160,8 +186,8 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
                 ref: key
             };
             $scope.addNewKeyword(newkeyword, false);
-
-            $scope.algoliaAdd(card);
+            console.log('addinggggg');
+            $scope.algoliaAdd(card, key);
         });
     };
 
@@ -320,20 +346,24 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         //Slightly updated now we have localCards, but still not quite right
         var successCount = 0;
         $scope.reorderKeywords(); //Need a callback here to finish this before proceeding
-        var allCards = $firebaseArray(firebaseCardsRef);
-        for (var i = 0; i < allCards.length; i++) {
-            allCards[i].editing = false;
-            allCards[i].justCreated = false;
-            var bio = allCards[i].bio.value;
-            allCards[i].bio.structure = $scope.structureBio(allCards.$keyAt(i), bio, $scope.orderedKeywords);
+        // var allCards = $firebaseArray(firebaseCardsRef);
+        for (var i = 0; i < $scope.globalCards.length; i++) {
+            if ($scope.globalCards[i].image) {
+                $scope.globalCards[i].image.value = $scope.globalCards[i].image.value.replace("//", "http://");
+                $scope.globalCards[i].image.value = $scope.globalCards[i].image.value.replace("https:http://", "https://");
+            }
+            $scope.globalCards[i].editing = false; //Shouldn't be necessary as this variable should only exist locally
+            $scope.globalCards[i].justCreated = false; //Shouldn't be necessary as this variable should only exist locally
+            var bio = $scope.globalCards[i].bio.value;
+            $scope.globalCards[i].bio.structure = $scope.structureBio($scope.globalCards.$keyAt(i), bio, $scope.orderedKeywords);
 
-            allCards.$save(i).then(function(ref) {
+            $scope.globalCards.$save(i).then(function(ref) {
                 var key = ref.key();
                 successCount++;
                 if ($scope.cardImported(key)) {
                     $scope.reImportCard(key);
                 }
-                if (successCount == allCards.length) {
+                if (successCount == $scope.globalCards.length) {
                     $scope.showSimpleToast("Success! You've updated all cards.");
                 }
             });
@@ -365,6 +395,8 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         var index = $scope.globalCards.$indexFor(key);
         $scope.globalCards[index] = card;
         card.bio.structure = $scope.structureBio(-1, card.bio.value, $scope.orderedKeywords);
+        card.image.value = card.image.value.replace("http://", "//");
+        // card.image.value = card.image.value.replace("https://", "//");
         $scope.globalCards.$save(card).then(function(ref) {
             localCardRef.editing = false;
             $scope.algoliaUpdate(key, card);
@@ -374,13 +406,13 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
     $scope.deleteCard = function(key, card) {
         var title = card.title;
-            console.log(1);
+        console.log(1);
         var index = $scope.globalCards.$indexFor(key);
-            console.log(2);
+        console.log(2);
         $scope.globalCards[index] = card;
-            console.log(3);
+        console.log(3);
         $scope.localCards.splice($scope.localCardRefs[key].ref, 1);
-            console.log(4);
+        console.log(4);
         $scope.globalCards.$remove(card).then(function(ref) {
             console.log(1);
             $scope.deleteCardKeywords(key);
@@ -439,9 +471,10 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     }
 
     $scope.createCardFromSelection = function($event, autoPopulate) {
-        clog('creating card');
+        console.log('Trying to create card');
         var selectedText = getSelectedText();
         if (selectedText) {
+            console.log('Creating card');
             var newCard = {
                 title: selectedText
             };
@@ -459,9 +492,9 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     window.onkeyup = function(event) {
         ctrlKeyDown = event.ctrlKey;
     };
-    
-    
-    
+
+
+
 
     document.onkeyup = function(event) {
         if (event.keyCode == 67 && !ctrlKeyDown) {
@@ -534,8 +567,8 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
 
 
-    $scope.algoliaAdd = function(card) {
-        var myObjectID = card.$id;
+    $scope.algoliaAdd = function(card, key) {
+        var myObjectID = key;
         indexAlgolia.addObject(card, myObjectID, function(err, content) {
             console.log('Algolia - added card:');
             console.log(card);
@@ -574,7 +607,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             },
             function(err, content) {
                 if (err || $scope.query != content.query) {
-                    clog('error');
+                    console.log('Algolia search error: ' + err);
                     return;
                 }
                 $scope.hits = content.hits;
@@ -601,6 +634,27 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
 });
 
+
+
+
+app.filter("sanitize", ['$sce', function($sce) {
+  return function(htmlCode){
+    return $sce.trustAsHtml(htmlCode);
+  }
+}]);
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.directive('ngCard', function() {
     return {
         restrict: 'E',
@@ -608,6 +662,35 @@ app.directive('ngCard', function() {
         templateUrl: 'html/card.html'
     }
 });
+
+app.directive('ngCardFormat', ["$compile", '$http', '$templateCache', '$parse', function ($compile, $http, $templateCache, $parse) {
+    return {
+        restrict: 'E',
+        // require: 'ExplaainCtrl',
+        templateUrl: 'html/cards/profile.html',
+        // scope: {
+        //     card: '=card',
+        //     eventHandler: '&ngClick'
+        // },
+        link: function(scope , element, attrs) {
+
+          scope.$watch(attrs.format, function (value) {
+            if (value) {
+              value = 'html/cards/' + value + '.html';
+              loadTemplate(value);
+            }
+          });
+
+          function loadTemplate(format) {
+              console.log(format);
+              $http.get(format, { cache: $templateCache })
+                .success(function(templateContent) {
+                  element.replaceWith($compile(templateContent)(scope));                
+                });    
+          }
+        }
+    }
+}]);
 
 app.directive('ngBio', function() {
     return {
@@ -622,5 +705,95 @@ app.directive('ngCardSearch', function() {
         restrict: 'E',
         require: 'ExplaainCtrl',
         templateUrl: 'html/card_search.html'
+    }
+});
+
+app.directive('ngStructuredText', function() {
+    return {
+        restrict: 'EA',
+        require: 'ExplaainCtrl',
+        templateUrl: 'html/components/structured-text.html',
+        controller: function($scope, $element) {
+                $scope.reverse = function(ref) {
+                    cardToOpen = ref;
+                    $scope.openCard();
+                }
+            },
+        scope: {
+            text: '=data',
+            card: '=',
+            reverse: '&',
+            openCard: '&',
+            editing: '='
+            // open: '&',
+            // eventHandler: '&ngClick'
+        }
+    }
+});
+
+app.directive('ngImage', function() {
+    return {
+        restrict: 'E',
+        require: 'ExplaainCtrl',
+        templateUrl: 'html/components/image.html',
+        scope: {
+            image: '=',
+            backupImageSrc: '=backup',
+            card: '=card',
+            editing: '='
+        }
+    }
+});
+
+app.directive('ngTitle', function() {
+    return {
+        restrict: 'E',
+        require: 'ExplaainCtrl',
+        templateUrl: 'html/components/title.html',
+        scope: {
+            title: '=',
+            card: '=card',
+            editing: '='
+        }
+    }
+});
+
+app.directive('ngSubtitle', function() {
+    return {
+        restrict: 'E',
+        require: 'ExplaainCtrl',
+        templateUrl: 'html/components/subtitle.html',
+        scope: {
+            subtitle: '=',
+            card: '=card',
+            editing: '='
+        }
+    }
+});
+
+app.directive('ngFormat', function() {
+    return {
+        restrict: 'E',
+        require: 'ExplaainCtrl',
+        templateUrl: 'html/components/format.html',
+        scope: {
+            format: '=',
+            formatOptions: '=',
+            card: '=card',
+            editing: '='
+        }
+    }
+});
+
+app.directive('ngEmbed', function() {
+    return {
+        restrict: 'E',
+        require: 'ExplaainCtrl',
+        templateUrl: 'html/components/embed.html',
+        scope: {
+            embed: '=',
+            card: '=card',
+            editing: '='
+        }
     }
 });

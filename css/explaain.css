@@ -108,7 +108,7 @@ md-input-container.md-default-theme .md-input {
 
 h1.logo {
     text-align: center;
-    font-size: 6em;
+    font-size: 5em;
     margin: 0;
     padding: 1em 0 0.6em 0;
     text-transform: lowercase;
@@ -199,7 +199,6 @@ li.card {
     background: white;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
     -webkit-transition: margin 0.5s;
-    /* Safari */
     transition: margin 0.5s;
     box-shadow: 0 1px 5px rgba(0, 0, 0, .3);
 }
@@ -236,6 +235,7 @@ li.card {
 .card .header-text {
     display: inline-block;
     vertical-align: middle;
+    margin-bottom: 10px;
 }
 
 .card .header-text {
@@ -251,7 +251,7 @@ li.card {
     font-weight: 400;
 }
 
-.card .bio {
+.card .bio, .card .text {
     margin-top: 1em;
 }
 
@@ -271,6 +271,31 @@ li.card {
     border: #FED3D4 solid 1px;
     border-left: 3px #FED3D4 solid;
     border-right: 3px #FED3D4 solid;
+}
+
+.card img.quote {
+    float: left;
+    width: 30px;
+    margin-right: 20px;
+    opacity: 0.5;
+}
+
+.card .text.quote {
+    margin-bottom: 1em;
+    font-style: italic;
+}
+
+.card .display-fields.quote .header {
+    margin-left: 200px;
+}
+
+.card .display-fields.quote .header h2 {
+    font-size: 1em;
+}
+
+.card .display-fields.quote .header img.image {
+    widtH: 60px;
+    height: 60px;
 }
 
 .card .close,
