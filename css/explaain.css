@@ -1,3 +1,5 @@
+/* Some Angula Material Stuff */
+
 .md-toolbar-tools h1 {
     font-size: inherit;
     font-weight: inherit;
@@ -55,6 +57,11 @@ md-toast.md-top {
     right: 130px;
 }
 
+
+
+
+/* Main Explaain CSS */
+
 body {
     height: auto;
     min-height: 100%;
@@ -71,6 +78,10 @@ body {
 md-input-container.md-default-theme .md-input {
     font-family: 'Lato', sans-serif;
 }
+
+
+
+/* Main Page Action Buttons */
 
 .material-icons.action-icon {
     opacity: 0.4;
@@ -106,6 +117,10 @@ md-input-container.md-default-theme .md-input {
     color: blue;
 }
 
+
+
+/* Main Logo & Card Container */
+
 h1.logo {
     text-align: center;
     font-size: 5em;
@@ -124,6 +139,10 @@ ul.cards {
     padding: 0;
     list-style-type: none;
 }
+
+
+
+/* Spinner */
 
 ul.cards .spinner {
     z-index: 200;
@@ -184,6 +203,10 @@ ul.cards .spinner {
         -webkit-transform: scaleY(1.0);
     }
 }
+
+
+
+/* Cards */
 
 li.card {
     position: absolute;

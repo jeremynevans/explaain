@@ -349,8 +349,8 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         // var allCards = $firebaseArray(firebaseCardsRef);
         for (var i = 0; i < $scope.globalCards.length; i++) {
             if ($scope.globalCards[i].image) {
-                $scope.globalCards[i].image.value = $scope.globalCards[i].image.value.replace("//", "http://");
-                $scope.globalCards[i].image.value = $scope.globalCards[i].image.value.replace("https:http://", "https://");
+                // $scope.globalCards[i].image.value = $scope.globalCards[i].image.value.replace("//", "http://");
+                // $scope.globalCards[i].image.value = $scope.globalCards[i].image.value.replace("https:http://", "https://");
             }
             $scope.globalCards[i].editing = false; //Shouldn't be necessary as this variable should only exist locally
             $scope.globalCards[i].justCreated = false; //Shouldn't be necessary as this variable should only exist locally
@@ -395,7 +395,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         var index = $scope.globalCards.$indexFor(key);
         $scope.globalCards[index] = card;
         card.bio.structure = $scope.structureBio(-1, card.bio.value, $scope.orderedKeywords);
-        card.image.value = card.image.value.replace("http://", "//");
+        // card.image.value = card.image.value.replace("http://", "//");
         // card.image.value = card.image.value.replace("https://", "//");
         $scope.globalCards.$save(card).then(function(ref) {
             localCardRef.editing = false;
