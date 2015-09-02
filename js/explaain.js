@@ -26,21 +26,34 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     var firebaseRef = new Firebase(firebaseRoot);
     var firebaseCardsRef = firebaseRef.child("cards");
     $scope.globalCards = $firebaseArray(firebaseCardsRef);
-
+    var firebaseIdentitiesRef = firebaseRef.child("identities");
+    $scope.globalIdentities = $firebaseArray(firebaseIdentitiesRef);
 
     var keywordsRef = new Firebase(firebaseRoot + "/keywords");
     $scope.keywords = $firebaseArray(keywordsRef);
+    
+    
+    
 
     $scope.frontCard;
     $scope.editMode = false;
-    
-    
+
+
     $scope.formatOptions = [
         'profile',
         'quote'
     ];
-    
-    
+
+
+    // firebaseRef.authWithOAuthPopup("twitter", function(error, authData) {
+    //     if (error) {
+    //         console.log("Login Failed!", error);
+    //     }
+    //     else {
+    //         console.log("Authenticated successfully with payload:", authData);
+    //     }
+    // });
+
 
     $scope.showingFilter = function(card) {
         var localCardRef = $scope.localCardRefs[card.$id];
@@ -90,14 +103,19 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         return cardKeywords;
     };
 
-    $scope.open = function(key, firstCard) {
-        if (key === undefined) {
+    $scope.open = function(identityKey, firstCard) {
+        var key;
+        console.log(identityKey);
+        if (identityKey === undefined) {
             key = cardToOpen;
             if (key === undefined || key == "") {
                 console.log('no card selected, aborting open()');
                 return;
             }
+        } else {
+            key = $scope.globalIdentities.$getRecord(identityKey).cards[0].key;
         }
+        
         var localCardRef = $scope.localCardRefs[key];
         console.log(key);
         console.log($scope.localCardRefs);
@@ -142,12 +160,36 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             localCardRef.editing = !localCardRef.editing;
         }
     };
+    
+    $scope.addNewIdentity = function(initialCardKey) {
+        var newIdentity = {cards: [{key: initialCardKey, rank: 0}]};
+        
+        $scope.globalIdentities.$add(newIdentity).then(function(ref) {
+            var key = ref.key();
+            console.log('New identity:');
+            console.log(key);
+            
+            // $scope.globalCards.$getRecord(initialCardKey).identity = key;
+            // $scope.globalCards.$getRecord(initialCardKey).$save().then(function(ref) {
+            //     console.log('identity:');
+            //     console.log($scope.globalCards.$getRecord(initialCardKey).identity);
+            // });
+
+            // var newkeyword = {
+            //     keyword: initialKeyword,
+            //     ref: key
+            // };
+            // $scope.addNewKeyword(newkeyword, false);
+            
+            
+        });
+    };
 
     $scope.addNewCard = function(card, open, justCreated, autoPopulate) {
         card.dateCreated = Date.now();
-        
+
         card.format = prompt("What format should the new card take?", "profile")
-        
+
         if (card.format === undefined) {
             card.format = 'profile';
         }
@@ -180,7 +222,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             localCardRef.showing = true;
             localCardRef.atFront = true;
             localCardRef.editing = true;
-
+            
             var newkeyword = {
                 keyword: card.title,
                 ref: key
@@ -347,6 +389,15 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         var successCount = 0;
         $scope.reorderKeywords(); //Need a callback here to finish this before proceeding
         // var allCards = $firebaseArray(firebaseCardsRef);
+        
+        //temp
+        // for (var i = 0; i < $scope.globalIdentities.length; i++) {
+        //     console.log($scope.globalIdentities[i]);
+        //     var identityKey = $scope.globalIdentities[i].$id;
+        //     var firstCardKey = $scope.globalIdentities[i].cards[0].key;
+        //     $scope.globalCards.$getRecord(firstCardKey).identity = identityKey;
+        // }
+        
         for (var i = 0; i < $scope.globalCards.length; i++) {
             if ($scope.globalCards[i].image) {
                 // $scope.globalCards[i].image.value = $scope.globalCards[i].image.value.replace("//", "http://");
@@ -356,6 +407,11 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             $scope.globalCards[i].justCreated = false; //Shouldn't be necessary as this variable should only exist locally
             var bio = $scope.globalCards[i].bio.value;
             $scope.globalCards[i].bio.structure = $scope.structureBio($scope.globalCards.$keyAt(i), bio, $scope.orderedKeywords);
+
+            //Can delete this now
+            // if (!$scope.globalCards[i].identity) {
+            //     $scope.addNewIdentity($scope.globalCards[i].$id);
+            // }
 
             $scope.globalCards.$save(i).then(function(ref) {
                 var key = ref.key();
@@ -372,7 +428,8 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
     $scope.updateAllKeywords = function() {
         for (var i = 0; i < $scope.keywords.length; i++) {
-            $scope.keywords[i].keywordLength = $scope.keywords[i].keyword.length * -1;
+            $scope.keywords[i].identityRef = $scope.globalCards.$getRecord($scope.keywords[i].ref).identity;
+            $scope.keywords[i].keywordLength = $scope.keywords[i].keyword.length * -1; //Maybe now not needed if this happens when new keyword created?
             $scope.keywords.$save(i);
             if ($scope.globalCards.$getRecord($scope.keywords[i].ref) === null) {
                 $scope.keywords.$remove(i);
@@ -629,7 +686,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
 
     //Open first card
-    var tempCard1 = $scope.open(initialCard, true);
+    var tempCard1 = $scope.open(initialIdentity, true);  //initialCard and initialIdentity are defined in branch-specific.js
     tempCard1.editing = false;
 
 });
@@ -638,9 +695,9 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
 
 app.filter("sanitize", ['$sce', function($sce) {
-  return function(htmlCode){
-    return $sce.trustAsHtml(htmlCode);
-  }
+    return function(htmlCode) {
+        return $sce.trustAsHtml(htmlCode);
+    }
 }]);
 
 
@@ -663,7 +720,7 @@ app.directive('ngCard', function() {
     }
 });
 
-app.directive('ngCardFormat', ["$compile", '$http', '$templateCache', '$parse', function ($compile, $http, $templateCache, $parse) {
+app.directive('ngCardFormat', ["$compile", '$http', '$templateCache', '$parse', function($compile, $http, $templateCache, $parse) {
     return {
         restrict: 'E',
         // require: 'ExplaainCtrl',
@@ -672,22 +729,24 @@ app.directive('ngCardFormat', ["$compile", '$http', '$templateCache', '$parse', 
         //     card: '=card',
         //     eventHandler: '&ngClick'
         // },
-        link: function(scope , element, attrs) {
+        link: function(scope, element, attrs) {
 
-          scope.$watch(attrs.format, function (value) {
-            if (value) {
-              value = 'html/cards/' + value + '.html';
-              loadTemplate(value);
+            scope.$watch(attrs.format, function(value) {
+                if (value) {
+                    value = 'html/cards/' + value + '.html';
+                    loadTemplate(value);
+                }
+            });
+
+            function loadTemplate(format) {
+                console.log(format);
+                $http.get(format, {
+                        cache: $templateCache
+                    })
+                    .success(function(templateContent) {
+                        element.replaceWith($compile(templateContent)(scope));
+                    });
             }
-          });
-
-          function loadTemplate(format) {
-              console.log(format);
-              $http.get(format, { cache: $templateCache })
-                .success(function(templateContent) {
-                  element.replaceWith($compile(templateContent)(scope));                
-                });    
-          }
         }
     }
 }]);
@@ -714,19 +773,19 @@ app.directive('ngStructuredText', function() {
         require: 'ExplaainCtrl',
         templateUrl: 'html/components/structured-text.html',
         controller: function($scope, $element) {
-                $scope.reverse = function(ref) {
-                    cardToOpen = ref;
-                    $scope.openCard();
-                }
-            },
+            $scope.reverse = function(ref) {
+                cardToOpen = ref;
+                $scope.openCard();
+            }
+        },
         scope: {
             text: '=data',
             card: '=',
             reverse: '&',
             openCard: '&',
             editing: '='
-            // open: '&',
-            // eventHandler: '&ngClick'
+                // open: '&',
+                // eventHandler: '&ngClick'
         }
     }
 });
