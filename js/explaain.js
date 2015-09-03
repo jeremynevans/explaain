@@ -38,7 +38,9 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.firstCard = true;
     $scope.importWatch = false;
     $scope.importCardWatch = false;
+    $scope.cardOpened = false;
     $scope.identityKeyTemp;
+    $scope.initialCardKeyTemp;
     $scope.localCardRefTemp;
 
     $scope.frontCard;
@@ -71,17 +73,21 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         var newIdentity = $firebaseObject(tempIndentitiesRef);
         $scope.localIdentities.push(newIdentity);
 
-        
-        
+
+
+
+        $scope.localIdentityRefs[key] = {};
+        $scope.localIdentityRefs[key].ref = $scope.localIdentities.length - 1;
+        // $scope.localIdentityRefs[key].keywords = $scope.getCardKeywords(key); //Need to add this in
+
+
 
         newIdentity.$loaded().then(function(data) {
             // $scope.importCard(newIdentity.cards[0].key);
             $scope.importWatch = true;
         });
 
-        $scope.localIdentityRefs[key] = {};
-        $scope.localIdentityRefs[key].ref = $scope.localIdentities.length - 1;
-        // $scope.localIdentityRefs[key].keywords = $scope.getCardKeywords(key); //Need to add this in
+
         return $scope.localIdentityRefs[key];
     };
 
@@ -89,12 +95,12 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         var tempCardsRef = new Firebase(firebaseRoot + "/cards/" + key);
         var newCard = $firebaseObject(tempCardsRef);
 
-        
+
         newCard.$loaded().then(function(data) {
-            
+
             $scope.importCardWatch = true;
-            
-            
+
+
 
             if ($scope.firstCard) {
                 $scope.firstCard = false;
@@ -118,9 +124,17 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         card = $firebaseObject(tempCardsRef);
     };
 
+    $scope.identityImported = function(key) {
+        if ($scope.localIdentityRefs[key] !== undefined) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+
     $scope.cardImported = function(key) {
         if ($scope.localCardRefs[key] !== undefined) {
-            
             return true;
         }
         else {
@@ -140,11 +154,11 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
     $scope.open = function(identityKey) {
         var key;
-        
+
         if (identityKey === undefined) {
             identityKey = cardToOpen;
             if (identityKey === undefined || identityKey == "") {
-                
+
                 return;
             }
         }
@@ -154,38 +168,43 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         if (localIdentityRef === undefined) {
             localIdentityRef = $scope.importIdentity(identityKey);
         }
-        
+
 
 
         $scope.$watch('importWatch', function(newValue, oldValue) {
-            
-            
+
+
             if ($scope.importWatch) {
 
                 $scope.importWatch = false;
-                
 
+                console.log($scope.identityKeyTemp);
+                console.log($scope.localIdentityRefs);
+                console.log($scope.localIdentities);
                 key = $scope.localIdentities[$scope.localIdentityRefs[$scope.identityKeyTemp].ref].cards[0].key;
 
                 var localCardRef = $scope.localCardRefs[key];
-                
-                
+
+
                 if (localCardRef === undefined) {
                     localCardRef = $scope.importCard(key);
                     $scope.localCardRefTemp = localCardRef;
                 }
                 $scope.$watch('importCardWatch', function(newValue, oldValue) {
-                    
+
                     if ($scope.importCardWatch) {
                         $scope.importCardWatch = false;
                         var card = $scope.localCards[$scope.localCardRefTemp.ref];
                         for (var i = 0; i < $scope.localCards.length; i++) {
                             $scope.localCards[i].atFront = false;
                         }
-                        
+
                         $scope.localCardRefTemp.showing = true;
                         $scope.localCardRefTemp.atFront = true;
                         $scope.localCardRefTemp.editing = false;
+
+                        $scope.cardOpened = true;
+
                         return card;
                     }
                 });
@@ -222,7 +241,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         }
     };
 
-    $scope.addNewIdentity = function(initialCardKey) {
+    $scope.addNewIdentity = function(initialCardKey, initialKeyword, open) { //Only call this function once the card has been created
         var newIdentity = {
             cards: [{
                 key: initialCardKey,
@@ -230,28 +249,65 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             }]
         };
 
-        $scope.globalIdentities.$add(newIdentity).then(function(ref) {
-            var key = ref.key();
-            
-            
+        // var initialKeyword = $scope.localCards[$scope.localCardRefs[initialCardKey].ref].title;
 
-            // $scope.globalCards.$getRecord(initialCardKey).identity = key;
+        $scope.globalIdentities.$add(newIdentity).then(function(ref) {
+            var identityKey = ref.key();
+            $scope.identityKeyTemp = identityKey;
+            $scope.initialCardKeyTemp = initialCardKey;
+
+            // $scope.globalCards.$getRecord(initialCardKey).identity = identityKey;
             // $scope.globalCards.$getRecord(initialCardKey).$save().then(function(ref) {
             //     
             //     
             // });
 
-            // var newkeyword = {
-            //     keyword: initialKeyword,
-            //     ref: key
-            // };
-            // $scope.addNewKeyword(newkeyword, false);
+            if (open) {
+                $scope.open(identityKey);
+            }
+
+            $scope.$watch('cardOpened', function(newValue, oldValue) {
+                if ($scope.cardOpened) {
+                    $scope.cardOpened = false;
+                    console.log($scope.localCardRefs);
+                    $scope.localCards[$scope.localCardRefs[$scope.initialCardKeyTemp].ref].indentity = $scope.identityKeyTemp;
+
+                    console.log('Should now have card and identity both linked:');
+                    // console.log($scope.localIdentities[$scope.localIdentityRefs[identityKey].ref]);
+                    console.log($scope.localCards[$scope.localCardRefs[initialCardKey].ref]);
+
+                    console.log(tempCardssRef);
+                    var tempCardssRef = new Firebase(firebaseRoot + "/cards/" + $scope.initialCardKeyTemp);
+                    tempCardssRef.update({
+                        identity: $scope.identityKeyTemp
+                    });
+                    console.log(tempCardssRef);
+
+                    // var newIdentity = $firebaseObject(tempIndentitiesRef);
+
+                    // $scope.globalCards.$save(card).then(function(ref) {
+                    //     var key = ref.key();
+                    //     console.log(key);
+                    //     console.log($scope.globalCards);
+                    // });
+                }
+            });
+
+
+            var newkeyword = {
+                keyword: initialKeyword,
+                identityRef: identityKey
+            };
+            $scope.addNewKeyword(newkeyword, false);
 
 
         });
     };
 
     $scope.addNewCard = function(card, open, justCreated, autoPopulate) {
+        //This needs to be passed into the function, not created here
+        var cardIdentityKey = undefined;
+
         card.dateCreated = Date.now();
 
         card.format = prompt("What format should the new card take?", "profile")
@@ -280,21 +336,17 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             else {
                 $scope.showSimpleToast("Success! You've added a new card.");
             }
-            if (open) {
-                $scope.open(key);
+
+            if (cardIdentityKey === undefined) { //$scope.addNewIdentity will sort the opening
+                console.log(key);
+                $scope.addNewIdentity(key, card.title, open);
+            }
+            else {
+                if (open) {
+                    $scope.open(cardIdentityKey);
+                }
             }
 
-            var localCardRef = $scope.localCardRefs[key];
-            localCardRef.showing = true;
-            localCardRef.atFront = true;
-            localCardRef.editing = true;
-
-            var newkeyword = {
-                keyword: card.title,
-                ref: key
-            };
-            $scope.addNewKeyword(newkeyword, false);
-            
             $scope.algoliaAdd(card, key);
         });
     };
@@ -386,7 +438,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.appendKeyword = function(keyword, card) {
         var newkeyword = {
             keyword: keyword,
-            ref: card.$id
+            identityRef: card.$id
         };
         $scope.addNewKeyword(newkeyword, true);
         $scope.localCardRefs[card.$id].keywords[$scope.localCardRefs[card.$id].keywords.length - 1].pop(); //This shouldn't be necessary, it's because two new ones are created. Not even sure which one gets deleted!
@@ -415,9 +467,9 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         });
     };
 
-    $scope.deleteCardKeywords = function(key) {
+    $scope.deleteIdentityKeywords = function(key) {
         var tempKeywordsRef = new Firebase(firebaseRoot + "/keywords");
-        tempKeywordsRef.orderByChild("ref").equalTo(key).on("child_added", function(snapshot) {
+        tempKeywordsRef.orderByChild("identityRef").equalTo(key).on("child_added", function(snapshot) {
             $scope.deleteKeyword(snapshot.key());
         });
     };
@@ -529,21 +581,45 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
     $scope.deleteCard = function(key, card) {
         var title = card.title;
-        
+        var identityKey = card.identity;
+
         var index = $scope.globalCards.$indexFor(key);
-        
+
         $scope.globalCards[index] = card;
-        
+
         $scope.localCards.splice($scope.localCardRefs[key].ref, 1);
-        
+
         $scope.globalCards.$remove(card).then(function(ref) {
-            
-            $scope.deleteCardKeywords(key);
-            
+            $scope.deleteIdentity(identityKey, title);
+
+            // $scope.deleteCardKeywords(key);
+
             $scope.algoliaDelete(key);
-            
+
             $scope.showSimpleToast("Success! You've deleted the card " + title);
         });
+    };
+
+    $scope.deleteIdentity = function(identityKey, title) {
+
+        var index = $scope.globalIdentities.$indexFor(identityKey);
+
+        var identityToRemove = new Firebase(firebaseRoot + "/identities/" + identityKey);
+
+        console.log(identityKey);
+        console.log($scope.localIdentityRefs);
+        $scope.localIdentities.splice($scope.localIdentityRefs[identityKey].ref, 1);
+
+        identityToRemove.remove($scope.afterDeleteIdentity(identityKey, title));
+    };
+
+    $scope.afterDeleteIdentity = function(identityKey, title) {
+        console.log(identityKey);
+        $scope.deleteIdentityKeywords(identityKey);
+
+        // $scope.algoliaDelete(key); //Need to add Identities to Algolia and work out what we can do with them
+
+        $scope.showSimpleToast("Success! You've deleted the card " + title);
     };
 
     $scope.toastPosition = {
@@ -594,10 +670,10 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     }
 
     $scope.createCardFromSelection = function($event, autoPopulate) {
-        
+
         var selectedText = getSelectedText();
         if (selectedText) {
-            
+
             var newCard = {
                 title: selectedText
             };
@@ -682,7 +758,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
                         throw err;
                     }
 
-                    
+
                 });
             });
         }
@@ -693,18 +769,18 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.algoliaAdd = function(card, key) {
         var myObjectID = key;
         indexAlgolia.addObject(card, myObjectID, function(err, content) {
-            
-            
+
+
         });
     };
 
     $scope.algoliaUpdate = function(key, card) {
-        
-        
+
+
         card.objectID = key;
         card.$$conf = null; //Probably not necessary to delete all of this (only to prevent "TypeError: Converting circular structure to JSON" error)
         indexAlgolia.saveObject(card, function(err, content) {
-            
+
             // 
         });
     };
@@ -712,7 +788,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.algoliaDelete = function(key) {
         indexAlgolia.deleteObject(key, function(error) {
             if (!error) {
-                
+
             }
         });
     };
@@ -730,7 +806,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             },
             function(err, content) {
                 if (err || $scope.query != content.query) {
-                    
+
                     return;
                 }
                 $scope.hits = content.hits;
@@ -805,7 +881,7 @@ app.directive('ngCardFormat', ["$compile", '$http', '$templateCache', '$parse', 
             });
 
             function loadTemplate(format) {
-                
+
                 $http.get(format, {
                         cache: $templateCache
                     })
