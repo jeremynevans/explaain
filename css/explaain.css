@@ -93,10 +93,22 @@ md-input-container.md-default-theme .md-input {
     cursor: pointer;
 }
 
-.material-icons.edit-mode {
+.material-icons.toggle-login {
     position: fixed;
     top: 20px;
     right: 20px;
+    font-size: 30px;
+    line-height: 23px;
+}
+
+.material-icons.toggle-login.login-true {
+    color: blue;
+}
+
+.material-icons.edit-mode {
+    position: fixed;
+    top: 20px;
+    right: 60px;
 }
 
 .material-icons.edit-mode.edit-mode-true {
@@ -106,15 +118,15 @@ md-input-container.md-default-theme .md-input {
 .material-icons.refresh-all {
     position: fixed;
     top: 20px;
-    right: 55px;
+    right: 95px;
     color: green;
 }
 
 .material-icons.new-card {
     position: fixed;
     top: 20px;
-    right: 90px;
-    color: blue;
+    right: 130px;
+    color: orange;
 }
 
 
@@ -319,6 +331,50 @@ li.card {
 .card .display-fields.quote .header img.image {
     widtH: 60px;
     height: 60px;
+}
+
+.card .author {
+    color: #666;
+    display: inline-block;
+    width: 50%;
+    margin-top: 15px;
+}
+
+.card .author-image,
+.card .author-text {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 2px;
+}
+
+.card .author-image {
+    display: inline-block;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+
+.card .credits {
+    text-align: right;
+    text-transform: uppercase;
+    color: #999;
+    font-size: 0.9em;
+    display: inline-block;
+    width: 49%;
+    vertical-align: middle;
+}
+
+.card .credits span.author, .card .credits span.sources, .card .credits span.sources a {
+    color: #666;
+    text-decoration: none;
+}
+
+.card .credits span a:hover{
+    color: #333;
+}
+
+.card .credits span.author {
+    font-weight: bold;
 }
 
 .card .close,

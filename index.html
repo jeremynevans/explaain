@@ -17,7 +17,8 @@
 <body ng-controller="ExplaainCtrl">
     <h1 class="logo">Explaain</h1>
     <div>
-        <i class="material-icons action-icon edit-mode edit-mode-{{editMode}}" ng-click="toggleEditMode()">build</i>
+        <i class="material-icons action-icon toggle-login login-{{loggedIn}}" ng-click="toggleLogin()">account_circle</i>
+        <i class="material-icons action-icon edit-mode edit-mode-{{editMode}}" ng-show="loggedIn" ng-click="toggleEditMode()">build</i>
         <i class="material-icons action-icon refresh-all" ng-show="editMode" ng-click="updateEverything()">autorenew</i>
         <i class="material-icons action-icon new-card" ng-show="editMode" ng-click="addNewCard({}, true, true, false)">queue</i>
         <ul class="cards">

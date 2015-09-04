@@ -20,16 +20,20 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     var clientAlgolia = algoliasearch('RR6V7DE8C8', 'b96680f1343093d8822d98eb58ef0d6b');
     var indexAlgolia = clientAlgolia.initIndex(algoliaIndex);
 
+    $scope.localUsers = [];
     $scope.localCards = [];
     $scope.localIdentities = [];
     //Remember the positions of objects in the $scope.cards array don't match up to the positions of objects in the $scope.localCards array
+    $scope.localUserRefs = {};
     $scope.localCardRefs = {};
     $scope.localIdentityRefs = {};
 
-    var firebaseRef = new Firebase(firebaseRoot);
-    var firebaseCardsRef = firebaseRef.child("cards");
+    $scope.firebaseRef = new Firebase(firebaseRoot);
+    var firebaseUsersRef = $scope.firebaseRef.child("users");
+    $scope.globalUsers = $firebaseArray(firebaseUsersRef);
+    var firebaseCardsRef = $scope.firebaseRef.child("cards");
     $scope.globalCards = $firebaseArray(firebaseCardsRef);
-    var firebaseIdentitiesRef = firebaseRef.child("identities");
+    var firebaseIdentitiesRef = $scope.firebaseRef.child("identities");
     $scope.globalIdentities = $firebaseArray(firebaseIdentitiesRef);
 
     var keywordsRef = new Firebase(firebaseRoot + "/keywords");
@@ -43,6 +47,9 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.initialCardKeyTemp;
     $scope.localCardRefTemp;
 
+    $scope.loggedIn = false;
+    $scope.loginData = {};
+
     $scope.frontCard;
     $scope.editMode = false;
 
@@ -53,19 +60,26 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     ];
 
 
-    // firebaseRef.authWithOAuthPopup("twitter", function(error, authData) {
-    //     if (error) {
-    //         
-    //     }
-    //     else {
-    //         
-    //     }
-    // });
 
 
     $scope.showingFilter = function(card) {
         var localCardRef = $scope.localCardRefs[card.$id];
         return localCardRef.showing;
+    };
+
+    $scope.importUser = function(key) {
+        var tempUsersRef = new Firebase(firebaseRoot + "/users/" + key);
+        var newUser = $firebaseObject(tempUsersRef);
+
+
+        // newUser.$loaded().then(function(data) {
+        //     $scope.importCardWatch = true;
+        // });
+
+        $scope.localUsers.push(newUser);
+        $scope.localUserRefs[key] = {};
+        $scope.localUserRefs[key].ref = $scope.localUsers.length - 1;
+        return $scope.localCardRefs[key];
     };
 
     $scope.importIdentity = function(key) {
@@ -107,6 +121,12 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
                 var element = document.getElementById("spinner");
                 element.parentNode.removeChild(element);
             }
+            
+            var localUserRef = $scope.localUserRefs[data.authorId];
+            if (localUserRef === undefined) {
+                $scope.importUser(data.authorId);
+            }
+            
 
         });
 
@@ -309,6 +329,8 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         var cardIdentityKey = undefined;
 
         card.dateCreated = Date.now();
+        card.authorId = $scope.loginData.uid;
+        card.sources = [];
 
         card.format = prompt("What format should the new card take?", "profile")
 
@@ -355,6 +377,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         var title = card.title;
         $http.jsonp('https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&lllimit=500&titles=' + title + '&callback=JSON_CALLBACK&formatversion=2').
         success(function(data) {
+            // card.sources.push({title: 'Wikipedia', url: 'https://en.wikipedia.org/'}); //Needs if statement in case Wikipedia already listed
             if (card.bio === undefined) {
                 card.bio = {};
             }
@@ -628,6 +651,65 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         left: false,
         right: true
     };
+
+
+
+    $scope.toggleLogin = function() {
+        if ($scope.loggedIn) {
+            $scope.firebaseRef.unAuth();
+        }
+        else {
+            $scope.logMeIn('twitter');
+        }
+    }
+
+    $scope.logMeIn = function(loginProvider) {
+        switch (loginProvider) {
+            case 'twitter':
+                {
+                    $scope.firebaseRef.authWithOAuthPopup("twitter", function(error, authData) {
+                        if (error) {
+                            console.log('twitter error');
+                        }
+                        else {
+                            console.log('twitter success!');
+                            $scope.loggedIn = true;
+                            $scope.loginData = authData;
+                            $scope.$apply();
+                            $scope.showSimpleToast("Hello " + authData.twitter.displayName + "! You're now logged in.");
+
+                            $scope.firebaseRef.child("users").once('value', function(snapshot) {
+                                if (!snapshot.hasChild(authData.uid)) {
+                                    $scope.firebaseRef.child("users").child(authData.uid).set({
+                                        uid: authData.uid,
+                                        provider: authData.provider,
+                                        name: authData.twitter.displayName,
+                                        username: authData.twitter.username,
+                                        image: authData.twitter.profileImageURL
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+        }
+    };
+
+    $scope.cardBelongsToUser = function(card) {
+        if (card.authorId == $scope.loginData.uid) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+
+
+
+
+
+
+
 
     $scope.toggleSidenav = function(menuId) {
         $mdSidenav(menuId).toggle();
@@ -966,6 +1048,44 @@ app.directive('ngSubtitle', function() {
         templateUrl: 'html/components/subtitle.html',
         scope: {
             subtitle: '=',
+            card: '=card',
+            editing: '='
+        }
+    }
+});
+
+app.directive('ngCredits', function() {
+    return {
+        restrict: 'E',
+        require: 'ExplaainCtrl',
+        templateUrl: 'html/components/credits.html',
+        scope: {
+            card: '=card',
+            editing: '='
+        }
+    }
+});
+
+app.directive('ngAuthor', function() {
+    return {
+        restrict: 'E',
+        require: 'ExplaainCtrl',
+        templateUrl: 'html/components/author.html',
+        scope: {
+            author: '=',
+            card: '=card',
+            editing: '='
+        }
+    }
+});
+
+app.directive('ngSources', function() {
+    return {
+        restrict: 'E',
+        require: 'ExplaainCtrl',
+        templateUrl: 'html/components/sources.html',
+        scope: {
+            sources: '=',
             card: '=card',
             editing: '='
         }

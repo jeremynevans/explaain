@@ -1,7 +1,9 @@
 <li class="card card-{{card.id}}" style="margin-top: {{$index*10}}px; margin-left: {{$index*5}}px;">
     <i class="material-icons action-icon close" ng-click="close(card)">close</i>
-    <i class="material-icons action-icon edit" ng-show="editMode" ng-click="toggleEditCard(card)">create</i>
-    <i class="material-icons action-icon delete" ng-show="editMode" ng-click="deleteCard(card.$id, card)">delete</i>
+    <i class="material-icons action-icon edit" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="toggleEditCard(card)">create</i>
+    <i class="material-icons action-icon delete" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="deleteCard(card.$id, card)">delete</i>
     <!--<ng-format format="card.format" format-options="formatOptions" editing="localCardRefs[card.$id].editing"></ng-format>-->
     <ng-card-format card="card" format="card.format"></ng-card-format>
+    <ng-author card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing"></ng-author>
+    <ng-credits card="card" editing="localCardRefs[card.$id].editing"></ng-credits>
 </li>
