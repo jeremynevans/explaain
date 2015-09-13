@@ -10,6 +10,8 @@ function clogyo() {
 var ctrlKeyDown = false;
 var cardToOpen = ''; //This is not a good way of doing it
 
+var godMode = true;
+
 var myScope;
 
 var app = angular.module('app', ['firebase', 'ngMaterial', 'algoliasearch', 'ngRoute', 'ngSanitize']).
@@ -42,6 +44,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.firstCard = true;
     $scope.importWatch = false;
     $scope.importCardWatch = false;
+    $scope.importCardWatch1 = false;
     $scope.cardOpened = false;
     $scope.identityKeyTemp;
     $scope.initialCardKeyTemp;
@@ -109,10 +112,12 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         var tempCardsRef = new Firebase(firebaseRoot + "/cards/" + key);
         var newCard = $firebaseObject(tempCardsRef);
 
-
+        console.log(newCard);
         newCard.$loaded().then(function(data) {
+            console.log(newCard);
 
             $scope.importCardWatch = true;
+            $scope.importCardWatch1 = true;
 
 
 
@@ -121,12 +126,12 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
                 var element = document.getElementById("spinner");
                 element.parentNode.removeChild(element);
             }
-            
+
             var localUserRef = $scope.localUserRefs[data.authorId];
             if (localUserRef === undefined) {
                 $scope.importUser(data.authorId);
             }
-            
+
 
         });
 
@@ -172,8 +177,49 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         return cardKeywords;
     };
 
+    $scope.openFromCardKey = function(cardKey) { //For now just selects identity from card and then acts as normal (so will select the most popular card from that identity)
+
+        console.log(cardKey);
+
+        if (cardKey === undefined) {
+            cardKey = cardToOpen;
+            if (cardKey === undefined || cardKey == "") {
+                console.log("giving up");
+                return;
+            }
+        }
+
+        var localCardRef = $scope.localCardRefs[cardKey];
+        if (localCardRef === undefined) {
+            localCardRef = $scope.importCard(cardKey);
+        }
+        else {
+            var card = $scope.localCards[localCardRef.ref];
+            var identityKey = card.identity;
+            $scope.open(identityKey);
+        }
+
+        console.log(localCardRef);
+        $scope.localCardRefTemp = localCardRef;
+
+        $scope.$watch('importCardWatch1', function(newValue, oldValue) { //May not yet be working for cards that don't need to be imported...
+            console.log('hello');
+
+            if ($scope.importCardWatch1) {
+                $scope.importCardWatch1 = false;
+                var card = $scope.localCards[$scope.localCardRefTemp.ref];
+                var identityKey = card.identity;
+                console.log(card);
+                console.log(identityKey);
+
+                $scope.open(identityKey);
+            }
+        });
+
+    };
+
     $scope.open = function(identityKey) {
-        var key;
+        var cardKey;
 
         if (identityKey === undefined) {
             identityKey = cardToOpen;
@@ -188,10 +234,21 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         if (localIdentityRef === undefined) {
             localIdentityRef = $scope.importIdentity(identityKey);
         }
+        else {
+            cardKey = $scope.localIdentities[$scope.localIdentityRefs[identityKey].ref].cards[0].key;
+
+            var localCardRef = $scope.localCardRefs[cardKey];
+
+
+            if (localCardRef === undefined) {
+                localCardRef = $scope.importCard(cardKey);
+                $scope.localCardRefTemp = localCardRef;
+            }
+        }
 
 
 
-        $scope.$watch('importWatch', function(newValue, oldValue) {
+        $scope.$watch('importWatch', function(newValue, oldValue) { //May not yet be working for cards that don't need to be imported...
 
 
             if ($scope.importWatch) {
@@ -201,33 +258,45 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
                 console.log($scope.identityKeyTemp);
                 console.log($scope.localIdentityRefs);
                 console.log($scope.localIdentities);
-                key = $scope.localIdentities[$scope.localIdentityRefs[$scope.identityKeyTemp].ref].cards[0].key;
+                cardKey = $scope.localIdentities[$scope.localIdentityRefs[$scope.identityKeyTemp].ref].cards[0].key;
 
-                var localCardRef = $scope.localCardRefs[key];
+                var localCardRef = $scope.localCardRefs[cardKey];
 
 
                 if (localCardRef === undefined) {
-                    localCardRef = $scope.importCard(key);
+                    localCardRef = $scope.importCard(cardKey);
                     $scope.localCardRefTemp = localCardRef;
                 }
-                $scope.$watch('importCardWatch', function(newValue, oldValue) {
+                else {
 
-                    if ($scope.importCardWatch) {
-                        $scope.importCardWatch = false;
-                        var card = $scope.localCards[$scope.localCardRefTemp.ref];
-                        for (var i = 0; i < $scope.localCards.length; i++) {
-                            $scope.localCards[i].atFront = false;
-                        }
+                    $scope.localCardRefTemp.showing = true;
+                    $scope.localCardRefTemp.atFront = true;
+                    $scope.localCardRefTemp.editing = false;
 
-                        $scope.localCardRefTemp.showing = true;
-                        $scope.localCardRefTemp.atFront = true;
-                        $scope.localCardRefTemp.editing = false;
+                    $scope.cardOpened = true;
 
-                        $scope.cardOpened = true;
+                    return card;
 
-                        return card;
-                    }
-                });
+                }
+            }
+        });
+
+        $scope.$watch('importCardWatch', function(newValue, oldValue) {
+
+            if ($scope.importCardWatch) {
+                $scope.importCardWatch = false;
+                var card = $scope.localCards[$scope.localCardRefTemp.ref];
+                for (var i = 0; i < $scope.localCards.length; i++) {
+                    $scope.localCards[i].atFront = false;
+                }
+
+                $scope.localCardRefTemp.showing = true;
+                $scope.localCardRefTemp.atFront = true;
+                $scope.localCardRefTemp.editing = false;
+
+                $scope.cardOpened = true;
+
+                return card;
             }
         });
 
@@ -679,15 +748,16 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
                             $scope.showSimpleToast("Hello " + authData.twitter.displayName + "! You're now logged in.");
 
                             $scope.firebaseRef.child("users").once('value', function(snapshot) {
-                                if (!snapshot.hasChild(authData.uid)) {
-                                    $scope.firebaseRef.child("users").child(authData.uid).set({
-                                        uid: authData.uid,
-                                        provider: authData.provider,
-                                        name: authData.twitter.displayName,
-                                        username: authData.twitter.username,
-                                        image: authData.twitter.profileImageURL
-                                    });
-                                }
+                                // if (!snapshot.hasChild(authData.uid)) {
+                                $scope.firebaseRef.child("users").child(authData.uid).set({
+                                    uid: authData.uid,
+                                    provider: authData.provider,
+                                    name: authData.twitter.displayName,
+                                    username: authData.twitter.username,
+                                    image: authData.twitter.profileImageURL,
+                                    url: "http://twitter.com/" + authData.twitter.username
+                                });
+                                // }
                             });
                         }
                     });
@@ -696,7 +766,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     };
 
     $scope.cardBelongsToUser = function(card) {
-        if (card.authorId == $scope.loginData.uid) {
+        if (card.authorId == $scope.loginData.uid | godMode) {
             return true;
         }
         else {

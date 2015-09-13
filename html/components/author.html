@@ -1,6 +1,8 @@
-<div class="author">
-    <img class="author-image" src="{{author.image}}">
-    <div class="author-text">
-        <span class="author-name" ng-hide="editing">{{ author.name }}</span>
+<a href="{{author.url}}" target="_blank">
+    <div class="author">
+        <img class="author-image" src="{{author.image || 'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png'}}">
+        <div class="author-text">
+            <span class="author-name">{{ author.name || "Unknown Author"}}</span>
+        </div>
     </div>
-</div>
+</a>

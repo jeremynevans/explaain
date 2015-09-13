@@ -1,5 +1,6 @@
+<span class="sources" ng-hide="sources.length">Unknown</span>
 <span class="sources" ng-repeat="source in sources">
-    <a href="{{source.url}}">{{source.title}}</a>
+    <a href="{{source.url}}" target="_blank">{{source.title}}</a>
     <span ng-if="!$last">,</span>
 </span>
 

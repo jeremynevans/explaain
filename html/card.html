@@ -4,6 +4,8 @@
     <i class="material-icons action-icon delete" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="deleteCard(card.$id, card)">delete</i>
     <!--<ng-format format="card.format" format-options="formatOptions" editing="localCardRefs[card.$id].editing"></ng-format>-->
     <ng-card-format card="card" format="card.format"></ng-card-format>
-    <ng-author card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing"></ng-author>
-    <ng-credits card="card" editing="localCardRefs[card.$id].editing"></ng-credits>
+    <div class="credits-footer">
+        <ng-author card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing"></ng-author>
+        <ng-credits card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing"></ng-credits>
+    </div>
 </li>

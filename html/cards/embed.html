@@ -1,12 +1,12 @@
 <div class="display-fields">
     <div class="header">
-        <ng-image class="header-image" editing="localCardRefs[card.$id].editing" image="card.image" backup="'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png'"></ng-image>
+        <ng-image class="header-image" editing="localCardRefs[card.$id].editing" image="card.image" backup="'http://static.wixstatic.com/media/9bd2f6_91b9764674834d6997796aa1cbfeafe2.png_srz_200_200_85_22_0.50_1.20_0.00_png_srz'"></ng-image>
         <div class="header-text">
             <ng-title title="card.title" editing="localCardRefs[card.$id].editing"></ng-title>
             <ng-subtitle subtitle="card.subtitle" editing="localCardRefs[card.$id].editing"></ng-subtitle>
         </div>
-    <ng-embed embed="card.embed" editing="localCardRefs[card.$id].editing"></ng-embed>
     </div>
+    <ng-embed embed="card.embed" editing="localCardRefs[card.$id].editing"></ng-embed>
 </div>
 <div class="editing-fields" ng-show="localCardRefs[card.$id].editing">
     <form name="editCardForm">

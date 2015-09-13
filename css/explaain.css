@@ -54,7 +54,7 @@ md-toast {
 }
 
 md-toast.md-top {
-    right: 130px;
+    right: 165px;
 }
 
 
@@ -62,8 +62,7 @@ md-toast.md-top {
 
 /* Main Explaain CSS */
 
-body {
-    height: auto;
+html, body {
     min-height: 100%;
     /*background: #eee;*/
     font-family: 'Lato', sans-serif;
@@ -270,7 +269,7 @@ li.card {
 .card .header-text {
     display: inline-block;
     vertical-align: middle;
-    margin-bottom: 10px;
+    /*margin-bottom: 10px;*/
 }
 
 .card .header-text {
@@ -333,6 +332,11 @@ li.card {
     height: 60px;
 }
 
+.card .credits-footer.expanded-false:hover {
+    background: rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+
 .card .author {
     color: #666;
     display: inline-block;
@@ -345,6 +349,11 @@ li.card {
     display: inline-block;
     vertical-align: middle;
     margin: 0 2px;
+}
+
+.card a:hover .author-image,
+.card a:hover .author-text {
+    opacity: 0.7;
 }
 
 .card .author-image {
@@ -413,6 +422,16 @@ li.card {
 
 .card md-input-container {
     padding: 8px 0;
+}
+
+.card .md-fab.md-primary i {
+    font-size: 1.6em;
+    line-height: 2.5em;
+    margin-left: 1px;
+}
+
+.embed-container {
+    margin: 1em 0 0 0;
 }
 
 .md-autocomplete-suggestions li {

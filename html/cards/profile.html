@@ -12,14 +12,38 @@
     <form name="editCardForm">
         <div layout layout-sm="column">
             <md-input-container>
-                <md-button class="md-raised md-primary" ng-click="populateFromWikipedia(card, true)">Populate from Wikipedia</md-button>
+                <section layout="row" layout-sm="column" layout-align="center center" layout-wrap="">
+                    Populate from:
+                    <md-button class="md-fab md-primary" ng-click="populateFromWikipedia(card, true)" style="background:#6B6B6B"><i class="fa fa-wikipedia-w"></i>
+                        <md-tooltip>
+                            Wikipedia
+                        </md-tooltip>
+                    </md-button>
+                    <md-button class="md-fab md-primary" style="background:#3C7BBE"><i class="fa fa-book"></i>
+                        <md-tooltip>
+                            Dictionary.com
+                        </md-tooltip>
+                    </md-button>
+                    <md-button class="md-fab md-primary" style="background:#EF4B78"><i class="fa fa-foursquare"></i>
+                        <md-tooltip>
+                            Foursquare
+                        </md-tooltip>
+                    </md-button>
+                    <md-button class="md-fab md-primary" style="background:#0FA460"><i class="fa fa-map"></i>
+                        <md-tooltip>
+                            Google Maps
+                        </md-tooltip>
+                    </md-button>
+                </section>
             </md-input-container>
             <md-input-container flex> </md-input-container>
         </div>
         <div layout layout-sm="column">
             <md-chips ng-model="localCardRefs[card.$id].keywords" placeholder="Enter a new keyword" delete-button-label="Remove Keyword" delete-hint="Press delete to remove keyword" secondary-placeholder="+Keyword" md-on-append="appendKeyword($chip, card)">
                 <md-chip-template> {{$chip.keyword}} </md-chip-template>
-                <button md-chip-remove class="md-chip-remove ng-scope" ng-click="deleteKeyword($chip.$id)"><md-icon md-svg-icon="md-close" class="ng-isolate-scope md-default-theme" aria-hidden="true"></md-icon></button>
+                <button md-chip-remove class="md-chip-remove ng-scope" ng-click="deleteKeyword($chip.$id)">
+                    <md-icon md-svg-icon="md-close" class="ng-isolate-scope md-default-theme" aria-hidden="true"></md-icon>
+                </button>
             </md-chips>
         </div>
         <div layout layout-sm="column">
