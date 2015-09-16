@@ -58,11 +58,10 @@ md-toast.md-top {
 }
 
 
-
-
 /* Main Explaain CSS */
 
-html, body {
+html,
+body {
     min-height: 100%;
     /*background: #eee;*/
     font-family: 'Lato', sans-serif;
@@ -77,7 +76,6 @@ html, body {
 md-input-container.md-default-theme .md-input {
     font-family: 'Lato', sans-serif;
 }
-
 
 
 /* Main Page Action Buttons */
@@ -128,6 +126,15 @@ md-input-container.md-default-theme .md-input {
     color: orange;
 }
 
+.login-image {
+    position: fixed;
+    top: 17px;
+    right: 20px;
+    height: 30px;
+    width: 30px;
+    object-fit: cover;
+    border-radius: 50%;
+}
 
 
 /* Main Logo & Card Container */
@@ -150,7 +157,6 @@ ul.cards {
     padding: 0;
     list-style-type: none;
 }
-
 
 
 /* Spinner */
@@ -214,7 +220,6 @@ ul.cards .spinner {
         -webkit-transform: scaleY(1.0);
     }
 }
-
 
 
 /* Cards */
@@ -285,7 +290,8 @@ li.card {
     font-weight: 400;
 }
 
-.card .bio, .card .text {
+.card .bio,
+.card .text {
     margin-top: 1em;
 }
 
@@ -333,7 +339,7 @@ li.card {
 }
 
 .card .credits-footer.expanded-false:hover {
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
     cursor: pointer;
 }
 
@@ -373,12 +379,14 @@ li.card {
     vertical-align: middle;
 }
 
-.card .credits span.author, .card .credits span.sources, .card .credits span.sources a {
+.card .credits span.author,
+.card .credits span.sources,
+.card .credits span.sources a {
     color: #666;
     text-decoration: none;
 }
 
-.card .credits span a:hover{
+.card .credits span a:hover {
     color: #333;
 }
 
@@ -388,11 +396,17 @@ li.card {
 
 .card .close,
 .card .edit,
-.card .delete {
+.card .delete,
+.card .claim {
     float: right;
     margin: -16px -16px;
     text-decoration: none;
     color: #aaa;
+}
+
+.card .claim {
+    margin: -14px 9px;
+    font-size: 1.25em;
 }
 
 .card .edit {

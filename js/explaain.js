@@ -10,12 +10,12 @@ function clogyo() {
 var ctrlKeyDown = false;
 var cardToOpen = ''; //This is not a good way of doing it
 
-var godMode = true;
+var godMode = false;
 
 var myScope;
 
 var app = angular.module('app', ['firebase', 'ngMaterial', 'algoliasearch', 'ngRoute', 'ngSanitize']).
-controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseObject, $http, $mdToast, $mdSidenav, algolia) {
+controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseObject, $http, $mdToast, $mdSidenav, algolia, $q) {
 
     myScope = $scope;
 
@@ -31,15 +31,34 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.localIdentityRefs = {};
 
     $scope.firebaseRef = new Firebase(firebaseRoot);
-    var firebaseUsersRef = $scope.firebaseRef.child("users");
-    $scope.globalUsers = $firebaseArray(firebaseUsersRef);
-    var firebaseCardsRef = $scope.firebaseRef.child("cards");
-    $scope.globalCards = $firebaseArray(firebaseCardsRef);
-    var firebaseIdentitiesRef = $scope.firebaseRef.child("identities");
-    $scope.globalIdentities = $firebaseArray(firebaseIdentitiesRef);
+    $scope.firebaseUsersRef = $scope.firebaseRef.child("users");
+    $scope.firebaseCardsRef = $scope.firebaseRef.child("cards");
+    $scope.firebaseIdentitiesRef = $scope.firebaseRef.child("identities");
+    $scope.firebaseKeywordsRef = $scope.firebaseRef.child("keywords");
 
-    var keywordsRef = new Firebase(firebaseRoot + "/keywords");
-    $scope.keywords = $firebaseArray(keywordsRef);
+
+    $scope.firebaseKeywordsRef.on("child_removed", function(snapshot) {
+        var tempKeywordTitle = snapshot.val().keyword;
+        $scope.updateBiosFromKeyword(tempKeywordTitle);
+        $scope.showSimpleToast("Success! You've deleted the keyword \"" + tempKeywordTitle + "\"");
+    });
+
+    // $scope.firebaseIdentitiesRef.on("child_added", function(snapshot) {
+    //     var identityKey = snapshot.key();
+    //     var firstCardKey = snapshot.val().cards[0].key;
+    //     var firstCard = $scope.firebaseCardsRef.child(firstCardKey);
+    //     var firstCardTitle = firstCard.val().title;
+    //     firstCard.set({
+    //         identity: identityKey
+    //     }, function(error) {
+    //         $scope.reImportCard(firstCardKey);
+    //         var newkeyword = {
+    //             keyword: firstCardTitle,
+    //             identityRef: identityKey
+    //         };
+    //         $scope.addNewKeyword(newkeyword, false);
+    //     });
+    // });
 
     $scope.firstCard = true;
     $scope.importWatch = false;
@@ -48,7 +67,6 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.cardOpened = false;
     $scope.identityKeyTemp;
     $scope.initialCardKeyTemp;
-    $scope.localCardRefTemp;
 
     $scope.loggedIn = false;
     $scope.loginData = {};
@@ -66,7 +84,10 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
 
     $scope.showingFilter = function(card) {
-        var localCardRef = $scope.localCardRefs[card.$id];
+        var localCardRef = $scope.localCardRefs[card.objectID];
+        // console.log('card', card)
+        // console.log('card.id', card.id)
+        // console.log('localCardRef', localCardRef)
         return localCardRef.showing;
     };
 
@@ -82,39 +103,107 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         $scope.localUsers.push(newUser);
         $scope.localUserRefs[key] = {};
         $scope.localUserRefs[key].ref = $scope.localUsers.length - 1;
-        return $scope.localCardRefs[key];
+        return $scope.localUserRefs[key];
+    };
+
+    $scope.getIdentity = function(key) { //Returns local identity with a promise, regardless of whether an import is needed
+        return $q(function(resolve, reject) {
+            var localIdentityRef = $scope.localIdentityRefs[key];
+            if (localIdentityRef) {
+                resolve(localIdentityRef);
+            }
+            else {
+                var promise = $scope.importIdentity(key);
+                promise.then(function(localIdentityRef2) {
+                    localIdentityRef = localIdentityRef2;
+                    resolve(localIdentityRef);
+                });
+            }
+        });
+    };
+
+    $scope.getCard = function(key) { //Returns local card with a promise, regardless of whether an import is needed
+        return $q(function(resolve, reject) {
+            var localCardRef = $scope.localCardRefs[key];
+            if (localCardRef) {
+                resolve(localCardRef);
+            }
+            else {
+                var promise = $scope.importCard(key);
+                promise.then(function(localCardRef2) {
+                    localCardRef = localCardRef2;
+                    resolve(localCardRef);
+                });
+            }
+        });
     };
 
     $scope.importIdentity = function(key) {
-        var tempIndentitiesRef = new Firebase(firebaseRoot + "/identities/" + key);
-        var newIdentity = $firebaseObject(tempIndentitiesRef);
-        $scope.localIdentities.push(newIdentity);
-
-
-
-
-        $scope.localIdentityRefs[key] = {};
-        $scope.localIdentityRefs[key].ref = $scope.localIdentities.length - 1;
-        // $scope.localIdentityRefs[key].keywords = $scope.getCardKeywords(key); //Need to add this in
-
-
-
-        newIdentity.$loaded().then(function(data) {
-            // $scope.importCard(newIdentity.cards[0].key);
-            $scope.importWatch = true;
+        return $q(function(resolve, reject) {
+            $scope.firebaseIdentitiesRef.child(key).once('value', function(snapshot) {
+                $scope.localIdentities.push(snapshot.val());
+                $scope.localIdentityRefs[key] = {};
+                $scope.localIdentityRefs[key].ref = $scope.localIdentities.length - 1; //Will this deal well with multiple asynchronous requests? Probs not.
+                $scope.localIdentityRefs[key].keywords = $scope.getIdentityKeywords(key);
+                console.log(snapshot.val());
+                resolve($scope.localIdentityRefs[key]);
+            });
         });
 
+        // var tempIndentitiesRef = new Firebase(firebaseRoot + "/identities/" + key);
+        // var newIdentity = $firebaseObject(tempIndentitiesRef);
+        // $scope.localIdentities.push(newIdentity);
 
-        return $scope.localIdentityRefs[key];
+        // $scope.localIdentityRefs[key] = {};
+        // $scope.localIdentityRefs[key].ref = $scope.localIdentities.length - 1;
+        // // $scope.localIdentityRefs[key].keywords = $scope.getCardKeywords(key); //Need to add this in
+
+
+
+        // newIdentity.$loaded().then(function(data) {
+        //     // $scope.importCard(newIdentity.cards[0].key);
+        //     $scope.importWatch = true;
+        // });
+
+
+        // return $scope.localIdentityRefs[key];
     };
 
     $scope.importCard = function(key) {
+        return $q(function(resolve, reject) {
+            $scope.firebaseCardsRef.child(key).once('value', function(snapshot) {
+                var tempCard = snapshot.val();
+                tempCard.objectID = snapshot.key();
+                // console.log(tempCard);
+                $scope.localCards.push(tempCard);
+                $scope.localCardRefs[key] = {};
+                $scope.localCardRefs[key].identity = tempCard.identity;
+                $scope.localCardRefs[key].ref = $scope.localIdentities.length - 1; //Will this deal well with multiple asynchronous requests? Probs not.
+                // $scope.localCardRefs[key].keywords = $scope.getCardKeywords(key); //Need to add this in
+
+                var localUserRef = $scope.localUserRefs[tempCard.authorId];
+                if (localUserRef === undefined) {
+                    $scope.importUser(tempCard.authorId);
+                }
+
+                if ($scope.firstCard) {
+                    $scope.firstCard = false;
+                    var element = document.getElementById("spinner");
+                    element.parentNode.removeChild(element);
+                }
+                
+                console.log(snapshot.val());
+
+                resolve($scope.localCardRefs[key]);
+            });
+        });
+
+
+
         var tempCardsRef = new Firebase(firebaseRoot + "/cards/" + key);
         var newCard = $firebaseObject(tempCardsRef);
 
-        console.log(newCard);
         newCard.$loaded().then(function(data) {
-            console.log(newCard);
 
             $scope.importCardWatch = true;
             $scope.importCardWatch1 = true;
@@ -138,15 +227,21 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         $scope.localCards.push(newCard);
         $scope.localCardRefs[key] = {};
         $scope.localCardRefs[key].ref = $scope.localCards.length - 1;
-        $scope.localCardRefs[key].keywords = $scope.getCardKeywords(key);
+        console.log('about to get card keywords...');
+        // $scope.localCardRefs[key].keywords = $scope.getCardKeywords(key);
         return $scope.localCardRefs[key];
     };
 
     $scope.reImportCard = function(key) {
-        var tempCardsRef = new Firebase(firebaseRoot + "/cards/" + key);
-        var card = $scope.localCards[$scope.localCardRefs[key]];
-        // $scope.localCardRefs[key].keywords = $scope.getCardKeywords(key);
-        card = $firebaseObject(tempCardsRef);
+        $scope.firebaseCardsRef.child(key).once('value', function(snapshot) {
+            // var tempCard = snapshot.val();
+            $scope.localCards[$scope.localCardRefs[key]] = snapshot.val(); //The trouble with this is it doesn't update the stuff in localCardRefs!
+        });
+
+        // var tempCardsRef = new Firebase(firebaseRoot + "/cards/" + key);
+        // var card = $scope.localCards[$scope.localCardRefs[key]];
+        // // $scope.localCardRefs[key].keywords = $scope.getCardKeywords(key);
+        // card = $firebaseObject(tempCardsRef);
     };
 
     $scope.identityImported = function(key) {
@@ -167,144 +262,83 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         }
     };
 
-    $scope.getCardKeywords = function(key) {
-        var cardKeywords = [];
-        tempScopeKeywordsRef.orderByChild("ref").equalTo(key).on("child_added", function(snapshot) {
+    $scope.getIdentityKeywords = function(key) {
+        var identityKeywords = [];
+        $scope.firebaseKeywordsRef.orderByChild("identityRef").equalTo(key).on("child_added", function(snapshot) {
             var keyword = snapshot.val();
-            keyword.$id = snapshot.key();
-            cardKeywords.push(keyword);
+            keyword.objectID = snapshot.key();
+            identityKeywords.push(keyword);
         });
-        return cardKeywords;
+        return identityKeywords;
     };
 
+    $scope.getTextLinks = function(structure) {
+        var textLinks = [];
+        for (i = 0; i < structure.length; i++) {
+            if (structure[i].type == 'link' & textLinks.indexOf(structure[i].ref) == -1) {
+                textLinks.push(structure[i].ref);
+            }
+        }
+        return textLinks;
+    };
+
+
+
     $scope.openFromCardKey = function(cardKey) { //For now just selects identity from card and then acts as normal (so will select the most popular card from that identity)
-
-        console.log(cardKey);
-
         if (cardKey === undefined) {
             cardKey = cardToOpen;
             if (cardKey === undefined || cardKey == "") {
-                console.log("giving up");
+                console.log("giving up (card)");
                 return;
             }
         }
 
-        var localCardRef = $scope.localCardRefs[cardKey];
-        if (localCardRef === undefined) {
-            localCardRef = $scope.importCard(cardKey);
-        }
-        else {
+        $scope.getCard(cardKey).then(function(localCardRef) {
             var card = $scope.localCards[localCardRef.ref];
             var identityKey = card.identity;
             $scope.open(identityKey);
-        }
-
-        console.log(localCardRef);
-        $scope.localCardRefTemp = localCardRef;
-
-        $scope.$watch('importCardWatch1', function(newValue, oldValue) { //May not yet be working for cards that don't need to be imported...
-            console.log('hello');
-
-            if ($scope.importCardWatch1) {
-                $scope.importCardWatch1 = false;
-                var card = $scope.localCards[$scope.localCardRefTemp.ref];
-                var identityKey = card.identity;
-                console.log(card);
-                console.log(identityKey);
-
-                $scope.open(identityKey);
-            }
         });
-
     };
 
     $scope.open = function(identityKey) {
         var cardKey;
 
-        if (identityKey === undefined) {
+        if (identityKey === undefined) { //This shouldn't be needed - nee dto sort out local/global directive variables etc
             identityKey = cardToOpen;
-            if (identityKey === undefined || identityKey == "") {
-
-                return;
-            }
         }
-        $scope.identityKeyTemp = identityKey;
 
-        var localIdentityRef = $scope.localIdentityRefs[identityKey];
-        if (localIdentityRef === undefined) {
-            localIdentityRef = $scope.importIdentity(identityKey);
+        if (identityKey === undefined || identityKey == "") {
+            console.log("giving up");
+            return;
         }
-        else {
+
+        $scope.getIdentity(identityKey).then(function(localIdentityRef2) {
             cardKey = $scope.localIdentities[$scope.localIdentityRefs[identityKey].ref].cards[0].key;
 
-            var localCardRef = $scope.localCardRefs[cardKey];
-
-
-            if (localCardRef === undefined) {
-                localCardRef = $scope.importCard(cardKey);
-                $scope.localCardRefTemp = localCardRef;
-            }
-        }
-
-
-
-        $scope.$watch('importWatch', function(newValue, oldValue) { //May not yet be working for cards that don't need to be imported...
-
-
-            if ($scope.importWatch) {
-
-                $scope.importWatch = false;
-
-                console.log($scope.identityKeyTemp);
-                console.log($scope.localIdentityRefs);
-                console.log($scope.localIdentities);
-                cardKey = $scope.localIdentities[$scope.localIdentityRefs[$scope.identityKeyTemp].ref].cards[0].key;
-
-                var localCardRef = $scope.localCardRefs[cardKey];
-
-
-                if (localCardRef === undefined) {
-                    localCardRef = $scope.importCard(cardKey);
-                    $scope.localCardRefTemp = localCardRef;
-                }
-                else {
-
-                    $scope.localCardRefTemp.showing = true;
-                    $scope.localCardRefTemp.atFront = true;
-                    $scope.localCardRefTemp.editing = false;
-
-                    $scope.cardOpened = true;
-
-                    return card;
-
-                }
-            }
-        });
-
-        $scope.$watch('importCardWatch', function(newValue, oldValue) {
-
-            if ($scope.importCardWatch) {
-                $scope.importCardWatch = false;
-                var card = $scope.localCards[$scope.localCardRefTemp.ref];
+            $scope.getCard(cardKey).then(function(localCardRef) {
                 for (var i = 0; i < $scope.localCards.length; i++) {
                     $scope.localCards[i].atFront = false;
                 }
 
-                $scope.localCardRefTemp.showing = true;
-                $scope.localCardRefTemp.atFront = true;
-                $scope.localCardRefTemp.editing = false;
+                localCardRef.showing = true;
+                localCardRef.atFront = true;
+                localCardRef.editing = false;
 
-                $scope.cardOpened = true;
-
-                return card;
-            }
+                //The stuff below is for importing the next set of cards before you click on any of them - needs testing and making sure it happens AFTER this card has loaded properly, so user doesn't notice
+                // var linkedCardsToImport = $scope.getTextLinks($scope.localCards[localCardRef.ref].bio.structure);
+                // for (i = 0; i < linkedCardsToImport.length; i++) {
+                //     $scope.getIdentity(linkedCardsToImport[i]).then(function(localIdentityRef3) {
+                //         cardKey2 = $scope.localIdentities[localIdentityRef3.ref].cards[0].key;
+                //         $scope.getCard(cardKey2).then(function(localCardRef2) {
+                //         });
+                //     });
+                // }
+            });
         });
-
-
     };
 
     $scope.close = function(card) {
-        var localCardRef = $scope.localCardRefs[card.$id];
+        var localCardRef = $scope.localCardRefs[card.objectID];
         localCardRef.showing = false;
         localCardRef.atFront = false;
     };
@@ -320,7 +354,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     };
 
     $scope.toggleEditCard = function(card) {
-        var localCardRef = $scope.localCardRefs[card.$id];
+        var localCardRef = $scope.localCardRefs[card.objectID];
 
         if (localCardRef.editing === undefined) {
             localCardRef.editing = true;
@@ -338,59 +372,97 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             }]
         };
 
-        // var initialKeyword = $scope.localCards[$scope.localCardRefs[initialCardKey].ref].title;
+        // var initialKeyword = $scope.localCards[$scope.localCardRefs[initialCardKey].ref].title; //Not ideal as relies on having the card local
 
-        $scope.globalIdentities.$add(newIdentity).then(function(ref) {
-            var identityKey = ref.key();
-            $scope.identityKeyTemp = identityKey;
-            $scope.initialCardKeyTemp = initialCardKey;
+        var tempIdentity = $scope.firebaseIdentitiesRef.push();
+        var identityKey = tempIdentity.key();
+        tempIdentity.set(newIdentity, function(error) {
+            var initialCard = $scope.firebaseCardsRef.child(initialCardKey);
+            var initialCardTitle = initialKeyword; //$scope.firebaseCardsRef.child(initialCardKey).val().title;
+            initialCard.update({
+                identity: identityKey
+            }, function(error) {
+                $scope.reImportCard(initialCardKey);
+                var newkeyword = {
+                    keyword: initialCardTitle,
+                    identityRef: identityKey
+                };
+                $scope.addNewKeyword(newkeyword, false);
 
-            // $scope.globalCards.$getRecord(initialCardKey).identity = identityKey;
-            // $scope.globalCards.$getRecord(initialCardKey).$save().then(function(ref) {
-            //     
-            //     
-            // });
-
-            if (open) {
-                $scope.open(identityKey);
-            }
-
-            $scope.$watch('cardOpened', function(newValue, oldValue) {
-                if ($scope.cardOpened) {
-                    $scope.cardOpened = false;
-                    console.log($scope.localCardRefs);
-                    $scope.localCards[$scope.localCardRefs[$scope.initialCardKeyTemp].ref].indentity = $scope.identityKeyTemp;
-
-                    console.log('Should now have card and identity both linked:');
-                    // console.log($scope.localIdentities[$scope.localIdentityRefs[identityKey].ref]);
-                    console.log($scope.localCards[$scope.localCardRefs[initialCardKey].ref]);
-
-                    console.log(tempCardssRef);
-                    var tempCardssRef = new Firebase(firebaseRoot + "/cards/" + $scope.initialCardKeyTemp);
-                    tempCardssRef.update({
-                        identity: $scope.identityKeyTemp
-                    });
-                    console.log(tempCardssRef);
-
-                    // var newIdentity = $firebaseObject(tempIndentitiesRef);
-
-                    // $scope.globalCards.$save(card).then(function(ref) {
-                    //     var key = ref.key();
-                    //     console.log(key);
-                    //     console.log($scope.globalCards);
-                    // });
+                if (open) {
+                    $scope.open(identityKey);
                 }
             });
-
-
-            var newkeyword = {
-                keyword: initialKeyword,
-                identityRef: identityKey
-            };
-            $scope.addNewKeyword(newkeyword, false);
-
-
         });
+
+        //    $scope.firebaseIdentitiesRef.on("child_added", function(snapshot) {
+        //     var identityKey = snapshot.key();
+        //     var firstCardKey = snapshot.val().cards[0].key;
+        //     var firstCard = $scope.firebaseCardsRef.child(firstCardKey);
+        //     var firstCardTitle = firstCard.val().title;
+        //     firstCard.set({
+        //         identity: identityKey
+        //     }, function(error) {
+        //         $scope.reImportCard(firstCardKey);
+        //         var newkeyword = {
+        //             keyword: firstCardTitle,
+        //             identityRef: identityKey
+        //         };
+        //         $scope.addNewKeyword(newkeyword, false);
+        //     });
+        // });
+
+        // $scope.globalIdentities.$add(newIdentity).then(function(ref) {
+        //     var identityKey = ref.key();
+        //     $scope.identityKeyTemp = identityKey;
+        //     $scope.initialCardKeyTemp = initialCardKey;
+
+        //     // $scope.globalCards.$getRecord(initialCardKey).identity = identityKey;
+        //     // $scope.globalCards.$getRecord(initialCardKey).$save().then(function(ref) {
+        //     //     
+        //     //     
+        //     // });
+
+        //     if (open) {
+        //         $scope.open(identityKey);
+        //     }
+
+        //     $scope.$watch('cardOpened', function(newValue, oldValue) {
+        //         if ($scope.cardOpened) {
+        //             $scope.cardOpened = false;
+        //             console.log($scope.localCardRefs);
+        //             $scope.localCards[$scope.localCardRefs[$scope.initialCardKeyTemp].ref].indentity = $scope.identityKeyTemp;
+
+        //             console.log('Should now have card and identity both linked:');
+        //             // console.log($scope.localIdentities[$scope.localIdentityRefs[identityKey].ref]);
+        //             console.log($scope.localCards[$scope.localCardRefs[initialCardKey].ref]);
+
+        //             console.log(tempCardssRef);
+        //             var tempCardssRef = new Firebase(firebaseRoot + "/cards/" + $scope.initialCardKeyTemp);
+        //             tempCardssRef.update({
+        //                 identity: $scope.identityKeyTemp
+        //             });
+        //             console.log(tempCardssRef);
+
+        //             // var newIdentity = $firebaseObject(tempIndentitiesRef);
+
+        //             // $scope.globalCards.$save(card).then(function(ref) {
+        //             //     var key = ref.key();
+        //             //     console.log(key);
+        //             //     console.log($scope.globalCards);
+        //             // });
+        //         }
+        //     });
+
+
+        //     var newkeyword = {
+        //         keyword: initialKeyword,
+        //         identityRef: identityKey
+        //     };
+        //     $scope.addNewKeyword(newkeyword, false);
+
+
+        // });
     };
 
     $scope.addNewCard = function(card, open, justCreated, autoPopulate) {
@@ -401,7 +473,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         card.authorId = $scope.loginData.uid;
         card.sources = [];
 
-        card.format = prompt("What format should the new card take?", "profile")
+        card.format = prompt("What format should the new card take?", "profile");
 
         if (card.format === undefined) {
             card.format = 'profile';
@@ -410,17 +482,19 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             card.title = '';
         }
         if (card.bio === undefined) {
-            card.bio = {};
-            card.bio.value = "";
+            card.bio = {
+                value: '',
+                structure: []
+            };
         }
         card.bio.structure = [];
         card.bio.structure = $scope.structureBio(-1, card.bio.value, $scope.orderedKeywords);
 
         card.id = card.title.replace(" ", "-").toLowerCase();
 
-
-        $scope.globalCards.$add(card).then(function(ref) {
-            var key = ref.key();
+        var newCardRef = $scope.firebaseCardsRef.push();
+        newCardRef.set(card, function(error) {
+            var key = newCardRef.key();
             if (card.title.length > 0) {
                 $scope.showSimpleToast("Success! You've added a new card called " + card.title);
             }
@@ -429,7 +503,6 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             }
 
             if (cardIdentityKey === undefined) { //$scope.addNewIdentity will sort the opening
-                console.log(key);
                 $scope.addNewIdentity(key, card.title, open);
             }
             else {
@@ -530,10 +603,10 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.appendKeyword = function(keyword, card) {
         var newkeyword = {
             keyword: keyword,
-            identityRef: card.$id
+            identityRef: card.objectID
         };
         $scope.addNewKeyword(newkeyword, true);
-        $scope.localCardRefs[card.$id].keywords[$scope.localCardRefs[card.$id].keywords.length - 1].pop(); //This shouldn't be necessary, it's because two new ones are created. Not even sure which one gets deleted!
+        $scope.localCardRefs[card.objectID].keywords[$scope.localCardRefs[card.objectID].keywords.length - 1].pop(); //This shouldn't be necessary, it's because two new ones are created. Not even sure which one gets deleted!
         return newkeyword;
     }
 
@@ -542,31 +615,42 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             return;
         }
         newkeyword.keywordLength = newkeyword.keyword.length * -1;
-        $scope.keywords.$add(newkeyword).then(function(ref) {
-            $scope.updateBiosFromKeyword(newkeyword);
+        var newKeywordRef = $scope.firebaseKeywordsRef.push();
+        newKeywordRef.setWithPriority(newkeyword, newkeyword.keywordLength, function(error) { //Need to retrospectively set priorities for existing keywords (one time only)
+            $scope.updateBiosFromKeyword(newkeyword.keyword);
             if (showToast) {
                 $scope.showSimpleToast("Success! You've added the keyword \"" + newkeyword.keyword + "\"");
             }
         });
+
+        // $scope.keywords.$add(newkeyword).then(function(ref) {
+        //     $scope.updateBiosFromKeyword(newkeyword);
+        //     if (showToast) {
+        //         $scope.showSimpleToast("Success! You've added the keyword \"" + newkeyword.keyword + "\"");
+        //     }
+        // });
     };
 
     $scope.deleteKeyword = function(key) {
-        var keywordToDelete = $scope.keywords.$getRecord(key);
-        var tempKeyword = keywordToDelete;
-        $scope.keywords.$remove(keywordToDelete).then(function(ref) {
-            $scope.updateBiosFromKeyword(tempKeyword);
-            $scope.showSimpleToast("Success! You've deleted the keyword \"" + tempKeyword.keyword + "\"");
-        });
+        var keywordToDelete = $scope.firebaseKeywordsRef.child(key);
+        keywordToDelete.remove();
+
+        // var keywordToDelete = $scope.keywords.$getRecord(key);
+        // var tempKeyword = keywordToDelete;
+        // $scope.keywords.$remove(keywordToDelete).then(function(ref) {
+        //     $scope.updateBiosFromKeyword(tempKeyword);
+        //     $scope.showSimpleToast("Success! You've deleted the keyword \"" + tempKeyword.keyword + "\"");
+        // });
     };
 
     $scope.deleteIdentityKeywords = function(key) {
-        var tempKeywordsRef = new Firebase(firebaseRoot + "/keywords");
-        tempKeywordsRef.orderByChild("identityRef").equalTo(key).on("child_added", function(snapshot) {
+        // var tempKeywordsRef = new Firebase(firebaseRoot + "/keywords");
+        $scope.firebaseKeywordsRef.orderByChild("identityRef").equalTo(key).on("child_added", function(snapshot) {
             $scope.deleteKeyword(snapshot.key());
         });
     };
 
-    $scope.reorderKeywords = function(callback) {
+    $scope.reorderKeywords = function(callback) { //Should render this unecessary by using Firebase's ordered lists with keywordLength as the ordering key
         $scope.orderedKeywords = [];
         tempScopeKeywordsRef.orderByChild("keywordLength").on("child_added", function(snapshot) {
             $scope.orderedKeywords.push(snapshot.val());
@@ -576,133 +660,243 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         });
     };
 
-    $scope.updateBiosFromKeyword = function(keyword) {
+    $scope.updateBiosFromKeyword = function(keywordText) {
         //Should this use Algolia to search through bios?
         //Slightly updated now we have localCards, but still not quite right
-        $scope.reorderKeywords(); //Need a callback here to finish this before proceeding
-        for (var i = 0; i < $scope.globalCards.length; i++) {
-            var bio = $scope.globalCards[i].bio.value;
-            if (bio.indexOf(keyword.keyword) != -1) {
-                $scope.globalCards[i].bio.structure = $scope.structureBio($scope.globalCards.$keyAt(i), bio, $scope.orderedKeywords);
-                $scope.globalCards.$save(i).then(function(ref) {
-                    var key = ref.key();
-                    if ($scope.cardImported(key)) {
-                        $scope.reImportCard(key);
-                    }
-                });
+        $scope.reorderKeywords(); //Need a callback here to finish this before proceeding - though hopefully soon not needed as keywords will already have been reordered using setPriority or setWithPriority
+
+        $scope.firebaseCardsRef.on('child_added', function(snapshot) { //Should this be once() not on() to stop it continuing to do it?
+            var key = snapshot.key();
+            var bio = snapshot.val().bio.value;
+            if (bio.indexOf(keywordText) != -1) {
+                var tempStructuredBio = $scope.structureBio(key, bio, $scope.orderedKeywords);
+                $scope.firebaseCardsRef.child(key).child('bio').child('structure').set(tempStructuredBio);
+                if ($scope.cardImported(key)) {
+                    $scope.reImportCard(key);
+                }
             }
-        }
+        });
+
+        // for (var i = 0; i < $scope.globalCards.length; i++) {
+        //     var bio = $scope.globalCards[i].bio.value;
+        //     if (bio.indexOf(keywordText) != -1) {
+        //         $scope.globalCards[i].bio.structure = $scope.structureBio($scope.globalCards.$keyAt(i), bio, $scope.orderedKeywords);
+        //         $scope.globalCards.$save(i).then(function(ref) {
+        //             var key = ref.key();
+        //             if ($scope.cardImported(key)) {
+        //                 $scope.reImportCard(key);
+        //             }
+        //         });
+        //     }
+        // }
     };
 
-    $scope.updateAllBios = function() {
-        //Slightly updated now we have localCards, but still not quite right
-        var successCount = 0;
+    $scope.updateAllIdentities = function() {
+        var tempIdentityListOfCardKeys = [];
+        $scope.firebaseIdentitiesRef.on('child_added', function(snapshot) { //Should this be once() not on() to stop it continuing to do it?
+            $scope.firebaseCardsRef.child(snapshot.val().cards[0].key).on('value', function(cardSnapshot) { //Should this be once() not on() to stop it continuing to do it?
+                if (tempIdentityListOfCardKeys.indexOf(cardSnapshot.key()) == -1) {
+                    tempIdentityListOfCardKeys.push(cardSnapshot.key());
+                }
+                else {
+                    // $scope.firebaseIdentitiesRef.child(snapshot.key()).remove();
+                }
+                if (!cardSnapshot.val().title) {
+                    console.log('need to remove this identity: ', snapshot.val());
+                    // $scope.firebaseIdentitiesRef.child(snapshot.key()).remove();
+                    console.log('need to remove this card: ', cardSnapshot.val());
+                    // $scope.firebaseCardsRef.child(cardSnapshot.key()).remove();
+
+                    $scope.firebaseKeywordsRef.orderByChild("identityRef").equalTo(snapshot.key()).on("child_added", function(keywordSnapshot) {
+                        console.log('need to remove this keyword: ', keywordSnapshot.val());
+                        // $scope.firebaseIdentitiesRef.child(keywordSnapshot.key()).remove();
+                    });
+                }
+            });
+            // $scope.firebaseCardsRef.child(snapshot.val().cards[0].key).update({
+            //     identity: snapshot.key()
+            // });
+        });
+    }
+
+    $scope.updateAllCards = function() {
         $scope.reorderKeywords(); //Need a callback here to finish this before proceeding
-        // var allCards = $firebaseArray(firebaseCardsRef);
+
+        $scope.firebaseCardsRef.on('child_added', function(snapshot) { //Should this be once() not on() to stop it continuing to do it?
+            var key = snapshot.key();
+            if (!snapshot.val().title) {
+                console.log('need to remove this card2: ', snapshot.val());
+                // $scope.firebaseCardsRef.child(key).remove();
+            }
+            else {
+                var bio = snapshot.val().bio.value;
+                var tempStructuredBio = $scope.structureBio(key, bio, $scope.orderedKeywords);
+                $scope.firebaseCardsRef.child(key).child('bio').child('structure').set(tempStructuredBio);
+                if ($scope.cardImported(key)) {
+                    $scope.reImportCard(key);
+                }
+            }
+        });
+
+        //Need multiple callbacks for this
+        // $scope.showSimpleToast("Success! You've updated all cards.");
+
+
+
+
+
+
+        // var successCount = 0;
 
         //temp
-        // for (var i = 0; i < $scope.globalIdentities.length; i++) {
+        // for (var i = 0; i < $scope.globalIdentities.length; i++) { //$scope.globalIdentities no longer exists!
         //     
-        //     var identityKey = $scope.globalIdentities[i].$id;
+        //     var identityKey = $scope.globalIdentities[i].objectID;
         //     var firstCardKey = $scope.globalIdentities[i].cards[0].key;
         //     $scope.globalCards.$getRecord(firstCardKey).identity = identityKey;
         // }
 
-        for (var i = 0; i < $scope.globalCards.length; i++) {
-            if ($scope.globalCards[i].image) {
-                // $scope.globalCards[i].image.value = $scope.globalCards[i].image.value.replace("//", "http://");
-                // $scope.globalCards[i].image.value = $scope.globalCards[i].image.value.replace("https:http://", "https://");
-            }
-            $scope.globalCards[i].editing = false; //Shouldn't be necessary as this variable should only exist locally
-            $scope.globalCards[i].justCreated = false; //Shouldn't be necessary as this variable should only exist locally
-            var bio = $scope.globalCards[i].bio.value;
-            $scope.globalCards[i].bio.structure = $scope.structureBio($scope.globalCards.$keyAt(i), bio, $scope.orderedKeywords);
 
-            //Can delete this now
-            // if (!$scope.globalCards[i].identity) {
-            //     $scope.addNewIdentity($scope.globalCards[i].$id);
-            // }
+        // for (var i = 0; i < $scope.globalCards.length; i++) {
+        //     if ($scope.globalCards[i].image) {
+        //         // $scope.globalCards[i].image.value = $scope.globalCards[i].image.value.replace("//", "http://");
+        //         // $scope.globalCards[i].image.value = $scope.globalCards[i].image.value.replace("https:http://", "https://");
+        //     }
+        //     $scope.globalCards[i].editing = false; //Shouldn't be necessary as this variable should only exist locally
+        //     $scope.globalCards[i].justCreated = false; //Shouldn't be necessary as this variable should only exist locally
+        //     var bio = $scope.globalCards[i].bio.value;
+        //     $scope.globalCards[i].bio.structure = $scope.structureBio($scope.globalCards.$keyAt(i), bio, $scope.orderedKeywords);
 
-            $scope.globalCards.$save(i).then(function(ref) {
-                var key = ref.key();
-                successCount++;
-                if ($scope.cardImported(key)) {
-                    $scope.reImportCard(key);
-                }
-                if (successCount == $scope.globalCards.length) {
-                    $scope.showSimpleToast("Success! You've updated all cards.");
-                }
-            });
-        }
+        //     //Can delete this now???
+        //     // if (!$scope.globalCards[i].identity) {
+        //     //     $scope.addNewIdentity($scope.globalCards[i].objectID);
+        //     // }
+
+        //     $scope.globalCards.$save(i).then(function(ref) {
+        //         var key = ref.key();
+        //         successCount++;
+        //         if ($scope.cardImported(key)) {
+        //             $scope.reImportCard(key);
+        //         }
+        //         if (successCount == $scope.globalCards.length) {
+        //             $scope.showSimpleToast("Success! You've updated all cards.");
+        //         }
+        //     });
+        // }
     };
 
     $scope.updateAllKeywords = function() {
-        for (var i = 0; i < $scope.keywords.length; i++) {
-            $scope.keywords[i].identityRef = $scope.globalCards.$getRecord($scope.keywords[i].ref).identity;
-            $scope.keywords[i].keywordLength = $scope.keywords[i].keyword.length * -1; //Maybe now not needed if this happens when new keyword created?
-            $scope.keywords.$save(i);
-            if ($scope.globalCards.$getRecord($scope.keywords[i].ref) === null) {
-                $scope.keywords.$remove(i);
-            }
-        }
+        $scope.firebaseKeywordsRef.on('child_added', function(snapshot) {
+            var tempKeywordLength = snapshot.val().keywordLength;
+            // console.log('tempKeywordLength', tempKeywordLength);
+            snapshot.ref().setPriority(tempKeywordLength);
+            // console.log(snapshot.val().identityRef);
+            $scope.firebaseIdentitiesRef.child(snapshot.val().identityRef).once('value', function(identitySnapshot) {
+                // console.log(snapshot.val().identityRef);
+                // console.log(identitySnapshot.val());
+            }, function(error) {
+                $scope.firebaseKeywordsRef.child(snapshot.key()).remove(function() { //Don't yet know whether this actually works!
+                    // console.log("Keyword " + snapshot.val().keyword + " removed.");
+                });
+            });
+        });
+
+        // for (var i = 0; i < $scope.keywords.length; i++) {
+        //     $scope.keywords[i].identityRef = $scope.globalCards.$getRecord($scope.keywords[i].ref).identity;
+        //     $scope.keywords[i].keywordLength = $scope.keywords[i].keyword.length * -1; //Maybe now not needed if this happens when new keyword created?
+
+        //     $scope.keywords.$save(i);
+        //     if ($scope.globalCards.$getRecord($scope.keywords[i].ref) === null) {
+        //         $scope.keywords.$remove(i);
+        //     }
+        // }
     };
 
     $scope.updateEverything = function() {
         //All of this needs callbacks
         $scope.updateAllKeywords();
-        $scope.updateAllBios();
-        // $scope.reorderKeywords($scope.updateAllBios);
+        $scope.updateAllCards();
+        $scope.updateAllIdentities();
+        // $scope.reorderKeywords($scope.updateAllCards);
         if (ctrlKeyDown) {
             $scope.reImportToAlgolia();
         }
     };
 
     $scope.updateCard = function(key, card) {
-        var localCardRef = $scope.localCardRefs[key];
-        var index = $scope.globalCards.$indexFor(key);
-        $scope.globalCards[index] = card;
         card.bio.structure = $scope.structureBio(-1, card.bio.value, $scope.orderedKeywords);
-        // card.image.value = card.image.value.replace("http://", "//");
-        // card.image.value = card.image.value.replace("https://", "//");
-        $scope.globalCards.$save(card).then(function(ref) {
+        $scope.firebaseCardsRef.child(key).update(card, function(error) {
             localCardRef.editing = false;
             $scope.algoliaUpdate(key, card);
-            $scope.showSimpleToast("Success! You've updated the card " + card.title);
+            $scope.reImportCard(key);
+            $scope.showSimpleToast("Success! You've updated the card " + card.title); //Shouldn't really display this until algoliaUpdate and reImportCard are complete
         });
+
+        // var localCardRef = $scope.localCardRefs[key];
+        // var index = $scope.globalCards.$indexFor(key);
+        // $scope.globalCards[index] = card;
+        // card.bio.structure = $scope.structureBio(-1, card.bio.value, $scope.orderedKeywords);
+        // // card.image.value = card.image.value.replace("http://", "//");
+        // // card.image.value = card.image.value.replace("https://", "//");
+        // $scope.globalCards.$save(card).then(function(ref) {
+        //     localCardRef.editing = false;
+        //     $scope.algoliaUpdate(key, card);
+        //     $scope.showSimpleToast("Success! You've updated the card " + card.title);
+        // });
     };
 
     $scope.deleteCard = function(key, card) {
         var title = card.title;
         var identityKey = card.identity;
 
-        var index = $scope.globalCards.$indexFor(key);
-
-        $scope.globalCards[index] = card;
-
-        $scope.localCards.splice($scope.localCardRefs[key].ref, 1);
-
-        $scope.globalCards.$remove(card).then(function(ref) {
-            $scope.deleteIdentity(identityKey, title);
-
-            // $scope.deleteCardKeywords(key);
-
+        $scope.firebaseCardsRef.child(key).remove(function() {
+            $scope.localCards.splice($scope.localCardRefs[key].ref, 1);
+            $scope.localCardRefs[key] = null;
+            $scope.deleteIdentity(identityKey, title); //Needs to only be if the identity has no more cards left
             $scope.algoliaDelete(key);
 
+            //The following should really only happen after various callbacks
             $scope.showSimpleToast("Success! You've deleted the card " + title);
         });
+
+
+
+        // var index = $scope.globalCards.$indexFor(key);
+
+        // $scope.globalCards[index] = card;
+
+        // $scope.localCards.splice($scope.localCardRefs[key].ref, 1);
+
+        // $scope.globalCards.$remove(card).then(function(ref) {
+        //     $scope.deleteIdentity(identityKey, title); //Needs to only be if the identity has no more cards left
+
+        //     // $scope.deleteCardKeywords(key);
+
+        //     $scope.algoliaDelete(key);
+
+        //     $scope.showSimpleToast("Success! You've deleted the card " + title);
+        // });
     };
 
     $scope.deleteIdentity = function(identityKey, title) {
 
-        var index = $scope.globalIdentities.$indexFor(identityKey);
+        $scope.firebaseIdentitiesRef.child(identityKey).remove(function() {
+            $scope.localIdentities.splice($scope.localIdentityRefs[identityKey].ref, 1);
+            $scope.localIdentityRefs[identityKey] = null;
+            // $scope.algoliaDelete(key); //Need to add Identities to Algolia and work out what we can do with them
+            $scope.deleteIdentityKeywords(identityKey);
+            $scope.showSimpleToast("Success! You've deleted the identity " + title);
+        });
 
-        var identityToRemove = new Firebase(firebaseRoot + "/identities/" + identityKey);
+        // var index = $scope.globalIdentities.$indexFor(identityKey);
 
-        console.log(identityKey);
-        console.log($scope.localIdentityRefs);
-        $scope.localIdentities.splice($scope.localIdentityRefs[identityKey].ref, 1);
+        // var identityToRemove = new Firebase(firebaseRoot + "/identities/" + identityKey);
 
-        identityToRemove.remove($scope.afterDeleteIdentity(identityKey, title));
+        // console.log(identityKey);
+        // console.log($scope.localIdentityRefs);
+        // $scope.localIdentities.splice($scope.localIdentityRefs[identityKey].ref, 1);
+
+        // identityToRemove.remove($scope.afterDeleteIdentity(identityKey, title));
     };
 
     $scope.afterDeleteIdentity = function(identityKey, title) {
@@ -747,9 +941,9 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
                             $scope.$apply();
                             $scope.showSimpleToast("Hello " + authData.twitter.displayName + "! You're now logged in.");
 
-                            $scope.firebaseRef.child("users").once('value', function(snapshot) {
+                            $scope.firebaseUsersRef.once('value', function(snapshot) {
                                 // if (!snapshot.hasChild(authData.uid)) {
-                                $scope.firebaseRef.child("users").child(authData.uid).set({
+                                $scope.firebaseRef.child("users").child(authData.uid).update({
                                     uid: authData.uid,
                                     provider: authData.provider,
                                     name: authData.twitter.displayName,
@@ -765,6 +959,15 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         }
     };
 
+    $scope.allowEditMode = function() {
+        if ($scope.loggedIn | godMode) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+
     $scope.cardBelongsToUser = function(card) {
         if (card.authorId == $scope.loginData.uid | godMode) {
             return true;
@@ -773,6 +976,25 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
             return false;
         }
     };
+
+    $scope.cardCanBeClaimed = function(card) {
+        if ($scope.loggedIn & card.authorId == undefined & !godMode) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+
+    $scope.claimCard = function(key) {
+        if ($scope.loggedIn) {
+            $scope.firebaseCardsRef.child(key).update({
+                authorId: $scope.loginData.uid
+            }, function(error) {
+                $scope.reImportCard(key);
+            });
+        }
+    }
 
 
 
@@ -871,7 +1093,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
     $scope.reImportToAlgolia = function() { //Use this VERY RARELY!!!!!
         // Get all data from Firebase
-        firebaseCardsRef.on('value', reindexIndex);
+        $scope.firebaseCardsRef.on('value', reindexIndex);
 
         function reindexIndex(dataSnapshot) {
             // Array of objects to index
