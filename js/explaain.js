@@ -7,6 +7,8 @@ function clogyo() {
 };
 
 
+var firstCard = true;
+
 var ctrlKeyDown = false;
 var cardToOpen = ''; //This is not a good way of doing it
 
@@ -60,7 +62,6 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     //     });
     // });
 
-    $scope.firstCard = true;
     $scope.importWatch = false;
     $scope.importCardWatch = false;
     $scope.importCardWatch1 = false;
@@ -85,26 +86,10 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
     $scope.showingFilter = function(card) {
         var localCardRef = $scope.localCardRefs[card.objectID];
-        // console.log('card', card)
-        // console.log('card.id', card.id)
-        // console.log('localCardRef', localCardRef)
         return localCardRef.showing;
     };
 
-    $scope.importUser = function(key) {
-        var tempUsersRef = new Firebase(firebaseRoot + "/users/" + key);
-        var newUser = $firebaseObject(tempUsersRef);
 
-
-        // newUser.$loaded().then(function(data) {
-        //     $scope.importCardWatch = true;
-        // });
-
-        $scope.localUsers.push(newUser);
-        $scope.localUserRefs[key] = {};
-        $scope.localUserRefs[key].ref = $scope.localUsers.length - 1;
-        return $scope.localUserRefs[key];
-    };
 
     $scope.getIdentity = function(key) { //Returns local identity with a promise, regardless of whether an import is needed
         return $q(function(resolve, reject) {
@@ -191,7 +176,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
                     var element = document.getElementById("spinner");
                     element.parentNode.removeChild(element);
                 }
-                
+
                 console.log(snapshot.val());
 
                 resolve($scope.localCardRefs[key]);
@@ -1206,6 +1191,107 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     // tempCard1.editing = false;
 
 });
+
+
+
+
+app.service('Cards', ['$rootScope', '$q', function($rootScope, $q) {
+    var service = {
+
+        cards: [],
+        identities: [],
+        keywords: [],
+        users: [],
+
+        firebaseUsers: 0,
+
+
+        removeSpinner: function() {
+            if (firstCard) {
+                firstCard = false;
+                var element = document.getElementById("spinner");
+                element.parentNode.removeChild(element);
+            }
+        },
+
+        importUser: function(key) {
+            return $q(function(resolve, reject) {
+                firebaseUsers.child(key).once('value', function(snapshot) { /* global firebaseUsers */
+                
+                    var newUser = {
+                        data: snapshot.val()
+                    };
+                    
+                    var length = service.users.push(newUser);
+                    resolve(service.users[length - 1]);
+                    
+                }, function(error) {
+                    reject(-1);
+                });
+            });
+        },
+
+        importCard: function(key) {
+            return $q(function(resolve, reject) {
+                firebaseCards.child(key).once('value', function(snapshot) { /* global firebaseCards */
+                
+                    var newCard = {
+                        data: snapshot.val(),
+                        objectID: snapshot.key(),
+                        editing: false,
+                        atFront: false,
+                        showing: false,
+                    };
+
+                    service.users.push(getUser(newCard.data.authorId)).then(function() {
+                        service.removeSpinner();
+                        var length = service.cards.push(newCard);
+                        resolve(service.cards[length - 1]);
+                    });
+                    
+                }, function(error) {
+                    reject(-1);
+                });
+            });
+        },
+
+        importIdentity: function(key) {
+            return $q(function(resolve, reject) {
+                firebaseCards.child(key).once('value', function(snapshot) { /* global firebaseCards */
+                
+                    var newCard = {
+                        data: snapshot.val(),
+                        objectID: snapshot.key(),
+                        editing: false,
+                        atFront: false,
+                        showing: false,
+                    };
+
+                    service.users.push(getUser(newCard.data.authorId)).then(function() {
+                        service.removeSpinner();
+                        var length = service.cards.push(newCard);
+                        resolve(service.cards[length - 1]);
+                    });
+                    
+                }, function(error) {
+                    reject(-1);
+                });
+            });
+        }
+    }
+
+    return service;
+}]);
+
+
+
+app.service('Users', ['$rootScope', function($rootScope) {
+
+
+}]);
+
+
+
 
 
 
