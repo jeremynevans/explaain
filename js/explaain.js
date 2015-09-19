@@ -6,6 +6,8 @@ function clogyo() {
     console.log('yo');
 };
 
+var editMode = false;
+
 
 var firstCard = true;
 
@@ -15,14 +17,56 @@ var cardToOpen = ''; //This is not a good way of doing it
 var godMode = false;
 
 var myScope;
+var mainScope;
 
-var app = angular.module('app', ['firebase', 'ngMaterial', 'algoliasearch', 'ngRoute', 'ngSanitize']).
-controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseObject, $http, $mdToast, $mdSidenav, algolia, $q) {
+var app = angular.module('app', ['firebase', 'ngMaterial', 'algoliasearch', 'ngRoute', 'ngSanitize']); /* global angular */
+
+var oldApp = angular.module('app');
+
+
+oldApp.controller('mainCtrl', ['$scope', '$timeout', '$http', '$mdToast', '$mdSidenav', 'algolia', '$q', 'Cards', function($scope, $timeout, $firebaseObject, $http, $mdToast, $mdSidenav, algolia, $q, Cards) {
+
+    mainScope = $scope;
+    
+    $scope.firebaseRef = new Firebase(firebaseRoot); /* global Firebase */ /* global firebaseRoot */
+    $scope.clientAlgolia = algoliasearch('RR6V7DE8C8', 'b96680f1343093d8822d98eb58ef0d6b'); /* global algoliasearch */
+
+    Cards.checkServiceWorks();
+    Cards.connectToFirebase();
+    Cards.connectToAlgolia();
+    
+    
+    
+    //Should these be in a service?
+
+    window.onkeydown = function(event) {
+        ctrlKeyDown = event.ctrlKey;
+    };
+
+    window.onkeyup = function(event) {
+        ctrlKeyDown = event.ctrlKey;
+    };
+
+    document.onkeyup = function(event) {
+        if (event.keyCode == 67 && !ctrlKeyDown) {
+            $scope.createCardFromSelection(event, -1);
+        }
+        else if (event.keyCode == 87) {
+            // $scope.createCardFromSelection(event, 'wikipedia');
+        }
+    };
+
+}]);
+
+
+
+app.controller('ExplaainCtrl', ['$scope', '$timeout', '$firebaseObject', '$http', '$mdToast', '$mdSidenav', 'algolia', '$q', 'Cards', function($scope, $timeout, $firebaseObject, $http, $mdToast, $mdSidenav, algolia, $q, Cards) {
 
     myScope = $scope;
 
     var clientAlgolia = algoliasearch('RR6V7DE8C8', 'b96680f1343093d8822d98eb58ef0d6b');
-    var indexAlgolia = clientAlgolia.initIndex(algoliaIndex);
+    var indexAlgolia = clientAlgolia.initIndex(thisAlgoliaIndex);
+    //Check algoliaIndex has been changed to thisAlgoliaIndex in branch-specific.js
 
     $scope.localUsers = [];
     $scope.localCards = [];
@@ -38,6 +82,8 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.firebaseIdentitiesRef = $scope.firebaseRef.child("identities");
     $scope.firebaseKeywordsRef = $scope.firebaseRef.child("keywords");
 
+
+    Cards.checkServiceWorks();
 
     $scope.firebaseKeywordsRef.on("child_removed", function(snapshot) {
         var tempKeywordTitle = snapshot.val().keyword;
@@ -87,6 +133,21 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     $scope.showingFilter = function(card) {
         var localCardRef = $scope.localCardRefs[card.objectID];
         return localCardRef.showing;
+    };
+
+    $scope.importUser = function(key) {
+        var tempUsersRef = new Firebase(firebaseRoot + "/users/" + key);
+        var newUser = $firebaseObject(tempUsersRef);
+
+
+        // newUser.$loaded().then(function(data) {
+        //     $scope.importCardWatch = true;
+        // });
+
+        $scope.localUsers.push(newUser);
+        $scope.localUserRefs[key] = {};
+        $scope.localUserRefs[key].ref = $scope.localUsers.length - 1;
+        return $scope.localUserRefs[key];
     };
 
 
@@ -171,8 +232,8 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
                     $scope.importUser(tempCard.authorId);
                 }
 
-                if ($scope.firstCard) {
-                    $scope.firstCard = false;
+                if (firstCard) {
+                    firstCard = false;
                     var element = document.getElementById("spinner");
                     element.parentNode.removeChild(element);
                 }
@@ -257,7 +318,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
         return identityKeywords;
     };
 
-    $scope.getTextLinks = function(structure) {
+    $scope.getLinksfromText = function(structure) {
         var textLinks = [];
         for (i = 0; i < structure.length; i++) {
             if (structure[i].type == 'link' & textLinks.indexOf(structure[i].ref) == -1) {
@@ -310,7 +371,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
                 localCardRef.editing = false;
 
                 //The stuff below is for importing the next set of cards before you click on any of them - needs testing and making sure it happens AFTER this card has loaded properly, so user doesn't notice
-                // var linkedCardsToImport = $scope.getTextLinks($scope.localCards[localCardRef.ref].bio.structure);
+                // var linkedCardsToImport = $scope.getLinksfromText($scope.localCards[localCardRef.ref].bio.structure);
                 // for (i = 0; i < linkedCardsToImport.length; i++) {
                 //     $scope.getIdentity(linkedCardsToImport[i]).then(function(localIdentityRef3) {
                 //         cardKey2 = $scope.localIdentities[localIdentityRef3.ref].cards[0].key;
@@ -987,11 +1048,6 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 
 
 
-
-    $scope.toggleSidenav = function(menuId) {
-        $mdSidenav(menuId).toggle();
-    };
-
     $scope.getToastPosition = function() {
         return Object.keys($scope.toastPosition)
             .filter(function(pos) {
@@ -1190,7 +1246,7 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
     var tempCard1 = $scope.open(initialIdentity, true); //initialCard and initialIdentity are defined in branch-specific.js
     // tempCard1.editing = false;
 
-});
+}]);
 
 
 
@@ -1198,13 +1254,60 @@ controller('ExplaainCtrl', function($scope, $timeout, $firebaseArray, $firebaseO
 app.service('Cards', ['$rootScope', '$q', function($rootScope, $q) {
     var service = {
 
+        loggedIn: false,
+        loginData: {},
+        editMode: false,
+
+        firebaseCards: null,
+        firebaseIdentities: null,
+        firebaseKeywords: null,
+        firebaseUsers: null,
+
         cards: [],
         identities: [],
         keywords: [],
         users: [],
 
-        firebaseUsers: 0,
+        orderedKeywords: [],
 
+
+        checkServiceWorks: function() {
+            console.log('Service works!');
+        },
+
+        connectToFirebase: function() { // Needs to be called on page load
+            service.firebaseCards = $rootScope.firebaseRef.child("cards");
+            service.firebaseIdentities = $rootScope.firebaseRef.child("identities");
+            service.firebaseKeywords = $rootScope.firebaseRef.child("keywords");
+            service.firebaseUsers = $rootScope.firebaseRef.child("users");
+        },
+
+        connectToAlgolia: function() { // Needs to be called on page load
+            //Check algoliaIndex has been changed to thisAlgoliaIndex in branch-specific.js
+            service.algoliaIndex = $rootScope.clientAlgolia.initIndex(thisAlgoliaIndex); /* global thisAlgoliaIndex */
+            
+            service.hits = [];
+            service.query = '';
+            service.initRun = true;
+            service.search = function() {
+                service.algoliaIndex.search(service.query, {
+                        hitsPerPage: 20
+                    },
+                    function(err, content) {
+                        if (err || service.query != content.query) {
+
+                            return;
+                        }
+                        service.hits = content.hits;
+                        if (service.initRun) {
+                            service.$apply();
+                            service.initRun = false;
+                        }
+                    });
+            };
+            service.search();
+
+        },
 
         removeSpinner: function() {
             if (firstCard) {
@@ -1214,79 +1317,857 @@ app.service('Cards', ['$rootScope', '$q', function($rootScope, $q) {
             }
         },
 
-        importUser: function(key) {
+        cardKeyPos: function(key) {
+            var card = service.cardImported(key);
+            return service.cards.indexOf(card);
+        },
+
+        identityKeyPos: function(key) {
+            var identity = service.identityImported(key);
+            return service.identities.indexOf(identity);
+        },
+
+        keywordKeyPos: function(key) {
+            var keyword = service.keywordImported(key);
+            return service.keywords.indexOf(keyword);
+        },
+
+        userKeyPos: function(key) {
+            var user = service.userImported(key);
+            return service.users.indexOf(user);
+        },
+
+        cardImported: function(key) {
+            var card = $.grep(service.cards, function(e) {
+                return e.objectID == key;
+            })[0];
+            return card;
+        },
+
+        identityImported: function(key) {
+            var identity = $.grep(service.identities, function(e) {
+                return e.objectID == key;
+            })[0];
+            return identity;
+        },
+
+        keywordImported: function(key) {
+            var keyword = $.grep(service.keywords, function(e) {
+                return e.objectID == key;
+            })[0];
+            return keyword;
+        },
+
+        userImported: function(key) {
+            var user = $.grep(service.users, function(e) {
+                return e.objectID == key;
+            })[0];
+            return user;
+        },
+
+        getCard: function(key) {
             return $q(function(resolve, reject) {
-                firebaseUsers.child(key).once('value', function(snapshot) { /* global firebaseUsers */
-                
-                    var newUser = {
-                        data: snapshot.val()
-                    };
-                    
-                    var length = service.users.push(newUser);
-                    resolve(service.users[length - 1]);
-                    
-                }, function(error) {
-                    reject(-1);
-                });
+                var card = service.cardImported(key);
+                if (card) {
+                    resolve(card);
+                }
+                else {
+                    var promise = service.importCard(key);
+                    promise.then(function(tempCard) {
+                        card = tempCard;
+                        resolve(card);
+                    });
+                }
             });
+        },
+
+        getIdentity: function(key) {
+            return $q(function(resolve, reject) {
+                var identity = service.identityImported(key);
+                if (identity) {
+                    resolve(identity);
+                }
+                else {
+                    var promise = service.importIdentity(key);
+                    promise.then(function(tempIdentity) {
+                        identity = tempIdentity;
+                        resolve(identity);
+                    });
+                }
+            });
+
+        },
+
+        getKeyword: function(key) { //Not yet used, and may well not be while all text structuring is done on the front end
+            return $q(function(resolve, reject) {
+                var keyword = service.keywordImported(key);
+                if (keyword) {
+                    resolve(keyword);
+                }
+                else {
+                    var promise = service.importKeyword(key);
+                    promise.then(function(tempKeyword) {
+                        keyword = tempKeyword;
+                        resolve(keyword);
+                    });
+                }
+            });
+
+        },
+
+        getUser: function(key) {
+            return $q(function(resolve, reject) {
+                var user = service.userImported(key);
+                if (user) {
+                    resolve(user);
+                }
+                else {
+                    var promise = service.importUser(key);
+                    promise.then(function(tempUser) {
+                        user = tempUser;
+                        resolve(user);
+                    });
+                }
+            });
+
         },
 
         importCard: function(key) {
             return $q(function(resolve, reject) {
-                firebaseCards.child(key).once('value', function(snapshot) { /* global firebaseCards */
-                
-                    var newCard = {
-                        data: snapshot.val(),
-                        objectID: snapshot.key(),
-                        editing: false,
-                        atFront: false,
-                        showing: false,
-                    };
+                service.firebaseCards.child(key).once('value', function(snapshot) {
 
-                    service.users.push(getUser(newCard.data.authorId)).then(function() {
-                        service.removeSpinner();
-                        var length = service.cards.push(newCard);
-                        resolve(service.cards[length - 1]);
+                        var newCard = {
+                            data: snapshot.val(),
+                            objectID: snapshot.key(),
+                            editing: false,
+                            atFront: false,
+                            showing: false,
+                        };
+
+                        service.getIdentity(newCard.data.identity).then(function() {
+                            service.users.push(service.getUser(newCard.data.authorId)).then(function() {
+                                service.removeSpinner();
+                                var length = service.cards.push(newCard);
+                                resolve(service.cards[length - 1]);
+                            });
+                        });
+
+                    },
+                    function(error) {
+                        reject(-1);
                     });
-                    
-                }, function(error) {
-                    reject(-1);
-                });
             });
         },
 
         importIdentity: function(key) {
             return $q(function(resolve, reject) {
-                firebaseCards.child(key).once('value', function(snapshot) { /* global firebaseCards */
-                
-                    var newCard = {
+                service.firebaseIdentities.child(key).once('value', function(snapshot) {
+
+                    var newIdentity = {
                         data: snapshot.val(),
                         objectID: snapshot.key(),
-                        editing: false,
-                        atFront: false,
-                        showing: false,
+                        keywords: service.getIdentityKeywords(key)
                     };
 
-                    service.users.push(getUser(newCard.data.authorId)).then(function() {
-                        service.removeSpinner();
-                        var length = service.cards.push(newCard);
-                        resolve(service.cards[length - 1]);
-                    });
-                    
+                    var length = service.identities.push(newIdentity);
+                    resolve(service.identities[length - 1]);
+
                 }, function(error) {
                     reject(-1);
                 });
             });
+        },
+
+        importKeyword: function(key) { //Not yet used, and may well not be while all text structuring is done on the front end
+            return $q(function(resolve, reject) {
+                service.firebaseKeywords.child(key).once('value', function(snapshot) {
+
+                    var newKeyword = {
+                        data: snapshot.val(),
+                        objectID: snapshot.key()
+                    };
+
+                    var length = service.keywords.push(newKeyword);
+                    resolve(service.keywords[length - 1]);
+
+                }, function(error) {
+                    reject(-1);
+                });
+            });
+
+        },
+
+        importUser: function(key) {
+            return $q(function(resolve, reject) {
+                service.firebaseUsers.child(key).once('value', function(snapshot) {
+
+                    var newUser = {
+                        data: snapshot.val()
+                    };
+
+                    var length = service.users.push(newUser);
+                    resolve(service.users[length - 1]);
+
+                }, function(error) {
+                    reject(-1);
+                });
+            });
+        },
+
+        reImportCard: function(key) {
+            return $q(function(resolve, reject) {
+                service.firebaseCards.child(key).once('value', function(snapshot) {
+                    service.cards[service.cardKeyPos(key)].data = snapshot.val();
+                    resolve(service.cards[service.cardKeyPos(key)]);
+
+                }, function(error) {
+                    reject(-1);
+                });
+            });
+        },
+
+        addNewCard: function(cardData, open, justCreated, autoPopulate) {
+            //This needs to be passed into the function, not created here
+            var identityKey = undefined;
+
+            cardData.dateCreated = Date.now();
+            cardData.authorId = service.loginData.uid;
+            cardData.sources = [];
+
+            cardData.format = prompt("What format should the new card take?", "profile");
+
+            if (cardData.format === undefined) {
+                cardData.format = 'profile';
+            }
+            if (cardData.title === undefined) {
+                cardData.title = '';
+            }
+            if (cardData.bio === undefined) {
+                cardData.bio = {
+                    value: '',
+                    structure: []
+                };
+            }
+            cardData.bio.structure = [];
+            cardData.bio.structure = service.structureText(-1, cardData.bio.value, service.orderedKeywords);
+
+            cardData.id = cardData.title.replace(" ", "-").toLowerCase();
+
+            var newCard = service.firebaseCards.push();
+            var key = newCard.key();
+            newCard.set(cardData, function(error) {
+                // if (cardData.title.length > 0) {
+                //     $scope.showSimpleToast("Success! You've added a new card called " + card.title);
+                // }
+                // else {
+                //     $scope.showSimpleToast("Success! You've added a new card.");
+                // }
+
+                if (identityKey === undefined) { //$scope.addNewIdentity will sort the opening
+                    service.addNewIdentity(key, cardData.title).then(function(identityKey) {
+                        if (open) {
+                            service.open(identityKey);
+                        }
+                    });
+                }
+                else {
+                    if (open) {
+                        service.open(identityKey);
+                    }
+                }
+
+                service.algoliaAdd(newCard, key); // This needs to use callbacks etc
+            });
+        },
+
+        addNewIdentity: function(initialCardKey, initialKeyword) { //Only call this function once the card has been created
+            return $q(function(resolve, reject) {
+                var newIdentity = service.firebaseIdentities.push().key();
+                var identityKey = newIdentity.key();
+                newIdentity.set({
+                    cards: [{
+                        key: initialCardKey,
+                        rank: 0
+                    }]
+                }, function(error) {
+                    var initialCard = service.firebaseCards.child(initialCardKey);
+                    initialCard.update({
+                        identity: identityKey
+                    }, function(error) {
+                        service.reImportCard(initialCardKey);
+                        var newkeywordData = {
+                            keyword: initialKeyword,
+                            identityRef: identityKey
+                        };
+                        service.addNewKeyword(newkeywordData, false).then(function() {});
+                    });
+                });
+            });
+        },
+
+        appendKeyword: function(keyword, identityKey) {
+            var newkeyword = {
+                keyword: keyword,
+                identityRef: identityKey
+            };
+            service.addNewKeyword(newkeyword, true);
+            return newkeyword;
+        },
+
+        addNewKeyword: function(newkeyword, showToast) {
+            if (newkeyword.keyword.length < 1) {
+                return;
+            }
+            newkeyword.keywordLength = newkeyword.keyword.length * -1;
+            var newKeyword = service.firebaseKeywords.push();
+            newKeyword.setWithPriority(newkeyword, newkeyword.keywordLength, function(error) { //Need to retrospectively set priorities for existing keywords (one time only)
+                service.updateBiosFromKeyword(newkeyword.keyword);
+                // if (showToast) {
+                //     $scope.showSimpleToast("Success! You've added the keyword \"" + newkeyword.keyword + "\"");
+                // }
+            });
+        },
+
+        updateCard: function(key, card) {
+            card.bio.structure = service.structureText(-1, card.bio.value, service.orderedKeywords);
+            service.firebaseCards.child(key).update(card.data, function(error) {
+                service.algoliaUpdate(key, card); // This needs to use callbacks etc
+                service.reImportCard(key); // Is this necessary?
+                // service.showSimpleToast("Success! You've updated the card " + card.title); //Shouldn't really display this until algoliaUpdate and reImportCard are complete
+            });
+        },
+
+        deleteCard: function(key, card) {
+            var title = card.title;
+            var identityKey = card.identity;
+
+            service.firebaseCards.child(key).remove(function() {
+                service.cards.splice(service.cardKeyPos(key), 1);
+                service.deleteIdentity(identityKey, title); //Needs to only be if the identity has no more cards left
+                $scope.algoliaDelete(key); // This needs to use callbacks etc
+
+                //The following should really only happen after various callbacks
+                // $scope.showSimpleToast("Success! You've deleted the card " + title);
+            });
+        },
+
+        deleteIdentity: function(identityKey, title) {
+            //What happens to any of the identity's remaining cards?
+
+            service.firebaseIdentities.child(identityKey).remove(function() {
+                service.identities.splice(service.identityKeyPos(identityKey), 1);
+                // $scope.algoliaDelete(key); //Need to add Identities to Algolia and work out what we can do with them
+                service.deleteIdentityKeywords(identityKey);
+                // service.showSimpleToast("Success! You've deleted the identity " + title);
+            });
+        },
+
+        deleteKeyword: function(key) {
+            service.firebaseKeywords.child(key).remove();
+        },
+
+        getIdentityKeywords: function(key) {
+            return $q(function(resolve, reject) {
+                var identityKeywords = [];
+                service.firebaseKeywords.orderByChild("identityRef").equalTo(key).on("child_added", function(snapshot) {
+                    var keyword = {
+                        data: snapshot.val(),
+                        objectID: snapshot.key()
+                    };
+                    identityKeywords.push(keyword);
+                    resolve(identityKeywords);
+
+                }, function(error) {
+                    reject(-1);
+                });
+            });
+        },
+
+        getLinksfromText: function(structure) {
+            var textLinks = [];
+            for (var i = 0; i < structure.length; i++) {
+                if (structure[i].type == 'link' & textLinks.indexOf(structure[i].ref) == -1) {
+                    textLinks.push(structure[i].ref);
+                }
+            }
+            return textLinks;
+        },
+
+        moveCardToFront: function(key) {
+            for (var i = 0; i < service.cards.length; i++) {
+                if (service.cards[i].objectID == key) {
+                    service.cards[i].showing = true;
+                    service.cards[i].atFront = true;
+                }
+                else {
+                    service.cards[i].atFront = false;
+                }
+            }
+        },
+
+        openFromCardKey: function(cardKey) { //For now just selects identity from card and then acts as normal (so will select the most popular card from that identity)
+            service.getCard(cardKey).then(function(card) {
+                service.open(card.identity);
+            });
+        },
+
+        open: function(identityKey) {
+            service.getIdentity(identityKey).then(function(identity) {
+                var cardKey = identity.data.cards[0].key; //Currently just selects the first card in the identity's 'cards' array
+
+                service.getCard(cardKey).then(function(card) {
+                    service.moveCardToFront(card.objectID);
+
+                    //The stuff below is for importing the next set of cards before you click on any of them - needs testing and making sure it happens AFTER this card has loaded properly, so user doesn't notice
+                    // var linkedCardsToImport = $scope.getLinksfromText($scope.localCards[localCardRef.ref].bio.structure);
+                    // for (i = 0; i < linkedCardsToImport.length; i++) {
+                    //     $scope.getIdentity(linkedCardsToImport[i]).then(function(localIdentityRef3) {
+                    //         cardKey2 = $scope.localIdentities[localIdentityRef3.ref].cards[0].key;
+                    //         $scope.getCard(cardKey2).then(function(localCardRef2) {
+                    //         });
+                    //     });
+                    // }
+                });
+            });
+        },
+
+        close: function(key) {
+            var pos = service.cardKeyPos(key);
+            service.cards[pos].showing = false;
+            service.cards[pos].atFront = false;
+        },
+
+
+
+        toggleEditMode: function() {
+            service.editMode = !service.editMode;
+            // if (editMode) {
+            //     $scope.showSimpleToast("Edit mode is on");
+            // }
+            // else {
+            //     $scope.showSimpleToast("Edit mode is off");
+            // }
+        },
+
+        toggleEditCard: function(key) {
+            var pos = service.cardKeyPos(key);
+            service.cards[pos].editing = !service.cards[pos].editing;
+        },
+
+
+        populateFromWikipedia: function(cardData, inScope) {
+            var title = cardData.title;
+            $http.jsonp('https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&lllimit=500&titles=' + title + '&callback=JSON_CALLBACK&formatversion=2'). /* global $http */
+            success(function(data) {
+                // card.sources.push({title: 'Wikipedia', url: 'https://en.wikipedia.org/'}); //Needs if statement in case Wikipedia already listed
+                if (cardData.bio === undefined) {
+                    cardData.bio = {};
+                }
+                cardData.bio.value = service.nSentencesMChars(service.htmlToPlaintext(data.query.pages[0].extract), 2, 450);
+                $http.jsonp('https://en.wikipedia.org/w/api.php?&format=json&&callback=JSON_CALLBACK&formatversion=2&action=query&titles=' + title + '&prop=pageimages&format=json&pithumbsize=200').
+                success(function(data) {
+                    if (cardData.image === undefined) {
+                        cardData.image = {};
+                    }
+                    cardData.image.value = data.query.pages[0].thumbnail.source;
+                    if (inScope) {
+                        service.card = cardData; //Pretty sure this won't work now we're inside a service!
+                    }
+                    else {
+                        return cardData;
+                    }
+                });
+            });
+        },
+
+        htmlToPlaintext: function(text) {
+            var text1 = String(text).replace(/<[^>]+>.<[^>]+>|\s\s+/gm, ' ').replace(/<[^>]+>|\;|\(.*\) |\(.*\)/gm, '').replace(/<[^>]+>.<[^>]+>|\s\s+/gm, ' ').replace('( ', '(');
+            return text1.replace('&crarr;', ' ');
+        },
+
+        nSentencesMChars: function(text, n, m) {
+            var maxChars = text.substring(0, m);
+            var split = maxChars.split(". ");
+            var shorterSplit;
+            for (var i = n; i > 0; i--) {
+                shorterSplit = split.slice(0, i);
+                if (shorterSplit.length < split.length) {
+                    return shorterSplit.join(". ") + ".";
+                }
+            }
+            return shorterSplit.join(". ") + "...";
+        },
+
+        structureText: function(id, text, keywords) {
+            var structuredText = [{
+                text: text,
+                type: 'span'
+            }];
+
+            for (var j = 0; j < keywords.length; j++) {
+                if (id == -1 || keywords[j].ref != id) {
+                    for (var k = 0; k < structuredText.length;) {
+                        if (structuredText[k].type != 'link') {
+                            var text = structuredText[k].text
+                            var splitSection = text.split(keywords[j].keyword);
+                            if (splitSection.length > 0) {
+                                var insert = [];
+                                for (var m = 0; m < splitSection.length; m++) {
+                                    insert[2 * m] = {
+                                        type: 'span',
+                                        text: splitSection[m]
+                                    };
+                                    insert[2 * m + 1] = {
+                                        type: 'link',
+                                        text: keywords[j].keyword,
+                                        ref: keywords[j].identityRef
+                                    };
+                                }
+                                insert.pop(); //Remove the very last element
+                                var newText = structuredText.slice(0, k);
+                                newText = newText.concat(insert);
+                                newText = newText.concat(structuredText.slice(k + 1, structuredText.length));
+                                structuredText = newText;
+                                k += insert.length - 1;
+                            }
+                        }
+                        k++;
+                    }
+                }
+            }
+            return structuredText;
+        },
+
+        deleteIdentityKeywords: function(key) {
+            service.firebaseKeywords.orderByChild("identityRef").equalTo(key).on("child_added", function(snapshot) {
+                service.deleteKeyword(snapshot.key());
+            });
+        },
+
+        reorderKeywords: function() { //Should render this unecessary by using Firebase's ordered lists with keywordLength as the ordering key
+            return $q(function(resolve, reject) {
+                service.orderedKeywords = [];
+                service.firebaseKeywords.orderByChild("keywordLength").on("child_added", function(snapshot) {
+                    service.orderedKeywords.push(snapshot.val());
+                    resolve();
+                }, function(error) {
+                    reject(-1);
+                });
+            });
+        },
+
+        updateBiosFromKeyword: function(keywordText) {
+            //Should this use Algolia to search through bios?
+            //Slightly updated now we have localCards, but still not quite right
+            service.reorderKeywords().then(function() {
+                service.firebaseCards.on('child_added', function(snapshot) { //Should this be once() not on() to stop it continuing to do it?
+                    var key = snapshot.key();
+                    var bio = snapshot.val().bio.value;
+                    if (bio.indexOf(keywordText) != -1) {
+                        var structuredBio = service.structureText(key, bio, service.orderedKeywords);
+                        service.firebaseCards.child(key).child('bio').child('structure').set(structuredBio);
+                        if (service.cardImported(key)) {
+                            service.reImportCard(key);
+                        }
+                    }
+                });
+            });
+        },
+
+
+        /* THe following updateAll... functions haven't been properly cleaned up as a lot of it is (hopefully) temporary anyway */
+
+        updateAllIdentities: function() {
+            var tempIdentityListOfCardKeys = [];
+            service.firebaseIdentities.on('child_added', function(snapshot) { //Should this be once() not on() to stop it continuing to do it?
+                service.firebaseCards.child(snapshot.val().cards[0].key).on('value', function(cardSnapshot) { //Should this be once() not on() to stop it continuing to do it?
+                    if (tempIdentityListOfCardKeys.indexOf(cardSnapshot.key()) == -1) {
+                        tempIdentityListOfCardKeys.push(cardSnapshot.key());
+                    }
+                    else {
+                        // $scope.firebaseIdentities.child(snapshot.key()).remove();
+                    }
+                    if (!cardSnapshot.val().title) {
+                        console.log('need to remove this identity: ', snapshot.val());
+                        // $scope.firebaseIdentities.child(snapshot.key()).remove();
+                        console.log('need to remove this card: ', cardSnapshot.val());
+                        // $scope.firebaseCards.child(cardSnapshot.key()).remove();
+
+                        service.firebaseKeywords.orderByChild("identityRef").equalTo(snapshot.key()).on("child_added", function(keywordSnapshot) {
+                            console.log('need to remove this keyword: ', keywordSnapshot.val());
+                            // $scope.firebaseIdentities.child(keywordSnapshot.key()).remove();
+                        });
+                    }
+                });
+                // $scope.firebaseCards.child(snapshot.val().cards[0].key).update({
+                //     identity: snapshot.key()
+                // });
+            });
+        },
+
+        updateAllCards: function() {
+            service.reorderKeywords(); //Need a callback here to finish this before proceeding
+
+            service.firebaseCards.on('child_added', function(snapshot) { //Should this be once() not on() to stop it continuing to do it?
+                var key = snapshot.key();
+                if (!snapshot.val().title) {
+                    console.log('need to remove this card2: ', snapshot.val());
+                    // $scope.firebaseCards.child(key).remove();
+                }
+                else {
+                    var bio = snapshot.val().bio.value;
+                    var tempStructuredBio = service.structureText(key, bio, service.orderedKeywords);
+                    service.firebaseCards.child(key).child('bio').child('structure').set(tempStructuredBio);
+                    if (service.cardImported(key)) {
+                        service.reImportCard(key);
+                    }
+                }
+            });
+
+            //Need multiple callbacks for this
+            // $scope.showSimpleToast("Success! You've updated all cards.");
+
+
+
+
+
+
+            // var successCount = 0;
+
+            //temp
+            // for (var i = 0; i < $scope.globalIdentities.length; i++) { //$scope.globalIdentities no longer exists!
+            //     
+            //     var identityKey = $scope.globalIdentities[i].objectID;
+            //     var firstCardKey = $scope.globalIdentities[i].cards[0].key;
+            //     $scope.globalCards.$getRecord(firstCardKey).identity = identityKey;
+            // }
+
+
+            // for (var i = 0; i < $scope.globalCards.length; i++) {
+            //     if ($scope.globalCards[i].image) {
+            //         // $scope.globalCards[i].image.value = $scope.globalCards[i].image.value.replace("//", "http://");
+            //         // $scope.globalCards[i].image.value = $scope.globalCards[i].image.value.replace("https:http://", "https://");
+            //     }
+            //     $scope.globalCards[i].editing = false; //Shouldn't be necessary as this variable should only exist locally
+            //     $scope.globalCards[i].justCreated = false; //Shouldn't be necessary as this variable should only exist locally
+            //     var bio = $scope.globalCards[i].bio.value;
+            //     $scope.globalCards[i].bio.structure = $scope.structureBio($scope.globalCards.$keyAt(i), bio, $scope.orderedKeywords);
+
+            //     //Can delete this now???
+            //     // if (!$scope.globalCards[i].identity) {
+            //     //     $scope.addNewIdentity($scope.globalCards[i].objectID);
+            //     // }
+
+            //     $scope.globalCards.$save(i).then(function(ref) {
+            //         var key = ref.key();
+            //         successCount++;
+            //         if ($scope.cardImported(key)) {
+            //             $scope.reImportCard(key);
+            //         }
+            //         if (successCount == $scope.globalCards.length) {
+            //             $scope.showSimpleToast("Success! You've updated all cards.");
+            //         }
+            //     });
+            // }
+        },
+
+        updateAllKeywords: function() {
+            service.firebaseKeywords.on('child_added', function(snapshot) {
+                var tempKeywordLength = snapshot.val().keywordLength;
+                // console.log('tempKeywordLength', tempKeywordLength);
+                snapshot.ref().setPriority(tempKeywordLength);
+                // console.log(snapshot.val().identityRef);
+                service.firebaseIdentities.child(snapshot.val().identityRef).once('value', function(identitySnapshot) {
+                    // console.log(snapshot.val().identityRef);
+                    // console.log(identitySnapshot.val());
+                }, function(error) {
+                    service.firebaseKeywords.child(snapshot.key()).remove(function() { //Don't yet know whether this actually works!
+                        // console.log("Keyword " + snapshot.val().keyword + " removed.");
+                    });
+                });
+            });
+
+            // for (var i = 0; i < $scope.keywords.length; i++) {
+            //     $scope.keywords[i].identityRef = $scope.globalCards.$getRecord($scope.keywords[i].ref).identity;
+            //     $scope.keywords[i].keywordLength = $scope.keywords[i].keyword.length * -1; //Maybe now not needed if this happens when new keyword created?
+
+            //     $scope.keywords.$save(i);
+            //     if ($scope.globalCards.$getRecord($scope.keywords[i].ref) === null) {
+            //         $scope.keywords.$remove(i);
+            //     }
+            // }
+        },
+
+        updateEverything: function() {
+            //All of this needs callbacks
+            service.updateAllKeywords();
+            service.updateAllCards();
+            service.updateAllIdentities();
+            // $scope.reorderKeywords($scope.updateAllCards);
+            if (ctrlKeyDown) {
+                service.reImportToAlgolia();
+            }
+        },
+
+        toggleLogin: function() {
+            if (service.loggedIn) {
+                $rootScope.firebaseRef.unAuth(); //Doesn't currently work for some reason
+            }
+            else {
+                service.logMeIn('twitter');
+            }
+        },
+
+        logMeIn: function(loginProvider) {
+            switch (loginProvider) {
+                case 'twitter':
+                    {
+                        $rootScope.firebaseRef.authWithOAuthPopup("twitter", function(error, authData) {
+                            if (error) {
+                                console.log('twitter error');
+                            }
+                            else {
+                                console.log('twitter success!');
+                                service.loggedIn = true;
+                                service.loginData = authData;
+                                service.$apply();
+                                // service.showSimpleToast("Hello " + authData.twitter.displayName + "! You're now logged in.");
+
+                                service.firebaseUsersRef.once('value', function(snapshot) {
+                                    // if (!snapshot.hasChild(authData.uid)) {
+                                    service.firebaseUsers.child(authData.uid).update({
+                                        uid: authData.uid,
+                                        provider: authData.provider,
+                                        name: authData.twitter.displayName,
+                                        username: authData.twitter.username,
+                                        image: authData.twitter.profileImageURL,
+                                        url: "http://twitter.com/" + authData.twitter.username
+                                    });
+                                    // }
+                                });
+                            }
+                        });
+                    }
+            }
+        },
+
+        allowEditMode: function() {
+            if (service.loggedIn | godMode) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        },
+
+        cardBelongsToUser: function(card) {
+            if (card.authorId == service.loginData.uid | godMode) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        },
+
+        cardCanBeClaimed: function(card) {
+            if (service.loggedIn & card.authorId == undefined & !godMode) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        },
+
+        claimCard: function(key) {
+            if (service.loggedIn) {
+                service.firebaseCards.child(key).update({
+                    authorId: service.loginData.uid
+                }, function(error) {
+                    service.reImportCard(key);
+                    console.log('Error claiming card - trying a reImport.')
+                });
+            }
+        },
+
+        algoliaAdd: function(card, key) {
+            var myObjectID = key;
+            service.algoliaIndex.addObject(card, myObjectID, function(err, content) {
+
+
+            });
+        },
+
+        algoliaUpdate: function(key, card) {
+
+
+            card.objectID = key;
+            card.$$conf = null; //Probably not necessary to delete all of this (only to prevent "TypeError: Converting circular structure to JSON" error)
+            service.algoliaIndex.saveObject(card, function(err, content) {
+
+                // 
+            });
+        },
+
+        algoliaDelete: function(key) {
+            service.algoliaIndex.deleteObject(key, function(error) {
+                if (!error) {
+
+                }
+            });
+        },
+
+
+
+
+
+        reImportToAlgolia: function() { //Use this VERY RARELY!!!!!
+            // Get all data from Firebase
+            service.firebaseCards.on('value', reindexIndex);
+
+            function reindexIndex(dataSnapshot) {
+                // Array of objects to index
+                var objectsToIndex = [];
+
+                // Create a temp index
+                var tempIndexName = 'cards_temp';
+                var tempIndex = $rootScope.clientAlgolia.initIndex(tempIndexName);
+
+                // Get all objects
+                var values = dataSnapshot.val();
+
+                // Process each Firebase object
+                for (var key in values) {
+                    if (values.hasOwnProperty(key)) {
+                        // Get current Firebase object
+                        var firebaseObject = values[key];
+
+                        // Specify Algolia's objectID using the Firebase object key
+                        firebaseObject.objectID = key;
+
+                        // Add object for indexing
+                        objectsToIndex.push(firebaseObject);
+                    }
+                }
+
+                // Add or update new objects
+                service.algoliaIndex.saveObjects(objectsToIndex, function(err, content) {
+                    if (err) {
+                        throw err;
+                    }
+
+                    // Overwrite main index with temp index
+                    $rootScope.clientAlgolia.moveIndex(tempIndexName, 'cards', function(err, content) {
+                        if (err) {
+                            throw err;
+                        }
+                    });
+                });
+            }
         }
-    }
+
+    };
 
     return service;
-}]);
-
-
-
-app.service('Users', ['$rootScope', function($rootScope) {
-
 
 }]);
 
@@ -1295,13 +2176,38 @@ app.service('Users', ['$rootScope', function($rootScope) {
 
 
 
+app.directive('ngToast', ['$mdToast', function($mdToast) { // Not yet connected up to other services/controllers
+    return {
+        restrict: 'E',
+        // require: 'ExplaainCtrl',
+        link: function(scope, elem, attrs) {
 
-app.filter("sanitize", ['$sce', function($sce) {
-    return function(htmlCode) {
-        return $sce.trustAsHtml(htmlCode);
+            scope.toastPosition = {
+                bottom: false,
+                top: true,
+                left: false,
+                right: true
+            };
+
+            scope.getToastPosition = function() {
+                return Object.keys(scope.toastPosition)
+                    .filter(function(pos) {
+                        return scope.toastPosition[pos];
+                    })
+                    .join(' ');
+            };
+
+            scope.showSimpleToast = function(message) {
+                $mdToast.show(
+                    $mdToast.simple()
+                    .content(message)
+                    .position(scope.getToastPosition())
+                    .hideDelay(3000)
+                );
+            };
+        }
     }
 }]);
-
 
 
 
@@ -1395,14 +2301,17 @@ app.directive('ngStructuredText', function() {
 app.directive('ngImage', function() {
     return {
         restrict: 'E',
-        require: 'ExplaainCtrl',
+        // require: 'ExplaainCtrl',
         templateUrl: 'html/components/image.html',
-        scope: {
-            image: '=',
-            backupImageSrc: '=backup',
-            card: '=card',
-            editing: '='
-        }
+        link: function(scope, elem, attrs) {
+
+            }
+            // scope: {
+            //     image: '=',
+            //     backupImageSrc: '=backup',
+            //     card: '=card',
+            //     editing: '='
+            // }
     }
 });
 
@@ -1496,3 +2405,16 @@ app.directive('ngEmbed', function() {
         }
     }
 });
+
+
+
+
+
+
+
+
+app.filter("sanitize", ['$sce', function($sce) {
+    return function(htmlCode) {
+        return $sce.trustAsHtml(htmlCode);
+    }
+}]);
