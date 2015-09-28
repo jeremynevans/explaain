@@ -1,35 +1,10 @@
 <div class="display-fields">
     <div class="header">
-        <ng-image class="header-image" editing="localCardRefs[card.objectID].editing" image="card.image" backup="'http://static.wixstatic.com/media/9bd2f6_91b9764674834d6997796aa1cbfeafe2.png_srz_200_200_85_22_0.50_1.20_0.00_png_srz'"></ng-image>
+        <ng-image class="header-image" editing="editing" image="data.image" backup="'http://static.wixstatic.com/media/9bd2f6_91b9764674834d6997796aa1cbfeafe2.png_srz_200_200_85_22_0.50_1.20_0.00_png_srz'"></ng-image>
         <div class="header-text">
-            <ng-title title="card.title" editing="localCardRefs[card.objectID].editing"></ng-title>
-            <ng-subtitle subtitle="card.subtitle" editing="localCardRefs[card.objectID].editing"></ng-subtitle>
+            <ng-title title="data.title" editing="editing"></ng-title>
+            <ng-subtitle subtitle="data.subtitle" editing="editing"></ng-subtitle>
         </div>
     </div>
-    <ng-embed embed="card.embed" editing="localCardRefs[card.objectID].editing"></ng-embed>
-</div>
-<div class="editing-fields" ng-show="localCardRefs[card.objectID].editing">
-    <form name="editCardForm">
-        <!--<div layout layout-sm="column">-->
-        <!--    <md-input-container>-->
-        <!--        <md-button class="md-raised md-primary" ng-click="populateFromWikipedia(card, true)">Populate from Wikipedia</md-button>-->
-        <!--    </md-input-container>-->
-        <!--    <md-input-container flex> </md-input-container>-->
-        <!--</div>-->
-        <div layout layout-sm="column">
-            <!--<md-chips ng-model="localCardRefs[card.objectID].keywords" placeholder="Enter a new keyword" delete-button-label="Remove Keyword" delete-hint="Press delete to remove keyword" secondary-placeholder="+Keyword" md-on-append="appendKeyword($chip, card)">-->
-            <!--    <md-chip-template> {{$chip.keyword}} </md-chip-template>-->
-            <!--    <button md-chip-remove class="md-chip-remove ng-scope" ng-click="deleteKeyword($chip.objectID)"><md-icon md-svg-icon="md-close" class="ng-isolate-scope md-default-theme" aria-hidden="true"></md-icon></button>-->
-            <!--</md-chips>-->
-        </div>
-        <div layout layout-sm="column">
-            <md-input-container>
-                <md-button class="md-raised md-primary" ng-click="updateCard(card.objectID, card)">Update</md-button>
-            </md-input-container>
-            <md-input-container flex> </md-input-container>
-            <md-input-container>
-                <md-button class="md-raised md-warn" ng-click="deleteCard(card.objectID, card)">Delete</md-button>
-            </md-input-container>
-        </div>
-    </form>
+    <ng-embed embed="data.embed" editing="editing"></ng-embed>
 </div>

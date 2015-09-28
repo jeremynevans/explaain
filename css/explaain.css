@@ -66,6 +66,7 @@ body {
     /*background: #eee;*/
     font-family: 'Lato', sans-serif;
     line-height: 1.5em;
+    font-size: 16px;
     background: url(https://www.evernote.com/redesign/global/img/page-bg-tile.jpg) center;
     -webkit-background-size: 50px 50px;
     -moz-background-size: 50px 50px;
@@ -80,21 +81,21 @@ md-input-container.md-default-theme .md-input {
 
 /* Main Page Action Buttons */
 
-.material-icons.action-icon {
+.action-icon {
     opacity: 0.4;
     outline: 0;
 }
 
-.material-icons.action-icon:hover {
+.action-icon:hover {
     opacity: 1;
     cursor: pointer;
 }
 
 .material-icons.toggle-login {
     position: fixed;
-    top: 20px;
+    top: 21px;
     right: 20px;
-    font-size: 30px;
+    font-size: 40px;
     line-height: 23px;
 }
 
@@ -105,7 +106,7 @@ md-input-container.md-default-theme .md-input {
 .material-icons.edit-mode {
     position: fixed;
     top: 20px;
-    right: 60px;
+    right: 70px;
 }
 
 .material-icons.edit-mode.edit-mode-true {
@@ -115,23 +116,29 @@ md-input-container.md-default-theme .md-input {
 .material-icons.refresh-all {
     position: fixed;
     top: 20px;
-    right: 95px;
+    right: 105px;
     color: green;
 }
 
-.material-icons.new-card {
+.new-card {
     position: fixed;
     top: 20px;
-    right: 130px;
+    right: 140px;
     color: orange;
+}
+
+.new-card .dropdown-menu {
+    top: 25px;
+    right: 0px;
+    left: auto;
 }
 
 .login-image {
     position: fixed;
-    top: 17px;
+    top: 12px;
     right: 20px;
-    height: 30px;
-    width: 30px;
+    height: 40px;
+    width: 40px;
     object-fit: cover;
     border-radius: 50%;
 }
@@ -156,6 +163,7 @@ ul.cards {
     margin: auto;
     padding: 0;
     list-style-type: none;
+    z-index: 1000;
 }
 
 
@@ -225,6 +233,7 @@ ul.cards .spinner {
 /* Cards */
 
 li.card {
+    z-index: 1000 !important;
     position: absolute;
     width: 100%;
     max-width: 550px;
@@ -286,8 +295,15 @@ li.card {
     margin: 0;
 }
 
+.card .header-text h3 {
+    font-weight: bold;
+    font-size: 1.17em;
+}
+
 .card .header-text h4 {
+    font-size: 16px;
     font-weight: 400;
+    line-height: 1.5em;
 }
 
 .card .bio,
@@ -325,17 +341,41 @@ li.card {
     font-style: italic;
 }
 
-.card .display-fields.quote .header {
-    margin-left: 200px;
+.card .text.quote .text {
+    min-height: 70px;
 }
 
-.card .display-fields.quote .header h2 {
+.card .display-fields.quote .profile-header {
+    text-align: right;
+}
+
+.card .display-fields.quote .profile-header .header-text {
+    text-align: left;
+}
+
+.card .display-fields.quote .profile-header h2 {
     font-size: 1em;
 }
 
-.card .display-fields.quote .header img.image {
+.card .display-fields.quote .profile-header img.image {
     widtH: 60px;
     height: 60px;
+}
+
+.card button.keyword {
+    cursor: default;
+}
+
+.card button.keyword span.badge {
+    cursor: pointer;
+}
+
+.card button.keyword span.badge:hover {
+    background: lightgrey;
+}
+
+.card p.credits {
+    margin: 0;
 }
 
 .card .credits-footer.expanded-false:hover {
@@ -360,6 +400,10 @@ li.card {
 .card a:hover .author-image,
 .card a:hover .author-text {
     opacity: 0.7;
+}
+
+.card a, .card a div, .card a h1, .card a h2, .card a h3, .card a h4, .card a h5, .card a h6, .card a p {
+    color: black;
 }
 
 .card .author-image {
@@ -399,7 +443,7 @@ li.card {
 .card .delete,
 .card .claim {
     float: right;
-    margin: -16px -16px;
+    margin: -14px -16px;
     text-decoration: none;
     color: #aaa;
 }

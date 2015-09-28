@@ -1,0 +1,25 @@
+h1.logo {
+    padding: 1em 0 1em 0;
+}
+
+li.card {
+    position: relative;
+}
+
+.quote .text {
+    font-size: 22px;
+    margin-top: 0.6em;
+}
+.quote .header {
+    margin-top: 25px;
+    margin-bottom: -5px;
+}
+
+.card .display-fields.quote .header {
+    margin-left: 130px;
+    /*margin-left: 250px;*/
+}
+
+.quote .header-text h3 {
+    font-size: 1.05em;
+}

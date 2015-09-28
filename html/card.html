@@ -1,12 +1,66 @@
-<li class="card card-{{card.id}}" style="margin-top: {{$index*10}}px; margin-left: {{$index*5}}px;">
-    <i class="material-icons action-icon close" ng-click="close(card)">close</i>
-    <i class="material-icons action-icon claim" ng-if="cardCanBeClaimed(card)" ng-show="editMode" ng-click="claimCard(card.objectID)">assignment_ind</i>
-    <i class="material-icons action-icon edit" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="toggleEditCard(card)">create</i>
-    <i class="material-icons action-icon delete" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="deleteCard(card.objectID, card)">delete</i>
-    <!--<ng-format format="card.format" format-options="formatOptions" editing="localCardRefs[card.objectID].editing"></ng-format>-->
-    <ng-card-format card="card" format="card.format"></ng-card-format>
+<li class="card card-{{card.objectID}}" style="margin-top: {{$index*10}}px; margin-left: {{$index*5}}px;">
+    <i class="material-icons action-icon close" ng-click="close(card.objectID)">close</i>
+    <i class="material-icons action-icon claim" ng-if="canBeClaimed(card)" ng-show="getEditMode()" ng-click="claim(card.objectID)">assignment_ind</i>
+    <i class="material-icons action-icon edit" ng-if="belongsToUser(card)" ng-show="getEditMode()" ng-click="toggleEdit(card.objectID)">create</i>
+    <i class="material-icons action-icon delete" ng-if="belongsToUser(card)" ng-show="getEditMode()" ng-click="delete(card.objectID, card)">delete</i>
+    <!--<ng-format format="card.data.format" format-options="['profile','quote','embed']" editing="card.editing"></ng-format>-->
+    <ng-card-format format="card.data.format" data="card.data" editing="card.editing"></ng-card-format>
+    <div class="editing-fields" ng-show="card.editing">
+        <form name="editCardForm">
+            <div layout layout-sm="column">
+                <md-input-container>
+                    <section layout="row" layout-sm="column" layout-align="center center" layout-wrap="">
+                        Populate from:
+                        <md-button class="md-fab md-primary" ng-click="populateFromWikipedia(card.data.objectID, card.data)" style="background:#6B6B6B" aria-label="Populate from Wikipedia"><i class="fa fa-wikipedia-w"></i>
+                            <md-tooltip>
+                                Wikipedia
+                            </md-tooltip>
+                        </md-button>
+                        <md-button class="md-fab md-primary" style="background:#3C7BBE" aria-label="Populate from Dictionary.com"><i class="fa fa-book"></i>
+                            <md-tooltip>
+                                Dictionary.com
+                            </md-tooltip>
+                        </md-button>
+                        <md-button class="md-fab md-primary" style="background:#EF4B78" aria-label="Populate from Foursquare"><i class="fa fa-foursquare"></i>
+                            <md-tooltip>
+                                Foursquare
+                            </md-tooltip>
+                        </md-button>
+                        <md-button class="md-fab md-primary" style="background:#0FA460" aria-label="Populate from Google Maps"><i class="fa fa-map"></i>
+                            <md-tooltip>
+                                Google Maps
+                            </md-tooltip>
+                        </md-button>
+                    </section>
+                </md-input-container>
+                <md-input-container flex> </md-input-container>
+            </div>
+            <div class="bs-example" data-example-id="label-variants">
+                <form>
+                    <div class="input-group">
+                        <input type="text" ng-model="newKeyword" class="form-control" placeholder="New keyword...">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-default" type="button" ng-click="appendKeyword(newKeyword, card.data.identity); newKeyword=''">Add</button>
+                        </span>
+                    </div>
+                </form>
+                <button ng-repeat="keyword in getCardIdentity(card).keywords" class="btn btn-primary keyword" type="button">
+                    {{keyword.data.keyword}} <span class="badge" ng-click="deleteKeyword(keyword.objectID, card.data.identity)"><i class="fa fa-times"></i></span>
+                </button>
+                <!--<span ng-repeat="keyword in getCardIdentity(card).keywords" class="label label-default" style="margin-right: 10px">{{keyword.data.keyword}}</span>-->
+            </div>
+            <div layout layout-sm="column">
+                <md-input-container>
+                    <md-button class="md-raised md-primary" ng-click="update(card.objectID, card)">Update</md-button>
+                </md-input-container>
+                <md-input-container flex> </md-input-container>
+                <md-input-container>
+                    <md-button class="md-raised md-warn" ng-click="delete(card.objectID, card)">Delete</md-button>
+                </md-input-container>
+            </div>
+        </form>
+    </div>
     <div class="credits-footer">
-        <ng-author card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.objectID].editing"></ng-author>
-        <ng-credits card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.objectID].editing"></ng-credits>
+        <ng-credits author="getAuthor(card)" sources="card.data.sources" editing="card.editing"></ng-credits>
     </div>
 </li>

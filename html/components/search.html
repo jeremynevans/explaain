@@ -1,0 +1,7 @@
+<div class="input-group dropdown" ng-class="{'input-group-lg': format=='main', 'open': query.length}" style="margin: 0 0 20px 0;width:100%;">
+    <input type="text" placeholder="{{placeholder}}" ng-model="query" ng-change="search(query)" class="form-control" style="border-radius:6px;">
+    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="z-index: 10000">
+        <li ng-if="hits.length == 0"><a>No cards found</a></li>
+        <li ng-repeat="card in hits" ng-click="clickAction(card.objectID, card)"><a href="#{{card.objectID}}"><b>{{card.title}}</b> {{card.subtitle}}</a></li>
+    </ul>
+</div>

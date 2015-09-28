@@ -1,6 +1,6 @@
 <div class="text structured-text" ng-hide="editing">
     <span ng-repeat="span in text.structure">
-        <a href="#{{span.ref}}" ng-if="span.type == 'link'" ng-click="reverse(span.ref)">{{span.text}}</a>
+        <a href="#{{span.ref}}" ng-if="span.type == 'link'" ng-click="openCard(span.ref, false)">{{span.text}}</a>
         <span ng-if="span.type == 'span'">{{span.text}}</span>
     </span>
 </div>

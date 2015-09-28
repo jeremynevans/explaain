@@ -1,0 +1,17 @@
+<a href="#{{quoteAuthorRef}}" ng-click="openCard(quoteAuthorRef, false)">
+  <div class="profile-header" ng-hide="editing">
+    <div class="header-image">
+      <div class="image-container">
+        <img class="image" ng-src="{{ getAuthor(quoteAuthorRef).image.value|| 'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png' }}">
+      </div>
+    </div>
+    <div class="header-text">
+      <h3 ng-hide="editing">{{ getAuthor(quoteAuthorRef).title }}</h3>
+      <h4 ng-hide="editing">{{ getAuthor(quoteAuthorRef).subtitle }}</h4>
+    </div>
+  </div>
+</a>
+<div layout layout-sm="column" ng-show="editing">
+  Quote Author:
+  <ng-search source="Algolia" index="cards" action="select" result-key="quoteAuthorRef"></ng-search>
+</div>

@@ -1,59 +1,10 @@
 <div class="display-fields">
     <div class="header">
-        <ng-image class="header-image" editing="localCardRefs[card.objectID].editing" image="card.image" backup="'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png'"></ng-image>
+        <ng-image class="header-image" editing="editing" image="data.image" backup="'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png'"></ng-image>
         <div class="header-text">
-            <ng-title title="card.title" editing="localCardRefs[card.objectID].editing"></ng-title>
-            <ng-subtitle subtitle="card.subtitle" editing="localCardRefs[card.objectID].editing"></ng-subtitle>
+            <ng-title title="data.title" editing="editing"></ng-title>
+            <ng-subtitle subtitle="data.subtitle" editing="editing"></ng-subtitle>
         </div>
     </div>
-    <ng-structured-text data="card.bio" open-card="open(cardToOpen)" editing="localCardRefs[card.objectID].editing" class="bio"></ng-structured-text>
-</div>
-<div class="editing-fields" ng-show="localCardRefs[card.objectID].editing">
-    <form name="editCardForm">
-        <div layout layout-sm="column">
-            <md-input-container>
-                <section layout="row" layout-sm="column" layout-align="center center" layout-wrap="">
-                    Populate from:
-                    <md-button class="md-fab md-primary" ng-click="populateFromWikipedia(card, true)" style="background:#6B6B6B" aria-label="Populate from Wikipedia"><i class="fa fa-wikipedia-w"></i>
-                        <md-tooltip>
-                            Wikipedia
-                        </md-tooltip>
-                    </md-button>
-                    <md-button class="md-fab md-primary" style="background:#3C7BBE" aria-label="Populate from Dictionary.com"><i class="fa fa-book"></i>
-                        <md-tooltip>
-                            Dictionary.com
-                        </md-tooltip>
-                    </md-button>
-                    <md-button class="md-fab md-primary" style="background:#EF4B78" aria-label="Populate from Foursquare"><i class="fa fa-foursquare"></i>
-                        <md-tooltip>
-                            Foursquare
-                        </md-tooltip>
-                    </md-button>
-                    <md-button class="md-fab md-primary" style="background:#0FA460" aria-label="Populate from Google Maps"><i class="fa fa-map"></i>
-                        <md-tooltip>
-                            Google Maps
-                        </md-tooltip>
-                    </md-button>
-                </section>
-            </md-input-container>
-            <md-input-container flex> </md-input-container>
-        </div>
-        <div layout layout-sm="column">
-            <!--<md-chips ng-model="localIdentityRefs[localCardRefs[card.objectID].identity].keywords" placeholder="Enter a new keyword" delete-button-label="Remove Keyword" delete-hint="Press delete to remove keyword" secondary-placeholder="+Keyword" md-on-append="appendKeyword($chip, card)">-->
-            <!--    <md-chip-template> {{$chip.keyword}} </md-chip-template>-->
-            <!--    <button md-chip-remove class="md-chip-remove ng-scope" ng-click="deleteKeyword($chip.objectID)">-->
-            <!--        <md-icon md-svg-icon="md-close" class="ng-isolate-scope md-default-theme" aria-hidden="true"></md-icon>-->
-            <!--    </button>-->
-            <!--</md-chips>-->
-        </div>
-        <div layout layout-sm="column">
-            <md-input-container>
-                <md-button class="md-raised md-primary" ng-click="updateCard(card.objectID, card)">Update</md-button>
-            </md-input-container>
-            <md-input-container flex> </md-input-container>
-            <md-input-container>
-                <md-button class="md-raised md-warn" ng-click="deleteCard(card.objectID, card)">Delete</md-button>
-            </md-input-container>
-        </div>
-    </form>
+    <ng-structured-text text="data.bio" editing="editing" class="bio"></ng-structured-text>
 </div>
