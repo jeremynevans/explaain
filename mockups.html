@@ -1,0 +1,1641 @@
+<!doctype html>
+<html data-ng-app="app">
+
+<head>
+    <link rel="stylesheet" href="https://necolas.github.io/normalize.css/3.0.2/normalize.css">
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.4/angular-material.min.css">
+    <link href='//fonts.googleapis.com/css?family=Lato:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <meta name="viewport" content="initial-scale=1" />
+    <link rel="stylesheet" href="css/explaain.css">
+    <link rel="stylesheet" href="css/mockups.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+
+    <title>Explaain</title>
+</head>
+
+<body ng-controller="ExplaainCtrl">
+    <h1 class="logo">Explaain</h1>
+    <div>
+        <i class="material-icons action-icon toggle-login login-{{loggedIn}}" ng-click="toggleLogin()">account_circle</i>
+        <i class="material-icons action-icon edit-mode edit-mode-{{editMode}}" ng-show="loggedIn" ng-click="toggleEditMode()">build</i>
+        <i class="material-icons action-icon refresh-all" ng-show="editMode" ng-click="updateEverything()">autorenew</i>
+        <i class="material-icons action-icon new-card" ng-show="editMode" ng-click="addNewCard({}, true, true, false)">queue</i>
+        <ul class="cards">
+            <li class="card card-margaret-thatcher" style="margin-top: 0px; margin-left: 0px;">
+                <i class="material-icons action-icon close" ng-click="close(card)" role="button" tabindex="0">close</i>
+                <!-- ngIf: cardBelongsToUser(card) -->
+                <!-- ngIf: cardBelongsToUser(card) -->
+                <!--<ng-format format="card.format" format-options="formatOptions" editing="localCardRefs[card.$id].editing"></ng-format>-->
+                <div class="display-fields ng-scope">
+                    <div class="header">
+                        <ng-image class="header-image ng-isolate-scope" editing="localCardRefs[card.$id].editing" image="card.image" backup="'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png'">
+                            <div class="image-container" ng-hide="editing" aria-hidden="false">
+                                <img class="image" ng-src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Margaret_Thatcher.png/144px-Margaret_Thatcher.png" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Margaret_Thatcher.png/144px-Margaret_Thatcher.png">
+                            </div>
+
+                            <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                    <label for="input_00E">Image URL</label>
+                                    <input ng-model="image.value" class="ng-pristine ng-untouched ng-valid md-input" id="input_00E" tabindex="0" aria-invalid="false">
+                                </md-input-container>
+                            </div>
+                        </ng-image>
+                        <div class="header-text">
+                            <ng-title title="card.title" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h3 ng-hide="editing" class="ng-binding" aria-hidden="false">Margaret Thatcher</h3>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_00F">Title</label>
+                                        <input ng-model="title" class="ng-pristine ng-untouched ng-valid md-input" id="input_00F" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-title>
+                            <ng-subtitle subtitle="card.subtitle" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h4 ng-hide="editing" class="ng-binding" aria-hidden="false">Former Conservative Prime Minister</h4>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_00G">Subtitle</label>
+                                        <input ng-model="subtitle" class="ng-pristine ng-untouched ng-valid md-input" id="input_00G" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-subtitle>
+                        </div>
+                    </div>
+                    <ng-structured-text data="card.bio" open-card="open(cardToOpen)" editing="localCardRefs[card.$id].editing" class="bio ng-isolate-scope">
+                        <div class="text structured-text" ng-hide="editing" aria-hidden="false">
+                            <!-- ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope">Margaret Hilda Thatcher, </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPq97tTzZsb1Gepy" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">Baroness</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> Thatcher, LG,&nbsp;OM,&nbsp;PC,&nbsp;FRS was the </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPnpK9GYEQQ4m0x2" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">Prime Minister</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> of the </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPphslA5IPvLpsH1" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">United Kingdom</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> from 1979 to 1990 and the Leader of the </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPYtmHtJSVwvjnUE" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">Conservative Party</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> from 1975 to 1990. She was the longest-serving </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPhD4S96ZtzNsg6p" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">British</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPnpK9GYEQQ4m0x2" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">Prime Minister</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> of the </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPqI1Qi6zWQtpEsB" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">20th century</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> and is the only woman to have held the office.</span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure -->
+                        </div>
+
+                        <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                            <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                <label for="input_00H">Bio</label>
+                                <textarea ng-model="text.value" columns="1" md-maxlength="450" class="ng-pristine ng-untouched ng-valid md-input ng-valid-md-maxlength" id="input_00H" ng-trim="false" aria-multiline="true" tabindex="0" aria-invalid="false" style="height: auto;"></textarea>
+                                <div class="md-char-counter">300/450</div>
+                            </md-input-container>
+                        </div>
+                    </ng-structured-text>
+                </div>
+                <div class="editing-fields ng-scope ng-hide" ng-show="localCardRefs[card.$id].editing" aria-hidden="true">
+                    <form name="editCardForm" class="ng-pristine ng-valid">
+                        <div layout="" layout-sm="column">
+                            <md-input-container class="md-default-theme">
+                                <section layout="row" layout-sm="column" layout-align="center center" layout-wrap="">
+                                    Populate from:
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" ng-click="populateFromWikipedia(card, true)" style="background:#6B6B6B" tabindex="0"><i class="fa fa-wikipedia-w ng-scope"></i>
+
+                                    </button>
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" style="background:#3C7BBE"><i class="fa fa-book ng-scope"></i>
+
+                                    </button>
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" style="background:#EF4B78"><i class="fa fa-foursquare ng-scope"></i>
+
+                                    </button>
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" style="background:#0FA460"><i class="fa fa-map ng-scope"></i>
+
+                                    </button>
+                                </section>
+                            </md-input-container>
+                            <md-input-container flex="" class="md-default-theme"> </md-input-container>
+                        </div>
+                        <div layout="" layout-sm="column">
+                            <md-chips ng-model="localCardRefs[card.$id].keywords" placeholder="Enter a new keyword" delete-button-label="Remove Keyword" delete-hint="Press delete to remove keyword" secondary-placeholder="+Keyword" md-on-append="appendKeyword($chip, card)" class="ng-pristine ng-untouched ng-valid ng-isolate-scope md-default-theme"
+                            ariahidden="true" tabindex="-1" aria-invalid="false">
+                                <!-- ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                                <md-chips-wrap ng-if="!$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0" ng-keydown="$mdChipsCtrl.chipKeydown($event)" ng-class="{ 'md-focused': $mdChipsCtrl.hasFocus() }" class="md-chips ng-scope">
+                                    <!-- ngRepeat: $chip in $mdChipsCtrl.items -->
+                                    <md-chip ng-repeat="$chip in $mdChipsCtrl.items" index="0" ng-class="{'md-focused': $mdChipsCtrl.selectedChip == $index}" class="ng-scope md-chip md-default-theme">
+                                        <div class="md-chip-content" tabindex="-1" aria-hidden="true" ng-focus="!$mdChipsCtrl.readonly &amp;&amp; $mdChipsCtrl.selectChip($index)" md-chip-transclude="$mdChipsCtrl.chipContentsTemplate">
+                                            <md-chip-template class="ng-binding ng-scope"> Margaret Thatcher </md-chip-template>
+                                        </div>
+                                        <div class="md-chip-remove-container" md-chip-transclude="$mdChipsCtrl.chipRemoveTemplate">
+                                            <button md-chip-remove="" class="md-chip-remove ng-scope" ng-click="deleteKeyword($chip.$id)" tabindex="-1" ariahidden="true">
+                                                <md-icon md-svg-icon="md-close" class="ng-isolate-scope md-default-theme" aria-hidden="true">
+                                                    <svg version="1.1" x="0px" y="0px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fit="" height="100%" width="100%" preserveAspectRatio="xMidYMid meet" style="pointer-events: none; display: block;">
+                                                        <g>
+                                                            <path d="M19 6.41l-1.41-1.41-5.59 5.59-5.59-5.59-1.41 1.41 5.59 5.59-5.59 5.59 1.41 1.41 5.59-5.59 5.59 5.59 1.41-1.41-5.59-5.59z"></path>
+                                                        </g>
+                                                    </svg>
+                                                </md-icon>
+                                            </button>
+                                        </div>
+                                        <!-- ngIf: !$mdChipsCtrl.readonly --><span ng-if="!$mdChipsCtrl.readonly" class="md-visually-hidden ng-binding ng-scope">      Press delete to remove keyword    </span>
+                                        <!-- end ngIf: !$mdChipsCtrl.readonly -->
+                                    </md-chip>
+                                    <!-- end ngRepeat: $chip in $mdChipsCtrl.items -->
+                                    <md-chip ng-repeat="$chip in $mdChipsCtrl.items" index="1" ng-class="{'md-focused': $mdChipsCtrl.selectedChip == $index}" class="ng-scope md-chip md-default-theme">
+                                        <div class="md-chip-content" tabindex="-1" aria-hidden="true" ng-focus="!$mdChipsCtrl.readonly &amp;&amp; $mdChipsCtrl.selectChip($index)" md-chip-transclude="$mdChipsCtrl.chipContentsTemplate">
+                                            <md-chip-template class="ng-binding ng-scope"> Thatcher </md-chip-template>
+                                        </div>
+                                        <div class="md-chip-remove-container" md-chip-transclude="$mdChipsCtrl.chipRemoveTemplate">
+                                            <button md-chip-remove="" class="md-chip-remove ng-scope" ng-click="deleteKeyword($chip.$id)" tabindex="-1" ariahidden="true">
+                                                <md-icon md-svg-icon="md-close" class="ng-isolate-scope md-default-theme" aria-hidden="true">
+                                                    <svg version="1.1" x="0px" y="0px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fit="" height="100%" width="100%" preserveAspectRatio="xMidYMid meet" style="pointer-events: none; display: block;">
+                                                        <g>
+                                                            <path d="M19 6.41l-1.41-1.41-5.59 5.59-5.59-5.59-1.41 1.41 5.59 5.59-5.59 5.59 1.41 1.41 5.59-5.59 5.59 5.59 1.41-1.41-5.59-5.59z"></path>
+                                                        </g>
+                                                    </svg>
+                                                </md-icon>
+                                            </button>
+                                        </div>
+                                        <!-- ngIf: !$mdChipsCtrl.readonly --><span ng-if="!$mdChipsCtrl.readonly" class="md-visually-hidden ng-binding ng-scope">      Press delete to remove keyword    </span>
+                                        <!-- end ngIf: !$mdChipsCtrl.readonly -->
+                                    </md-chip>
+                                    <!-- end ngRepeat: $chip in $mdChipsCtrl.items -->
+                                    <!-- ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                    <div ng-if="!$mdChipsCtrl.readonly &amp;&amp; $mdChipsCtrl.ngModelCtrl" class="md-chip-input-container ng-scope" md-chip-transclude="$mdChipsCtrl.chipInputTemplate">
+                                        <input tabindex="0" placeholder="Enter a new keyword" aria-label="Enter a new keyword" ng-model="$mdChipsCtrl.chipBuffer" ng-focus="$mdChipsCtrl.onInputFocus()" ng-blur="$mdChipsCtrl.onInputBlur()" ng-keydown="$mdChipsCtrl.inputKeydown($event)" class="ng-pristine ng-untouched ng-valid ng-scope"
+                                        aria-invalid="false">
+                                    </div>
+                                    <!-- end ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                </md-chips-wrap>
+                                <!-- end ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                            </md-chips>
+                        </div>
+                        <div layout="" layout-sm="column">
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-primary md-button md-default-theme" ng-transclude="" ng-click="updateCard(card.$id, card)" tabindex="0"><span class="ng-scope">Update</span></button>
+                            </md-input-container>
+                            <md-input-container flex="" class="md-default-theme"> </md-input-container>
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-warn md-button md-default-theme" ng-transclude="" ng-click="deleteCard(card.$id, card)" tabindex="0"><span class="ng-scope">Delete</span></button>
+                            </md-input-container>
+                        </div>
+                    </form>
+                </div>
+                <div class="credits-footer">
+                    <ng-author card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <a href="http://twitter.com/JeremyNEvans" target="_blank">
+                            <div class="author">
+                                <img class="author-image" src="https://pbs.twimg.com/profile_images/570909802998398976/-HdjYRnK_normal.jpeg">
+                                <div class="author-text">
+                                    <span class="author-name ng-binding" ng-hide="editing" aria-hidden="false">Jeremy Evans</span>
+                                </div>
+                            </div>
+                        </a>
+                    </ng-author>
+                    <ng-credits card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <p class="credits">
+                            <span>Sources:</span>
+                            <ng-sources card="card" sources="card.sources" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope"><span class="sources ng-hide" ng-hide="sources.length" aria-hidden="2">Unknown</span>
+                                <!-- ngRepeat: source in sources --><span class="sources ng-scope" ng-repeat="source in sources">
+    <a href="en.wikipedia.org/wiki/Margaret_Thatcher" target="_blank" class="ng-binding">Wikipedia</a>
+    <!-- ngIf: !$last --><span ng-if="!$last" class="ng-scope">,</span>
+                                <!-- end ngIf: !$last -->
+                                </span>
+                                <!-- end ngRepeat: source in sources --><span class="sources ng-scope" ng-repeat="source in sources">
+    <a href="google.com" target="_blank" class="ng-binding">Other</a>
+    <!-- ngIf: !$last -->
+</span>
+                                <!-- end ngRepeat: source in sources -->
+
+                                <!--<div layout layout-sm="column" ng-show="editing">-->
+                                <!--    <md-input-container flex>-->
+                                <!--        <label>Bio</label>-->
+                                <!--        <textarea ng-model="text.value" columns="1" md-maxlength="450"></textarea>-->
+                                <!--    </md-input-container>-->
+                                <!--</div>-->
+                            </ng-sources>
+                        </p>
+                    </ng-credits>
+                </div>
+            </li>
+        </ul>
+
+        <ul class="cards">
+            <li class="card card-" style="margin-top: 0px">
+                <i class="material-icons action-icon close" ng-click="close(card)" role="button" tabindex="0">close</i>
+                <!-- ngIf: cardBelongsToUser(card) --><i class="material-icons action-icon edit ng-scope ng-hide" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="toggleEditCard(card)" role="button" tabindex="0" aria-hidden="true">create</i>
+                <!-- end ngIf: cardBelongsToUser(card) -->
+                <!-- ngIf: cardBelongsToUser(card) --><i class="material-icons action-icon delete ng-scope ng-hide" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="deleteCard(card.$id, card)" role="button" tabindex="0" aria-hidden="true">delete</i>
+                <!-- end ngIf: cardBelongsToUser(card) -->
+                <!--<ng-format format="card.format" format-options="formatOptions" editing="localCardRefs[card.$id].editing"></ng-format>-->
+                <div class="display-fields quote ng-scope">
+                    <img class="quote" src="images/quote.png" ng-hide="localCardRefs[card.$id].editing" aria-hidden="false">
+                    <ng-structured-text data="card.bio" open-card="open(cardToOpen)" editing="localCardRefs[card.$id].editing" class="text quote ng-isolate-scope">
+                        <div class="text structured-text" ng-hide="editing" aria-hidden="false">
+                            <!-- ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope">The problem with socialism is that you eventually run out of other people's money.</span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure -->
+                        </div>
+
+                        <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                            <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                <label for="input_01D">Bio</label>
+                                <textarea ng-model="text.value" columns="1" md-maxlength="450" class="ng-pristine ng-untouched ng-valid md-input ng-valid-md-maxlength" id="input_01D" ng-trim="false" aria-multiline="true" tabindex="0" aria-invalid="false" style="height: auto;"></textarea>
+                                <div class="md-char-counter">82/450</div>
+                            </md-input-container>
+                        </div>
+                    </ng-structured-text>
+                    <div class="header">
+                        <ng-image class="header-image ng-isolate-scope" editing="localCardRefs[card.$id].editing" image="card.image" backup="'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png'">
+                            <div class="image-container" ng-hide="editing" aria-hidden="false">
+                                <img class="image" ng-src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Margaret_Thatcher.png/144px-Margaret_Thatcher.png" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Margaret_Thatcher.png/144px-Margaret_Thatcher.png">
+                            </div>
+
+                            <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                    <label for="input_01E">Image URL</label>
+                                    <input ng-model="image.value" class="ng-pristine ng-untouched ng-valid md-input" id="input_01E" tabindex="0" aria-invalid="false">
+                                </md-input-container>
+                            </div>
+                        </ng-image>
+                        <div class="header-text">
+                            <ng-title title="card.title" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h3 ng-hide="editing" class="ng-binding" aria-hidden="false">Margaret Thatcher</h3>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_01F">Title</label>
+                                        <input ng-model="title" class="ng-pristine ng-untouched ng-valid md-input" id="input_01F" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-title>
+                            <ng-subtitle subtitle="card.subtitle" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h4 ng-hide="editing" class="ng-binding" aria-hidden="false" style="
+    font-size: 0.9em;
+">Former UK Prime Minister</h4>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_01G">Subtitle</label>
+                                        <input ng-model="subtitle" class="ng-pristine ng-untouched ng-valid md-input" id="input_01G" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-subtitle>
+                        </div>
+                    </div>
+                </div>
+                <div class="editing-fields ng-scope ng-hide" ng-show="localCardRefs[card.$id].editing" aria-hidden="true">
+                    <form name="editCardForm" class="ng-pristine ng-valid">
+                        <div layout="" layout-sm="column">
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-primary md-button md-default-theme" ng-transclude="" ng-click="populateFromWikipedia(card, true)" tabindex="0"><span class="ng-scope">Populate from Wikipedia</span></button>
+                            </md-input-container>
+                            <md-input-container flex="" class="md-default-theme"> </md-input-container>
+                        </div>
+                        <div layout="" layout-sm="column">
+                            <md-chips ng-model="localCardRefs[card.$id].keywords" placeholder="Enter a new keyword" delete-button-label="Remove Keyword" delete-hint="Press delete to remove keyword" secondary-placeholder="+Keyword" md-on-append="appendKeyword($chip, card)" class="ng-pristine ng-untouched ng-valid ng-isolate-scope md-default-theme"
+                            ariahidden="true" tabindex="-1" aria-invalid="false">
+                                <!-- ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                                <md-chips-wrap ng-if="!$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0" ng-keydown="$mdChipsCtrl.chipKeydown($event)" ng-class="{ 'md-focused': $mdChipsCtrl.hasFocus() }" class="md-chips ng-scope">
+                                    <!-- ngRepeat: $chip in $mdChipsCtrl.items -->
+                                    <!-- ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                    <div ng-if="!$mdChipsCtrl.readonly &amp;&amp; $mdChipsCtrl.ngModelCtrl" class="md-chip-input-container ng-scope" md-chip-transclude="$mdChipsCtrl.chipInputTemplate">
+                                        <input tabindex="0" placeholder="+Keyword" aria-label="+Keyword" ng-model="$mdChipsCtrl.chipBuffer" ng-focus="$mdChipsCtrl.onInputFocus()" ng-blur="$mdChipsCtrl.onInputBlur()" ng-keydown="$mdChipsCtrl.inputKeydown($event)" class="ng-pristine ng-untouched ng-valid ng-scope"
+                                        aria-invalid="false">
+                                    </div>
+                                    <!-- end ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                </md-chips-wrap>
+                                <!-- end ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                            </md-chips>
+                        </div>
+                        <div layout="" layout-sm="column">
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-primary md-button md-default-theme" ng-transclude="" ng-click="updateCard(card.$id, card)" tabindex="0"><span class="ng-scope">Update</span></button>
+                            </md-input-container>
+                            <md-input-container flex="" class="md-default-theme"> </md-input-container>
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-warn md-button md-default-theme" ng-transclude="" ng-click="deleteCard(card.$id, card)" tabindex="0"><span class="ng-scope">Delete</span></button>
+                            </md-input-container>
+                        </div>
+                    </form>
+                </div>
+                <div class="credits-footer">
+                    <ng-author card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <a href="" target="_blank">
+                            <div class="author">
+                                <img class="author-image" src="https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png">
+                                <div class="author-text">
+                                    <span class="author-name ng-binding" ng-hide="editing" aria-hidden="false">Unknown Author</span>
+                                </div>
+                            </div>
+                        </a>
+                    </ng-author>
+                    <ng-credits card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <p class="credits">
+                            <span>Sources:</span>
+                            <ng-sources card="card" sources="card.sources" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope"><span class="sources" ng-hide="sources.length">Unknown</span>
+                                <!-- ngRepeat: source in sources -->
+
+                                <!--<div layout layout-sm="column" ng-show="editing">-->
+                                <!--    <md-input-container flex>-->
+                                <!--        <label>Bio</label>-->
+                                <!--        <textarea ng-model="text.value" columns="1" md-maxlength="450"></textarea>-->
+                                <!--    </md-input-container>-->
+                                <!--</div>-->
+                            </ng-sources>
+                        </p>
+                    </ng-credits>
+                </div>
+            </li>
+        </ul>
+        <ul class="cards">
+            <li class="card card-" style="margin-top: 0;">
+                <i class="material-icons action-icon close" ng-click="close(card)" role="button" tabindex="0">close</i>
+                <!-- ngIf: cardBelongsToUser(card) --><i class="material-icons action-icon edit ng-scope ng-hide" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="toggleEditCard(card)" role="button" tabindex="0" aria-hidden="true">create</i>
+                <!-- end ngIf: cardBelongsToUser(card) -->
+                <!-- ngIf: cardBelongsToUser(card) --><i class="material-icons action-icon delete ng-scope ng-hide" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="deleteCard(card.$id, card)" role="button" tabindex="0" aria-hidden="true">delete</i>
+                <!-- end ngIf: cardBelongsToUser(card) -->
+                <!--<ng-format format="card.format" format-options="formatOptions" editing="localCardRefs[card.$id].editing"></ng-format>-->
+                <div class="display-fields ng-scope">
+                    <div class="header">
+                        <ng-image class="header-image ng-isolate-scope" editing="localCardRefs[card.$id].editing" image="card.image" backup="'http://static.wixstatic.com/media/9bd2f6_91b9764674834d6997796aa1cbfeafe2.png_srz_200_200_85_22_0.50_1.20_0.00_png_srz'">
+                            <div class="image-container" ng-hide="editing" aria-hidden="false">
+                                <img class="image" src="http://www.columbustapeandvideo.com/wp-content/uploads/2014/03/iconLargeGreyMap.png" style="opacity: 0.4;">
+                            </div>
+
+                            <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                <md-input-container flex="" class="md-default-theme">
+                                    <label for="input_01S">Image URL</label>
+                                    <input ng-model="image.value" class="ng-pristine ng-untouched ng-valid md-input" id="input_01S" tabindex="0" aria-invalid="false">
+                                </md-input-container>
+                            </div>
+                        </ng-image>
+                        <div class="header-text">
+                            <ng-title title="card.title" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h3 ng-hide="editing" class="ng-binding" aria-hidden="false">Bangkok</h3>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_01T">Title</label>
+                                        <input ng-model="title" class="ng-pristine ng-untouched ng-valid md-input" id="input_01T" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-title>
+                            <ng-subtitle subtitle="card.subtitle" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h4 ng-hide="editing" class="ng-binding" aria-hidden="false">Capital of Thailand</h4>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_01U">Subtitle</label>
+                                        <input ng-model="subtitle" class="ng-pristine ng-untouched ng-valid md-input" id="input_01U" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-subtitle>
+                        </div>
+                    </div>
+                    <ng-embed embed="card.embed" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <div class="embed-container" ng-hide="editing" aria-hidden="false">
+                            <div ng-bind-html="embed.code | sanitize" class="ng-binding">
+                                <!--<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d495808.82926515554!2d100.55071333906253!3d13.868636743142254!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x311d6032280d61f3%3A0x10100b25de24820!2sBangkok%2C+Thailand!5e0!3m2!1sen!2suk!4v1439987907040"-->
+                                width="100%" height="250" frameborder="0" style="border:0" allowfullscreen=""></iframe>
+                            </div>
+                        </div>
+
+                        <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                            <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                <label for="input_01V">Embed Code</label>
+                                <input ng-model="embed.code" class="ng-pristine ng-untouched ng-valid md-input" id="input_01V" tabindex="0" aria-invalid="false">
+                            </md-input-container>
+                        </div>
+                    </ng-embed>
+                </div>
+                <div class="editing-fields ng-scope ng-hide" ng-show="localCardRefs[card.$id].editing" aria-hidden="true">
+                    <form name="editCardForm" class="ng-pristine ng-valid">
+                        <!--<div layout layout-sm="column">-->
+                        <!--    <md-input-container>-->
+                        <!--        <md-button class="md-raised md-primary" ng-click="populateFromWikipedia(card, true)">Populate from Wikipedia</md-button>-->
+                        <!--    </md-input-container>-->
+                        <!--    <md-input-container flex> </md-input-container>-->
+                        <!--</div>-->
+                        <div layout="" layout-sm="column">
+                            <md-chips ng-model="localCardRefs[card.$id].keywords" placeholder="Enter a new keyword" delete-button-label="Remove Keyword" delete-hint="Press delete to remove keyword" secondary-placeholder="+Keyword" md-on-append="appendKeyword($chip, card)" class="ng-pristine ng-untouched ng-valid ng-isolate-scope md-default-theme"
+                            ariahidden="true" tabindex="-1" aria-invalid="false">
+                                <!-- ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                                <md-chips-wrap ng-if="!$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0" ng-keydown="$mdChipsCtrl.chipKeydown($event)" ng-class="{ 'md-focused': $mdChipsCtrl.hasFocus() }" class="md-chips ng-scope">
+                                    <!-- ngRepeat: $chip in $mdChipsCtrl.items -->
+                                    <!-- ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                    <div ng-if="!$mdChipsCtrl.readonly &amp;&amp; $mdChipsCtrl.ngModelCtrl" class="md-chip-input-container ng-scope" md-chip-transclude="$mdChipsCtrl.chipInputTemplate">
+                                        <input tabindex="0" placeholder="+Keyword" aria-label="+Keyword" ng-model="$mdChipsCtrl.chipBuffer" ng-focus="$mdChipsCtrl.onInputFocus()" ng-blur="$mdChipsCtrl.onInputBlur()" ng-keydown="$mdChipsCtrl.inputKeydown($event)" class="ng-pristine ng-untouched ng-valid ng-scope"
+                                        aria-invalid="false">
+                                    </div>
+                                    <!-- end ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                </md-chips-wrap>
+                                <!-- end ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                            </md-chips>
+                        </div>
+                        <div layout="" layout-sm="column">
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-primary md-button md-default-theme" ng-transclude="" ng-click="updateCard(card.$id, card)" tabindex="0"><span class="ng-scope">Update</span></button>
+                            </md-input-container>
+                            <md-input-container flex="" class="md-default-theme"> </md-input-container>
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-warn md-button md-default-theme" ng-transclude="" ng-click="deleteCard(card.$id, card)" tabindex="0"><span class="ng-scope">Delete</span></button>
+                            </md-input-container>
+                        </div>
+                    </form>
+                </div>
+                <div class="credits-footer">
+                    <ng-author card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <a href="" target="_blank">
+                            <div class="author">
+                                <img class="author-image" src="https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png">
+                                <div class="author-text">
+                                    <span class="author-name ng-binding" ng-hide="editing" aria-hidden="false">Unknown Author</span>
+                                </div>
+                            </div>
+                        </a>
+                    </ng-author>
+                    <ng-credits card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <p class="credits">
+                            <span>Sources:</span>
+                            <ng-sources card="card" sources="card.sources" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope"><span class="sources" ng-hide="sources.length">Unknown</span>
+                                <!-- ngRepeat: source in sources -->
+
+                                <!--<div layout layout-sm="column" ng-show="editing">-->
+                                <!--    <md-input-container flex>-->
+                                <!--        <label>Bio</label>-->
+                                <!--        <textarea ng-model="text.value" columns="1" md-maxlength="450"></textarea>-->
+                                <!--    </md-input-container>-->
+                                <!--</div>-->
+                            </ng-sources>
+                        </p>
+                    </ng-credits>
+                </div>
+            </li>
+        </ul>
+        <ul class="cards">
+            <li class="card card-margaret-thatcher" style="margin-top: 0px; margin-left: 0px;">
+                <i class="material-icons action-icon close" ng-click="close(card)" role="button" tabindex="0">close</i>
+                <!-- ngIf: cardBelongsToUser(card) --><i class="material-icons action-icon edit ng-scope" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="toggleEditCard(card)" role="button" tabindex="0" aria-hidden="false">create</i>
+                <!-- end ngIf: cardBelongsToUser(card) -->
+                <!-- ngIf: cardBelongsToUser(card) --><i class="material-icons action-icon delete ng-scope" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="deleteCard(card.$id, card)" role="button" tabindex="0" aria-hidden="false">delete</i>
+                <!-- end ngIf: cardBelongsToUser(card) -->
+                <!--<ng-format format="card.format" format-options="formatOptions" editing="localCardRefs[card.$id].editing"></ng-format>-->
+                <div class="display-fields ng-scope">
+                    <div class="header">
+                        <ng-image class="header-image ng-isolate-scope" editing="localCardRefs[card.$id].editing" image="card.image" backup="'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png'">
+                            <div class="image-container ng-hide" ng-hide="editing" aria-hidden="true">
+                                <img class="image" ng-src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Margaret_Thatcher.png/144px-Margaret_Thatcher.png" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Margaret_Thatcher.png/144px-Margaret_Thatcher.png">
+                            </div>
+
+                            <div layout="" layout-sm="column" ng-show="editing" aria-hidden="false" class="">
+                                <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                    <label for="input_00E">Image URL</label>
+                                    <input ng-model="image.value" class="ng-pristine ng-untouched ng-valid md-input" id="input_00E" tabindex="0" aria-invalid="false">
+                                </md-input-container>
+                            </div>
+                        </ng-image>
+                        <div class="header-text">
+                            <ng-title title="card.title" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h3 ng-hide="editing" class="ng-binding ng-hide" aria-hidden="true">Margaret Thatcher</h3>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="false" class="">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_00F">Title</label>
+                                        <input ng-model="title" class="ng-pristine ng-untouched ng-valid md-input" id="input_00F" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-title>
+                            <ng-subtitle subtitle="card.subtitle" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h4 ng-hide="editing" class="ng-binding ng-hide" aria-hidden="true">Former Conservative Prime Minister</h4>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="false" class="">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_00G">Subtitle</label>
+                                        <input ng-model="subtitle" class="ng-pristine ng-untouched ng-valid md-input" id="input_00G" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-subtitle>
+                        </div>
+                    </div>
+                    <ng-structured-text data="card.bio" open-card="open(cardToOpen)" editing="localCardRefs[card.$id].editing" class="bio ng-isolate-scope">
+                        <div class="text structured-text ng-hide" ng-hide="editing" aria-hidden="true">
+                            <!-- ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope">Margaret Hilda Thatcher, </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPq97tTzZsb1Gepy" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">Baroness</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> Thatcher, LG,&nbsp;OM,&nbsp;PC,&nbsp;FRS was the </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPnpK9GYEQQ4m0x2" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">Prime Minister</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> of the </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPphslA5IPvLpsH1" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">United Kingdom</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> from 1979 to 1990 and the Leader of the </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPYtmHtJSVwvjnUE" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">Conservative Party</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> from 1975 to 1990. She was the longest-serving </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPhD4S96ZtzNsg6p" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">British</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPnpK9GYEQQ4m0x2" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">Prime Minister</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> of the </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPqI1Qi6zWQtpEsB" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">20th century</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> and is the only woman to have held the office.</span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure -->
+                        </div>
+
+                        <div layout="" layout-sm="column" ng-show="editing" aria-hidden="false" class="">
+                            <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                <label for="input_00H">Bio</label>
+                                <textarea ng-model="text.value" columns="1" md-maxlength="450" class="ng-pristine ng-untouched ng-valid md-input ng-valid-md-maxlength" id="input_00H" ng-trim="false" aria-multiline="true" tabindex="0" aria-invalid="false" style="height: auto;"></textarea>
+                                <div class="md-char-counter">300/450</div>
+                            </md-input-container>
+                        </div>
+                    </ng-structured-text>
+                </div>
+                <div class="editing-fields ng-scope" ng-show="localCardRefs[card.$id].editing" aria-hidden="false">
+                    <form name="editCardForm" class="ng-pristine ng-valid">
+                        <div layout="" layout-sm="column">
+                            <md-input-container class="md-default-theme">
+                                <section layout="row" layout-sm="column" layout-align="center center" layout-wrap="">
+                                    Populate from:
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" ng-click="populateFromWikipedia(card, true)" style="background:#6B6B6B" tabindex="0"><i class="fa fa-wikipedia-w ng-scope"></i>
+
+                                    </button>
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" style="background:#3C7BBE"><i class="fa fa-book ng-scope"></i>
+
+                                    </button>
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" style="background:#EF4B78"><i class="fa fa-foursquare ng-scope"></i>
+
+                                    </button>
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" style="background:#0FA460"><i class="fa fa-map ng-scope"></i>
+
+                                    </button>
+                                </section>
+                            </md-input-container>
+                            <md-input-container flex="" class="md-default-theme"> </md-input-container>
+                        </div>
+                        <div layout="" layout-sm="column">
+                            <md-chips ng-model="localCardRefs[card.$id].keywords" placeholder="Enter a new keyword" delete-button-label="Remove Keyword" delete-hint="Press delete to remove keyword" secondary-placeholder="+Keyword" md-on-append="appendKeyword($chip, card)" class="ng-pristine ng-untouched ng-valid ng-isolate-scope md-default-theme"
+                            ariahidden="true" tabindex="-1" aria-invalid="false">
+                                <!-- ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                                <md-chips-wrap ng-if="!$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0" ng-keydown="$mdChipsCtrl.chipKeydown($event)" ng-class="{ 'md-focused': $mdChipsCtrl.hasFocus() }" class="md-chips ng-scope">
+                                    <!-- ngRepeat: $chip in $mdChipsCtrl.items -->
+                                    <md-chip ng-repeat="$chip in $mdChipsCtrl.items" index="0" ng-class="{'md-focused': $mdChipsCtrl.selectedChip == $index}" class="ng-scope md-chip md-default-theme">
+                                        <div class="md-chip-content" tabindex="-1" aria-hidden="true" ng-focus="!$mdChipsCtrl.readonly &amp;&amp; $mdChipsCtrl.selectChip($index)" md-chip-transclude="$mdChipsCtrl.chipContentsTemplate">
+                                            <md-chip-template class="ng-binding ng-scope"> Margaret Thatcher </md-chip-template>
+                                        </div>
+                                        <div class="md-chip-remove-container" md-chip-transclude="$mdChipsCtrl.chipRemoveTemplate">
+                                            <button md-chip-remove="" class="md-chip-remove ng-scope" ng-click="deleteKeyword($chip.$id)" tabindex="-1" ariahidden="true">
+                                                <md-icon md-svg-icon="md-close" class="ng-isolate-scope md-default-theme" aria-hidden="true">
+                                                    <svg version="1.1" x="0px" y="0px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fit="" height="100%" width="100%" preserveAspectRatio="xMidYMid meet" style="pointer-events: none; display: block;">
+                                                        <g>
+                                                            <path d="M19 6.41l-1.41-1.41-5.59 5.59-5.59-5.59-1.41 1.41 5.59 5.59-5.59 5.59 1.41 1.41 5.59-5.59 5.59 5.59 1.41-1.41-5.59-5.59z"></path>
+                                                        </g>
+                                                    </svg>
+                                                </md-icon>
+                                            </button>
+                                        </div>
+                                        <!-- ngIf: !$mdChipsCtrl.readonly --><span ng-if="!$mdChipsCtrl.readonly" class="md-visually-hidden ng-binding ng-scope">      Press delete to remove keyword    </span>
+                                        <!-- end ngIf: !$mdChipsCtrl.readonly -->
+                                    </md-chip>
+                                    <!-- end ngRepeat: $chip in $mdChipsCtrl.items -->
+                                    <md-chip ng-repeat="$chip in $mdChipsCtrl.items" index="1" ng-class="{'md-focused': $mdChipsCtrl.selectedChip == $index}" class="ng-scope md-chip md-default-theme">
+                                        <div class="md-chip-content" tabindex="-1" aria-hidden="true" ng-focus="!$mdChipsCtrl.readonly &amp;&amp; $mdChipsCtrl.selectChip($index)" md-chip-transclude="$mdChipsCtrl.chipContentsTemplate">
+                                            <md-chip-template class="ng-binding ng-scope"> Thatcher </md-chip-template>
+                                        </div>
+                                        <div class="md-chip-remove-container" md-chip-transclude="$mdChipsCtrl.chipRemoveTemplate">
+                                            <button md-chip-remove="" class="md-chip-remove ng-scope" ng-click="deleteKeyword($chip.$id)" tabindex="-1" ariahidden="true">
+                                                <md-icon md-svg-icon="md-close" class="ng-isolate-scope md-default-theme" aria-hidden="true">
+                                                    <svg version="1.1" x="0px" y="0px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fit="" height="100%" width="100%" preserveAspectRatio="xMidYMid meet" style="pointer-events: none; display: block;">
+                                                        <g>
+                                                            <path d="M19 6.41l-1.41-1.41-5.59 5.59-5.59-5.59-1.41 1.41 5.59 5.59-5.59 5.59 1.41 1.41 5.59-5.59 5.59 5.59 1.41-1.41-5.59-5.59z"></path>
+                                                        </g>
+                                                    </svg>
+                                                </md-icon>
+                                            </button>
+                                        </div>
+                                        <!-- ngIf: !$mdChipsCtrl.readonly --><span ng-if="!$mdChipsCtrl.readonly" class="md-visually-hidden ng-binding ng-scope">      Press delete to remove keyword    </span>
+                                        <!-- end ngIf: !$mdChipsCtrl.readonly -->
+                                    </md-chip>
+                                    <!-- end ngRepeat: $chip in $mdChipsCtrl.items -->
+                                    <!-- ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                    <div ng-if="!$mdChipsCtrl.readonly &amp;&amp; $mdChipsCtrl.ngModelCtrl" class="md-chip-input-container ng-scope" md-chip-transclude="$mdChipsCtrl.chipInputTemplate">
+                                        <input tabindex="0" placeholder="Enter a new keyword" aria-label="Enter a new keyword" ng-model="$mdChipsCtrl.chipBuffer" ng-focus="$mdChipsCtrl.onInputFocus()" ng-blur="$mdChipsCtrl.onInputBlur()" ng-keydown="$mdChipsCtrl.inputKeydown($event)" class="ng-pristine ng-untouched ng-valid ng-scope"
+                                        aria-invalid="false">
+                                    </div>
+                                    <!-- end ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                </md-chips-wrap>
+                                <!-- end ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                            </md-chips>
+                        </div>
+                        <div layout="" layout-sm="column">
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-primary md-button md-default-theme" ng-transclude="" ng-click="updateCard(card.$id, card)" tabindex="0"><span class="ng-scope">Update</span></button>
+                            </md-input-container>
+                            <md-input-container flex="" class="md-default-theme"> </md-input-container>
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-warn md-button md-default-theme" ng-transclude="" ng-click="deleteCard(card.$id, card)" tabindex="0"><span class="ng-scope">Delete</span></button>
+                            </md-input-container>
+                        </div>
+                    </form>
+                </div>
+                <div class="credits-footer">
+                    <ng-author card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <a href="http://twitter.com/JeremyNEvans" target="_blank">
+                            <div class="author">
+                                <img class="author-image" src="https://pbs.twimg.com/profile_images/570909802998398976/-HdjYRnK_normal.jpeg">
+                                <div class="author-text">
+                                    <span class="author-name ng-binding">Jeremy Evans</span>
+                                </div>
+                            </div>
+                        </a>
+                    </ng-author>
+                    <ng-credits card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <p class="credits">
+                            <span>Sources:</span>
+                            <ng-sources card="card" sources="card.sources" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope"><span class="sources ng-hide" ng-hide="sources.length" aria-hidden="2">Unknown</span>
+                                <!-- ngRepeat: source in sources --><span class="sources ng-scope" ng-repeat="source in sources">
+    <a href="en.wikipedia.org/wiki/Margaret_Thatcher" target="_blank" class="ng-binding">Wikipedia</a>
+    <!-- ngIf: !$last --><span ng-if="!$last" class="ng-scope">,</span>
+                                <!-- end ngIf: !$last -->
+                                </span>
+                                <!-- end ngRepeat: source in sources --><span class="sources ng-scope" ng-repeat="source in sources">
+    <a href="google.com" target="_blank" class="ng-binding">Other</a>
+    <!-- ngIf: !$last -->
+</span>
+                                <!-- end ngRepeat: source in sources -->
+
+                                <!--<div layout layout-sm="column" ng-show="editing">-->
+                                <!--    <md-input-container flex>-->
+                                <!--        <label>Bio</label>-->
+                                <!--        <textarea ng-model="text.value" columns="1" md-maxlength="450"></textarea>-->
+                                <!--    </md-input-container>-->
+                                <!--</div>-->
+                            </ng-sources>
+                        </p>
+                    </ng-credits>
+                </div>
+            </li>
+        </ul>
+
+        <ul class="cards">
+            <li class="card card-" style="margin-top: 40px; margin-left: 0px;">
+                <i class="material-icons action-icon close" ng-click="close(card)" role="button" tabindex="0">close</i>
+                <!-- ngIf: cardBelongsToUser(card) --><i class="material-icons action-icon edit ng-scope" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="toggleEditCard(card)" role="button" tabindex="0" aria-hidden="false">create</i>
+                <!-- end ngIf: cardBelongsToUser(card) -->
+                <!-- ngIf: cardBelongsToUser(card) --><i class="material-icons action-icon delete ng-scope" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="deleteCard(card.$id, card)" role="button" tabindex="0" aria-hidden="false">delete</i>
+                <!-- end ngIf: cardBelongsToUser(card) -->
+                <!--<ng-format format="card.format" format-options="formatOptions" editing="localCardRefs[card.$id].editing"></ng-format>-->
+                <div class="display-fields ng-scope">
+                    <div class="header">
+                        <ng-image class="header-image ng-isolate-scope" editing="localCardRefs[card.$id].editing" image="card.image" backup="'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png'">
+                            <div class="image-container" ng-hide="editing" aria-hidden="false">
+                                <img class="image" ng-src="http://ichef.bbci.co.uk/news/624/cpsprodpb/16DD6/production/_85445639_f2e4c74e-90da-4046-a154-c8d98d95ba80.jpg" src="http://ichef.bbci.co.uk/news/624/cpsprodpb/16DD6/production/_85445639_f2e4c74e-90da-4046-a154-c8d98d95ba80.jpg">
+                            </div>
+
+                            <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                    <label for="input_05P">Image URL</label>
+                                    <input ng-model="image.value" class="ng-valid md-input ng-dirty ng-valid-parse ng-touched" id="input_05P" tabindex="0" aria-invalid="false">
+                                </md-input-container>
+                            </div>
+                        </ng-image>
+                        <div class="header-text">
+                            <ng-title title="card.title" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h3 ng-hide="editing" class="ng-binding" aria-hidden="false">New Migrant Crisis Proposal</h3>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_05Q">Title</label>
+                                        <input ng-model="title" class="ng-valid md-input ng-dirty ng-valid-parse ng-touched" id="input_05Q" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-title>
+                            <ng-subtitle subtitle="card.subtitle" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h4 ng-hide="editing" class="ng-binding" aria-hidden="false">EU's Juncker announces refugee quota plan</h4>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_05R">Subtitle</label>
+                                        <input ng-model="subtitle" class="ng-valid md-input ng-dirty ng-valid-parse ng-touched" id="input_05R" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-subtitle>
+                        </div>
+                    </div>
+                    <ng-structured-text data="card.bio" open-card="open(cardToOpen)" editing="localCardRefs[card.$id].editing" class="bio ng-isolate-scope">
+                        <div class="text structured-text" ng-hide="editing" aria-hidden="false">
+                            <!-- ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"></span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPfFwn998Y3fWpYG" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">European Commission</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> President </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-Jym_Lo2q_lByllxGDnD" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">Jean-Claude Juncker</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> has announced a </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-Jym_P0dTE_tES-rOygB" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">"swift, determined and comprehensive"</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> response to </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPfFwn998Y3fWpYG" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">Europe</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope">'s </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-Jym_c1ImOELDKkIpX_0" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">migrant crisis</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope">.</span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure -->
+                        </div>
+
+                        <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                            <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                <label for="input_05S">Bio</label>
+                                <textarea ng-model="text.value" columns="1" md-maxlength="450" class="ng-valid md-input ng-valid-md-maxlength ng-dirty ng-valid-parse ng-touched" id="input_05S" ng-trim="false" aria-multiline="true" tabindex="0" aria-invalid="false" style="height: 80px;"></textarea>
+                                <div class="md-char-counter">140/450</div>
+                            </md-input-container>
+                        </div>
+                    </ng-structured-text>
+                </div>
+                <div class="editing-fields ng-scope ng-hide" ng-show="localCardRefs[card.$id].editing" aria-hidden="true">
+                    <form name="editCardForm" class="ng-pristine ng-valid ng-submitted">
+                        <div layout="" layout-sm="column">
+                            <md-input-container class="md-default-theme">
+                                <section layout="row" layout-sm="column" layout-align="center center" layout-wrap="">
+                                    Populate from:
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" ng-click="populateFromWikipedia(card, true)" style="background:#6B6B6B" tabindex="0"><i class="fa fa-wikipedia-w ng-scope"></i>
+
+                                    </button>
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" style="background:#3C7BBE"><i class="fa fa-book ng-scope"></i>
+
+                                    </button>
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" style="background:#EF4B78"><i class="fa fa-foursquare ng-scope"></i>
+
+                                    </button>
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" style="background:#0FA460"><i class="fa fa-map ng-scope"></i>
+
+                                    </button>
+                                </section>
+                            </md-input-container>
+                            <md-input-container flex="" class="md-default-theme"> </md-input-container>
+                        </div>
+                        <div layout="" layout-sm="column">
+                            <md-chips ng-model="localCardRefs[card.$id].keywords" placeholder="Enter a new keyword" delete-button-label="Remove Keyword" delete-hint="Press delete to remove keyword" secondary-placeholder="+Keyword" md-on-append="appendKeyword($chip, card)" class="ng-pristine ng-untouched ng-valid ng-isolate-scope md-default-theme"
+                            ariahidden="true" tabindex="-1" aria-invalid="false">
+                                <!-- ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                                <md-chips-wrap ng-if="!$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0" ng-keydown="$mdChipsCtrl.chipKeydown($event)" ng-class="{ 'md-focused': $mdChipsCtrl.hasFocus() }" class="md-chips ng-scope">
+                                    <!-- ngRepeat: $chip in $mdChipsCtrl.items -->
+                                    <!-- ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                    <div ng-if="!$mdChipsCtrl.readonly &amp;&amp; $mdChipsCtrl.ngModelCtrl" class="md-chip-input-container ng-scope" md-chip-transclude="$mdChipsCtrl.chipInputTemplate">
+                                        <input tabindex="0" placeholder="+Keyword" aria-label="+Keyword" ng-model="$mdChipsCtrl.chipBuffer" ng-focus="$mdChipsCtrl.onInputFocus()" ng-blur="$mdChipsCtrl.onInputBlur()" ng-keydown="$mdChipsCtrl.inputKeydown($event)"
+                                        class="ng-pristine ng-untouched ng-valid ng-scope" aria-invalid="false">
+                                    </div>
+                                    <!-- end ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                </md-chips-wrap>
+                                <!-- end ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                            </md-chips>
+                        </div>
+                        <div layout="" layout-sm="column">
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-primary md-button md-default-theme" ng-transclude="" ng-click="updateCard(card.$id, card)" tabindex="0"><span class="ng-scope">Update</span>
+                                    <div class="md-ripple-container"></div>
+                                </button>
+                            </md-input-container>
+                            <md-input-container flex="" class="md-default-theme"> </md-input-container>
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-warn md-button md-default-theme" ng-transclude="" ng-click="deleteCard(card.$id, card)" tabindex="0"><span class="ng-scope">Delete</span></button>
+                            </md-input-container>
+                        </div>
+                    </form>
+                </div>
+                <div class="credits-footer">
+                    <ng-author card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <a href="http://twitter.com/JeremyNEvans" target="_blank">
+                            <div class="author">
+                                <img class="author-image" src="https://pbs.twimg.com/profile_images/570909802998398976/-HdjYRnK_normal.jpeg">
+                                <div class="author-text">
+                                    <span class="author-name ng-binding">Jeremy Evans</span>
+                                </div>
+                            </div>
+                        </a>
+                    </ng-author>
+                    <ng-credits card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <p class="credits">
+                            <span>Sources:</span>
+                            <ng-sources card="card" sources="card.sources" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope"><span class="sources" ng-hide="sources.length">BBC News, Reuters</span>
+                                <!-- ngRepeat: source in sources -->
+
+                                <!--<div layout layout-sm="column" ng-show="editing">-->
+                                <!--    <md-input-container flex>-->
+                                <!--        <label>Bio</label>-->
+                                <!--        <textarea ng-model="text.value" columns="1" md-maxlength="450"></textarea>-->
+                                <!--    </md-input-container>-->
+                                <!--</div>-->
+                            </ng-sources>
+                        </p>
+                    </ng-credits>
+                </div>
+            </li>
+        </ul>
+
+        <ul class="cards">
+            <li class="card card-" style="margin-top: 0px;">
+                <i class="material-icons action-icon close" ng-click="close(card)" role="button" tabindex="0">close</i>
+                <!-- ngIf: cardBelongsToUser(card) --><i class="material-icons action-icon edit ng-scope" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="toggleEditCard(card)" role="button" tabindex="0" aria-hidden="false">create</i>
+                <!-- end ngIf: cardBelongsToUser(card) -->
+                <!-- ngIf: cardBelongsToUser(card) --><i class="material-icons action-icon delete ng-scope" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="deleteCard(card.$id, card)" role="button" tabindex="0" aria-hidden="false">delete</i>
+                <!-- end ngIf: cardBelongsToUser(card) -->
+                <!--<ng-format format="card.format" format-options="formatOptions" editing="localCardRefs[card.$id].editing"></ng-format>-->
+                <div class="display-fields ng-scope">
+                    <div class="header">
+                        <ng-image class="header-image ng-isolate-scope" editing="localCardRefs[card.$id].editing" image="card.image" backup="'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png'">
+                            <div class="image-container" ng-hide="editing" aria-hidden="false">
+                                <img class="image" ng-src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Ioannes_Claudius_Juncker_die_7_Martis_2014.jpg/145px-Ioannes_Claudius_Juncker_die_7_Martis_2014.jpg" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Ioannes_Claudius_Juncker_die_7_Martis_2014.jpg/145px-Ioannes_Claudius_Juncker_die_7_Martis_2014.jpg">
+                            </div>
+
+                            <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                    <label for="input_02P">Image URL</label>
+                                    <input ng-model="image.value" class="ng-pristine ng-untouched ng-valid md-input" id="input_02P" tabindex="0" aria-invalid="false">
+                                </md-input-container>
+                            </div>
+                        </ng-image>
+                        <div class="header-text">
+                            <ng-title title="card.title" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h3 ng-hide="editing" class="ng-binding" aria-hidden="false">Jean-Claude Juncker</h3>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_02Q">Title</label>
+                                        <input ng-model="title" class="ng-pristine ng-untouched ng-valid md-input" id="input_02Q" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-title>
+                            <ng-subtitle subtitle="card.subtitle" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h4 ng-hide="editing" class="ng-binding" aria-hidden="false">President of the European Commission</h4>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_02R">Subtitle</label>
+                                        <input ng-model="subtitle" class="ng-pristine ng-untouched ng-valid md-input" id="input_02R" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-subtitle>
+                        </div>
+                    </div>
+                    <ng-structured-text data="card.bio" open-card="open(cardToOpen)" editing="localCardRefs[card.$id].editing" class="bio ng-isolate-scope">
+                        <div class="text structured-text" ng-hide="editing" aria-hidden="false">
+                            <!-- ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope">Jean-Claude Juncker is the 12th and current </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JymUqJZIJ2foEmPN-oH" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">President of the European Commission</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope">, the executive branch of the </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPfFwn998Y3fWpYG" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">European</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> Union . A </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-Juzpuqc81KKTU20O93B" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">Luxembourgish</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> politician, Juncker was </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPnpK9GYEQQ4m0x2" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">Prime Minister</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> of his native </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JyDOPdU8YN5QWj6usyb" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">country</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> from 1995 to 2013, as well as </span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' --><a href="#-JymUuOOiUd1rc7bCYBM" ng-if="span.type == 'link'" ng-click="reverse(span.ref)" class="ng-binding ng-scope" tabindex="0">Minister for Finances</a><!-- end ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' -->
+    </span>
+                            <!-- end ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope"> from 1989 to 2009.</span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure -->
+                        </div>
+
+                        <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                            <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                <label for="input_02S">Bio</label>
+                                <textarea ng-model="text.value" columns="1" md-maxlength="450" class="ng-pristine ng-untouched ng-valid md-input ng-valid-md-maxlength" id="input_02S" ng-trim="false" aria-multiline="true" tabindex="0" aria-invalid="false" style="height: auto;"></textarea>
+                                <div class="md-char-counter">274/450</div>
+                            </md-input-container>
+                        </div>
+                    </ng-structured-text>
+                </div>
+                <div class="editing-fields ng-scope ng-hide" ng-show="localCardRefs[card.$id].editing" aria-hidden="true">
+                    <form name="editCardForm" class="ng-pristine ng-valid ng-submitted">
+                        <div layout="" layout-sm="column">
+                            <md-input-container class="md-default-theme">
+                                <section layout="row" layout-sm="column" layout-align="center center" layout-wrap="">
+                                    Populate from:
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" ng-click="populateFromWikipedia(card, true)" style="background:#6B6B6B" tabindex="0"><i class="fa fa-wikipedia-w ng-scope"></i>
+
+                                    </button>
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" style="background:#3C7BBE"><i class="fa fa-book ng-scope"></i>
+
+                                    </button>
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" style="background:#EF4B78"><i class="fa fa-foursquare ng-scope"></i>
+
+                                    </button>
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" style="background:#0FA460"><i class="fa fa-map ng-scope"></i>
+
+                                    </button>
+                                </section>
+                            </md-input-container>
+                            <md-input-container flex="" class="md-default-theme"> </md-input-container>
+                        </div>
+                        <div layout="" layout-sm="column">
+                            <md-chips ng-model="localCardRefs[card.$id].keywords" placeholder="Enter a new keyword" delete-button-label="Remove Keyword" delete-hint="Press delete to remove keyword" secondary-placeholder="+Keyword" md-on-append="appendKeyword($chip, card)" class="ng-pristine ng-untouched ng-valid ng-isolate-scope md-default-theme"
+                            ariahidden="true" tabindex="-1" aria-invalid="false">
+                                <!-- ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                                <md-chips-wrap ng-if="!$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0" ng-keydown="$mdChipsCtrl.chipKeydown($event)" ng-class="{ 'md-focused': $mdChipsCtrl.hasFocus() }" class="md-chips ng-scope">
+                                    <!-- ngRepeat: $chip in $mdChipsCtrl.items -->
+                                    <!-- ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                    <div ng-if="!$mdChipsCtrl.readonly &amp;&amp; $mdChipsCtrl.ngModelCtrl" class="md-chip-input-container ng-scope" md-chip-transclude="$mdChipsCtrl.chipInputTemplate">
+                                        <input tabindex="0" placeholder="+Keyword" aria-label="+Keyword" ng-model="$mdChipsCtrl.chipBuffer" ng-focus="$mdChipsCtrl.onInputFocus()" ng-blur="$mdChipsCtrl.onInputBlur()" ng-keydown="$mdChipsCtrl.inputKeydown($event)" class="ng-pristine ng-untouched ng-valid ng-scope"
+                                        aria-invalid="false">
+                                    </div>
+                                    <!-- end ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                </md-chips-wrap>
+                                <!-- end ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                            </md-chips>
+                        </div>
+                        <div layout="" layout-sm="column">
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-primary md-button md-default-theme" ng-transclude="" ng-click="updateCard(card.$id, card)" tabindex="0"><span class="ng-scope">Update</span>
+                                    <div class="md-ripple-container"></div>
+                                </button>
+                            </md-input-container>
+                            <md-input-container flex="" class="md-default-theme"> </md-input-container>
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-warn md-button md-default-theme" ng-transclude="" ng-click="deleteCard(card.$id, card)" tabindex="0"><span class="ng-scope">Delete</span></button>
+                            </md-input-container>
+                        </div>
+                    </form>
+                </div>
+                <div class="credits-footer">
+                    <ng-author card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <a href="http://twitter.com/JeremyNEvans" target="_blank">
+                            <div class="author">
+                                <img class="author-image" src="https://pbs.twimg.com/profile_images/570909802998398976/-HdjYRnK_normal.jpeg">
+                                <div class="author-text">
+                                    <span class="author-name ng-binding">Jeremy Evans</span>
+                                </div>
+                            </div>
+                        </a>
+                    </ng-author>
+                    <ng-credits card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <p class="credits">
+                            <span>Sources:</span>
+                            <ng-sources card="card" sources="card.sources" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope"><span class="sources" ng-hide="sources.length">Wikipedia, BBC</span>
+                                <!-- ngRepeat: source in sources -->
+
+                                <!--<div layout layout-sm="column" ng-show="editing">-->
+                                <!--    <md-input-container flex>-->
+                                <!--        <label>Bio</label>-->
+                                <!--        <textarea ng-model="text.value" columns="1" md-maxlength="450"></textarea>-->
+                                <!--    </md-input-container>-->
+                                <!--</div>-->
+                            </ng-sources>
+                        </p>
+                    </ng-credits>
+                </div>
+            </li>
+        </ul>
+
+
+
+        <ul class="cards">
+            <li class="card card-" style="margin-top: 0;">
+                <i class="material-icons action-icon close" ng-click="close(card)" role="button" tabindex="0">close</i>
+                <!-- ngIf: cardBelongsToUser(card) --><i class="material-icons action-icon edit ng-scope" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="toggleEditCard(card)" role="button" tabindex="0" aria-hidden="false">create</i>
+                <!-- end ngIf: cardBelongsToUser(card) -->
+                <!-- ngIf: cardBelongsToUser(card) --><i class="material-icons action-icon delete ng-scope" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="deleteCard(card.$id, card)" role="button" tabindex="0" aria-hidden="false">delete</i>
+                <!-- end ngIf: cardBelongsToUser(card) -->
+                <!--<ng-format format="card.format" format-options="formatOptions" editing="localCardRefs[card.$id].editing"></ng-format>-->
+                <div class="display-fields ng-scope">
+                    <div class="header">
+                        <ng-image class="header-image ng-isolate-scope" editing="localCardRefs[card.$id].editing" image="card.image" backup="'http://static.wixstatic.com/media/9bd2f6_91b9764674834d6997796aa1cbfeafe2.png_srz_200_200_85_22_0.50_1.20_0.00_png_srz'">
+                            <div class="image-container" ng-hide="editing" aria-hidden="false">
+                                <img class="image" ng-src="http://static.wixstatic.com/media/9bd2f6_91b9764674834d6997796aa1cbfeafe2.png_srz_200_200_85_22_0.50_1.20_0.00_png_srz" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Ioannes_Claudius_Juncker_die_7_Martis_2014.jpg/145px-Ioannes_Claudius_Juncker_die_7_Martis_2014.jpg">
+                            </div>
+
+                            <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                <md-input-container flex="" class="md-default-theme">
+                                    <label for="input_04T">Image URL</label>
+                                    <input ng-model="image.value" class="ng-pristine ng-untouched ng-valid md-input" id="input_04T" tabindex="0" aria-invalid="false">
+                                </md-input-container>
+                            </div>
+                        </ng-image>
+                        <div class="header-text">
+                            <ng-title title="card.title" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h3 ng-hide="editing" class="ng-binding" aria-hidden="false">Juncker Migration Speech</h3>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_04U">Title</label>
+                                        <input ng-model="title" class="ng-valid md-input ng-dirty ng-valid-parse ng-touched" id="input_04U" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-title>
+                            <ng-subtitle subtitle="card.subtitle" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h4 ng-hide="editing" class="ng-binding" aria-hidden="false">To EU Commission</h4>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_04V">Subtitle</label>
+                                        <input ng-model="subtitle" class="ng-valid md-input ng-dirty ng-valid-parse ng-touched" id="input_04V" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-subtitle>
+                        </div>
+                    </div>
+                    <ng-embed embed="card.embed" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <div class="embed-container" ng-hide="editing" aria-hidden="false">
+                            <div ng-bind-html="embed.code | sanitize" class="ng-binding">
+                                <iframe width="100%" height="250" src="https://www.youtube.com/embed/fzsP_alIcA0" frameborder="0" allowfullscreen=""></iframe>
+                            </div>
+                        </div>
+
+                        <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                            <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                <label for="input_04W">Embed Code</label>
+                                <input ng-model="embed.code" class="ng-valid md-input ng-dirty ng-valid-parse ng-touched" id="input_04W" tabindex="0" aria-invalid="false">
+                            </md-input-container>
+                        </div>
+                    </ng-embed>
+                </div>
+                <div class="editing-fields ng-scope ng-hide" ng-show="localCardRefs[card.$id].editing" aria-hidden="true">
+                    <form name="editCardForm" class="ng-pristine ng-valid ng-submitted">
+                        <!--<div layout layout-sm="column">-->
+                        <!--    <md-input-container>-->
+                        <!--        <md-button class="md-raised md-primary" ng-click="populateFromWikipedia(card, true)">Populate from Wikipedia</md-button>-->
+                        <!--    </md-input-container>-->
+                        <!--    <md-input-container flex> </md-input-container>-->
+                        <!--</div>-->
+                        <div layout="" layout-sm="column">
+                            <md-chips ng-model="localCardRefs[card.$id].keywords" placeholder="Enter a new keyword" delete-button-label="Remove Keyword" delete-hint="Press delete to remove keyword" secondary-placeholder="+Keyword" md-on-append="appendKeyword($chip, card)" class="ng-pristine ng-untouched ng-valid ng-isolate-scope md-default-theme"
+                            ariahidden="true" tabindex="-1" aria-invalid="false">
+                                <!-- ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                                <md-chips-wrap ng-if="!$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0" ng-keydown="$mdChipsCtrl.chipKeydown($event)" ng-class="{ 'md-focused': $mdChipsCtrl.hasFocus() }" class="md-chips ng-scope">
+                                    <!-- ngRepeat: $chip in $mdChipsCtrl.items -->
+                                    <!-- ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                    <div ng-if="!$mdChipsCtrl.readonly &amp;&amp; $mdChipsCtrl.ngModelCtrl" class="md-chip-input-container ng-scope" md-chip-transclude="$mdChipsCtrl.chipInputTemplate">
+                                        <input tabindex="0" placeholder="+Keyword" aria-label="+Keyword" ng-model="$mdChipsCtrl.chipBuffer" ng-focus="$mdChipsCtrl.onInputFocus()" ng-blur="$mdChipsCtrl.onInputBlur()" ng-keydown="$mdChipsCtrl.inputKeydown($event)" class="ng-pristine ng-untouched ng-valid ng-scope"
+                                        aria-invalid="false">
+                                    </div>
+                                    <!-- end ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                </md-chips-wrap>
+                                <!-- end ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                            </md-chips>
+                        </div>
+                        <div layout="" layout-sm="column">
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-primary md-button md-default-theme" ng-transclude="" ng-click="updateCard(card.$id, card)" tabindex="0"><span class="ng-scope">Update</span>
+                                    <div class="md-ripple-container"></div>
+                                </button>
+                            </md-input-container>
+                            <md-input-container flex="" class="md-default-theme"> </md-input-container>
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-warn md-button md-default-theme" ng-transclude="" ng-click="deleteCard(card.$id, card)" tabindex="0"><span class="ng-scope">Delete</span></button>
+                            </md-input-container>
+                        </div>
+                    </form>
+                </div>
+                <div class="credits-footer">
+                    <ng-author card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <a href="http://twitter.com/JeremyNEvans" target="_blank">
+                            <div class="author">
+                                <img class="author-image" src="https://pbs.twimg.com/profile_images/570909802998398976/-HdjYRnK_normal.jpeg">
+                                <div class="author-text">
+                                    <span class="author-name ng-binding">Jeremy Evans</span>
+                                </div>
+                            </div>
+                        </a>
+                    </ng-author>
+                    <ng-credits card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <p class="credits">
+                            <span>Sources:</span>
+                            <ng-sources card="card" sources="card.sources" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope"><span class="sources" ng-hide="sources.length">YouTube</span>
+                                <!-- ngRepeat: source in sources -->
+
+                                <!--<div layout layout-sm="column" ng-show="editing">-->
+                                <!--    <md-input-container flex>-->
+                                <!--        <label>Bio</label>-->
+                                <!--        <textarea ng-model="text.value" columns="1" md-maxlength="450"></textarea>-->
+                                <!--    </md-input-container>-->
+                                <!--</div>-->
+                            </ng-sources>
+                        </p>
+                    </ng-credits>
+                </div>
+            </li>
+        </ul>
+
+
+
+        <ul class="cards">
+            <li class="card card-" style="margin-top: 30px; margin-left: 0px;">
+                <i class="material-icons action-icon close" ng-click="close(card)" role="button" tabindex="0">close</i>
+                <!-- ngIf: cardBelongsToUser(card) --><i class="material-icons action-icon edit ng-scope" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="toggleEditCard(card)" role="button" tabindex="0" aria-hidden="false">create</i>
+                <!-- end ngIf: cardBelongsToUser(card) -->
+                <!-- ngIf: cardBelongsToUser(card) --><i class="material-icons action-icon delete ng-scope" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="deleteCard(card.$id, card)" role="button" tabindex="0" aria-hidden="false">delete</i>
+                <!-- end ngIf: cardBelongsToUser(card) -->
+                <!--<ng-format format="card.format" format-options="formatOptions" editing="localCardRefs[card.$id].editing"></ng-format>-->
+                <div class="display-fields ng-scope">
+                    <div class="header">
+                        <ng-image class="header-image ng-isolate-scope" editing="localCardRefs[card.$id].editing" image="card.image" backup="'https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png'">
+                            <div class="image-container" ng-hide="editing" aria-hidden="false">
+                                <img class="image" ng-src="https://static.licdn.com/scds/common/u/images/themes/katy/ghosts/person/ghost_person_80x80_v1.png" src="http://www.europeancancerleagues.org/images/stories/eulogo.jpg">
+                            </div>
+
+                            <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                <md-input-container flex="" class="md-default-theme">
+                                    <label for="input_059">Image URL</label>
+                                    <input ng-model="image.value" class="ng-pristine ng-untouched ng-valid md-input" id="input_059" tabindex="0" aria-invalid="false">
+                                </md-input-container>
+                            </div>
+                        </ng-image>
+                        <div class="header-text">
+                            <ng-title title="card.title" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h3 ng-hide="editing" class="ng-binding" aria-hidden="false">Juncker's Migrant Proposal</h3>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_05A">Title</label>
+                                        <input ng-model="title" class="ng-valid md-input ng-dirty ng-valid-parse ng-touched" id="input_05A" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-title>
+                            <ng-subtitle subtitle="card.subtitle" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h4 ng-hide="editing" class="ng-binding" aria-hidden="false"></h4>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                    <md-input-container flex="" class="md-default-theme">
+                                        <label for="input_05B">Subtitle</label>
+                                        <input ng-model="subtitle" class="ng-pristine ng-valid md-input ng-touched" id="input_05B" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-subtitle>
+                        </div>
+                    </div>
+                    <ng-structured-text data="card.bio" open-card="open(cardToOpen)" editing="localCardRefs[card.$id].editing" class="bio ng-isolate-scope">
+                        <div class="text structured-text" ng-hide="editing" aria-hidden="false">
+                            <!-- ngRepeat: span in text.structure --><span ng-repeat="span in text.structure" class="ng-scope">
+        <!-- ngIf: span.type == 'link' -->
+        <!-- ngIf: span.type == 'span' --><span ng-if="span.type == 'span'" class="ng-binding ng-scope">
+            <ul>
+<li>EU member states to accept their share of an additional 120,000 refugees</li>
+<li>Permanent relocation system for future crises</li>
+<li>Will produce "safe countries" list where migrants could return</li>
+<li>Efforts to strengthen the EU's common asylum system</li>
+<li>A review of the 'Dublin system' where people must claim asylum in the first EU state they enter</li>
+<li>Better management of external borders and better legal channels for migration</li>
+</ul>
+
+
+
+</span>
+                            <!-- end ngIf: span.type == 'span' -->
+                            </span>
+                            <!-- end ngRepeat: span in text.structure -->
+                        </div>
+
+                        <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                            <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                <label for="input_05C">Bio</label>
+                                <textarea ng-model="text.value" columns="1" md-maxlength="450" class="ng-valid md-input ng-valid-md-maxlength ng-dirty ng-valid-parse ng-touched" id="input_05C" ng-trim="false" aria-multiline="true" tabindex="0" aria-invalid="false" style="height: 264px;"></textarea>
+                                <div class="md-char-counter">408/450</div>
+                            </md-input-container>
+                        </div>
+                    </ng-structured-text>
+                </div>
+                <div class="editing-fields ng-scope ng-hide" ng-show="localCardRefs[card.$id].editing" aria-hidden="true">
+                    <form name="editCardForm" class="ng-pristine ng-valid ng-submitted">
+                        <div layout="" layout-sm="column">
+                            <md-input-container class="md-default-theme">
+                                <section layout="row" layout-sm="column" layout-align="center center" layout-wrap="">
+                                    Populate from:
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" ng-click="populateFromWikipedia(card, true)" style="background:#6B6B6B" tabindex="0"><i class="fa fa-wikipedia-w ng-scope"></i>
+
+                                    </button>
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" style="background:#3C7BBE"><i class="fa fa-book ng-scope"></i>
+
+                                    </button>
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" style="background:#EF4B78"><i class="fa fa-foursquare ng-scope"></i>
+
+                                    </button>
+                                    <button class="md-fab md-primary md-button md-default-theme" ng-transclude="" style="background:#0FA460"><i class="fa fa-map ng-scope"></i>
+
+                                    </button>
+                                </section>
+                            </md-input-container>
+                            <md-input-container flex="" class="md-default-theme"> </md-input-container>
+                        </div>
+                        <div layout="" layout-sm="column">
+                            <md-chips ng-model="localCardRefs[card.$id].keywords" placeholder="Enter a new keyword" delete-button-label="Remove Keyword" delete-hint="Press delete to remove keyword" secondary-placeholder="+Keyword" md-on-append="appendKeyword($chip, card)" class="ng-pristine ng-untouched ng-valid ng-isolate-scope md-default-theme"
+                            ariahidden="true" tabindex="-1" aria-invalid="false">
+                                <!-- ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                                <md-chips-wrap ng-if="!$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0" ng-keydown="$mdChipsCtrl.chipKeydown($event)" ng-class="{ 'md-focused': $mdChipsCtrl.hasFocus() }" class="md-chips ng-scope">
+                                    <!-- ngRepeat: $chip in $mdChipsCtrl.items -->
+                                    <!-- ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                    <div ng-if="!$mdChipsCtrl.readonly &amp;&amp; $mdChipsCtrl.ngModelCtrl" class="md-chip-input-container ng-scope" md-chip-transclude="$mdChipsCtrl.chipInputTemplate">
+                                        <input tabindex="0" placeholder="+Keyword" aria-label="+Keyword" ng-model="$mdChipsCtrl.chipBuffer" ng-focus="$mdChipsCtrl.onInputFocus()" ng-blur="$mdChipsCtrl.onInputBlur()" ng-keydown="$mdChipsCtrl.inputKeydown($event)" class="ng-pristine ng-untouched ng-valid ng-scope"
+                                        aria-invalid="false">
+                                    </div>
+                                    <!-- end ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                </md-chips-wrap>
+                                <!-- end ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                            </md-chips>
+                        </div>
+                        <div layout="" layout-sm="column">
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-primary md-button md-default-theme" ng-transclude="" ng-click="updateCard(card.$id, card)" tabindex="0"><span class="ng-scope">Update</span>
+                                    <div class="md-ripple-container"></div>
+                                </button>
+                            </md-input-container>
+                            <md-input-container flex="" class="md-default-theme"> </md-input-container>
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-warn md-button md-default-theme" ng-transclude="" ng-click="deleteCard(card.$id, card)" tabindex="0"><span class="ng-scope">Delete</span></button>
+                            </md-input-container>
+                        </div>
+                    </form>
+                </div>
+                <div class="credits-footer">
+                    <ng-author card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <a href="http://twitter.com/JeremyNEvans" target="_blank">
+                            <div class="author">
+                                <img class="author-image" src="https://pbs.twimg.com/profile_images/570909802998398976/-HdjYRnK_normal.jpeg">
+                                <div class="author-text">
+                                    <span class="author-name ng-binding">Jeremy Evans</span>
+                                </div>
+                            </div>
+                        </a>
+                    </ng-author>
+                    <ng-credits card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <p class="credits">
+                            <span>Sources:</span>
+                            <ng-sources card="card" sources="card.sources" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope"><span class="sources" ng-hide="sources.length">EU Comission</span>
+                                <!-- ngRepeat: source in sources -->
+
+                                <!--<div layout layout-sm="column" ng-show="editing">-->
+                                <!--    <md-input-container flex>-->
+                                <!--        <label>Bio</label>-->
+                                <!--        <textarea ng-model="text.value" columns="1" md-maxlength="450"></textarea>-->
+                                <!--    </md-input-container>-->
+                                <!--</div>-->
+                            </ng-sources>
+                        </p>
+                    </ng-credits>
+                </div>
+            </li>
+        </ul>
+
+
+
+        <ul class="cards">
+            <li class="card card-" style="margin-top: 0;">
+                <i class="material-icons action-icon close" ng-click="close(card)" role="button" tabindex="0">close</i>
+                <!-- ngIf: cardBelongsToUser(card) --><i class="material-icons action-icon edit ng-scope" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="toggleEditCard(card)" role="button" tabindex="0" aria-hidden="false">create</i>
+                <!-- end ngIf: cardBelongsToUser(card) -->
+                <!-- ngIf: cardBelongsToUser(card) --><i class="material-icons action-icon delete ng-scope" ng-if="cardBelongsToUser(card)" ng-show="editMode" ng-click="deleteCard(card.$id, card)" role="button" tabindex="0" aria-hidden="false">delete</i>
+                <!-- end ngIf: cardBelongsToUser(card) -->
+                <!--<ng-format format="card.format" format-options="formatOptions" editing="localCardRefs[card.$id].editing"></ng-format>-->
+                <div class="display-fields ng-scope">
+                    <div class="header">
+                        <ng-image class="header-image ng-isolate-scope" editing="localCardRefs[card.$id].editing" image="card.image" backup="'http://static.wixstatic.com/media/9bd2f6_91b9764674834d6997796aa1cbfeafe2.png_srz_200_200_85_22_0.50_1.20_0.00_png_srz'">
+                            <div class="image-container" ng-hide="editing" aria-hidden="false">
+                                <img class="image" ng-src="http://static.wixstatic.com/media/9bd2f6_91b9764674834d6997796aa1cbfeafe2.png_srz_200_200_85_22_0.50_1.20_0.00_png_srz" src="http://a.dryicons.com/images/icon_sets/luna_grey_icons/png/128x128/chart_down.png">
+                            </div>
+
+                            <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                <md-input-container flex="" class="md-default-theme">
+                                    <label for="input_04T">Image URL</label>
+                                    <input ng-model="image.value" class="ng-pristine ng-untouched ng-valid md-input" id="input_04T" tabindex="0" aria-invalid="false">
+                                </md-input-container>
+                            </div>
+                        </ng-image>
+                        <div class="header-text">
+                            <ng-title title="card.title" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h3 ng-hide="editing" class="ng-binding" aria-hidden="false">Migrant Proposal Figures</h3>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_04U">Title</label>
+                                        <input ng-model="title" class="ng-valid md-input ng-dirty ng-valid-parse ng-touched" id="input_04U" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-title>
+                            <ng-subtitle subtitle="card.subtitle" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                                <h4 ng-hide="editing" class="ng-binding" aria-hidden="false">By country</h4>
+
+                                <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                                    <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                        <label for="input_04V">Subtitle</label>
+                                        <input ng-model="subtitle" class="ng-valid md-input ng-dirty ng-valid-parse ng-touched" id="input_04V" tabindex="0" aria-invalid="false">
+                                    </md-input-container>
+                                </div>
+                            </ng-subtitle>
+                        </div>
+                    </div>
+                    <ng-embed embed="card.embed" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <div class="embed-container" ng-hide="editing" aria-hidden="false">
+                            <div ng-bind-html="embed.code | sanitize" class="ng-binding">
+                                <img src="http://ichef-1.bbci.co.uk/news/624/cpsprodpb/AE6E/production/_85445644_european_commission_quotas-01_v2.png" style="width:100%;">
+                            </div>
+                        </div>
+
+                        <div layout="" layout-sm="column" ng-show="editing" aria-hidden="true" class="ng-hide">
+                            <md-input-container flex="" class="md-default-theme md-input-has-value">
+                                <label for="input_04W">Embed Code</label>
+                                <input ng-model="embed.code" class="ng-valid md-input ng-dirty ng-valid-parse ng-touched" id="input_04W" tabindex="0" aria-invalid="false">
+                            </md-input-container>
+                        </div>
+                    </ng-embed>
+                </div>
+                <div class="editing-fields ng-scope ng-hide" ng-show="localCardRefs[card.$id].editing" aria-hidden="true">
+                    <form name="editCardForm" class="ng-pristine ng-valid ng-submitted">
+                        <!--<div layout layout-sm="column">-->
+                        <!--    <md-input-container>-->
+                        <!--        <md-button class="md-raised md-primary" ng-click="populateFromWikipedia(card, true)">Populate from Wikipedia</md-button>-->
+                        <!--    </md-input-container>-->
+                        <!--    <md-input-container flex> </md-input-container>-->
+                        <!--</div>-->
+                        <div layout="" layout-sm="column">
+                            <md-chips ng-model="localCardRefs[card.$id].keywords" placeholder="Enter a new keyword" delete-button-label="Remove Keyword" delete-hint="Press delete to remove keyword" secondary-placeholder="+Keyword" md-on-append="appendKeyword($chip, card)" class="ng-pristine ng-untouched ng-valid ng-isolate-scope md-default-theme"
+                            ariahidden="true" tabindex="-1" aria-invalid="false">
+                                <!-- ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                                <md-chips-wrap ng-if="!$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0" ng-keydown="$mdChipsCtrl.chipKeydown($event)" ng-class="{ 'md-focused': $mdChipsCtrl.hasFocus() }" class="md-chips ng-scope">
+                                    <!-- ngRepeat: $chip in $mdChipsCtrl.items -->
+                                    <!-- ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                    <div ng-if="!$mdChipsCtrl.readonly &amp;&amp; $mdChipsCtrl.ngModelCtrl" class="md-chip-input-container ng-scope" md-chip-transclude="$mdChipsCtrl.chipInputTemplate">
+                                        <input tabindex="0" placeholder="+Keyword" aria-label="+Keyword" ng-model="$mdChipsCtrl.chipBuffer" ng-focus="$mdChipsCtrl.onInputFocus()" ng-blur="$mdChipsCtrl.onInputBlur()" ng-keydown="$mdChipsCtrl.inputKeydown($event)" class="ng-pristine ng-untouched ng-valid ng-scope"
+                                        aria-invalid="false">
+                                    </div>
+                                    <!-- end ngIf: !$mdChipsCtrl.readonly && $mdChipsCtrl.ngModelCtrl -->
+                                </md-chips-wrap>
+                                <!-- end ngIf: !$mdChipsCtrl.readonly || $mdChipsCtrl.items.length > 0 -->
+                            </md-chips>
+                        </div>
+                        <div layout="" layout-sm="column">
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-primary md-button md-default-theme" ng-transclude="" ng-click="updateCard(card.$id, card)" tabindex="0"><span class="ng-scope">Update</span>
+                                    <div class="md-ripple-container"></div>
+                                </button>
+                            </md-input-container>
+                            <md-input-container flex="" class="md-default-theme"> </md-input-container>
+                            <md-input-container class="md-default-theme">
+                                <button class="md-raised md-warn md-button md-default-theme" ng-transclude="" ng-click="deleteCard(card.$id, card)" tabindex="0"><span class="ng-scope">Delete</span></button>
+                            </md-input-container>
+                        </div>
+                    </form>
+                </div>
+                <div class="credits-footer">
+                    <ng-author card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <a href="http://twitter.com/JeremyNEvans" target="_blank">
+                            <div class="author">
+                                <img class="author-image" src="https://pbs.twimg.com/profile_images/570909802998398976/-HdjYRnK_normal.jpeg">
+                                <div class="author-text">
+                                    <span class="author-name ng-binding">Jeremy Evans</span>
+                                </div>
+                            </div>
+                        </a>
+                    </ng-author>
+                    <ng-credits card="card" author="localUsers[localUserRefs[card.authorId].ref]" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope">
+                        <p class="credits">
+                            <span>Sources:</span>
+                            <ng-sources card="card" sources="card.sources" editing="localCardRefs[card.$id].editing" class="ng-isolate-scope"><span class="sources" ng-hide="sources.length">BBC, EU COMMISION</span>
+                                <!-- ngRepeat: source in sources -->
+
+                                <!--<div layout layout-sm="column" ng-show="editing">-->
+                                <!--    <md-input-container flex>-->
+                                <!--        <label>Bio</label>-->
+                                <!--        <textarea ng-model="text.value" columns="1" md-maxlength="450"></textarea>-->
+                                <!--    </md-input-container>-->
+                                <!--</div>-->
+                            </ng-sources>
+                        </p>
+                    </ng-credits>
+                </div>
+            </li>
+        </ul>
+
+
+
+        <ul class="cards">
+
+        </ul>
+
+
+
+        <ul class="cards">
+
+        </ul>
+
+
+
+        <ul class="cards">
+
+        </ul>
+
+
+
+        <ul class="cards">
+
+        </ul>
+
+
+
+        <ul class="cards">
+
+        </ul>
+    </div>
+
+    <!-- Angular Dependencies -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0-beta.3/angular-route.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0-beta.3/angular-sanitize.min.js"></script>
+    <!-- Angular Material Dependencies -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-aria.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.4/angular-material.min.js"></script>
+    <!-- Firebase -->
+    <script src="https://cdn.firebase.com/js/client/2.2.4/firebase.js"></script>
+    <!-- AngularFire -->
+    <script src="https://cdn.firebase.com/libs/angularfire/1.1.1/angularfire.min.js"></script>
+    <!-- Angolia -->
+    <script src="//cdn.jsdelivr.net/algoliasearch/3/algoliasearch.angular.min.js"></script>
+    <script src="//cdn.jsdelivr.net/algoliasearch.helper/2/algoliasearch.helper.min.js"></script>
+    <!-- Custom -->
+    <!--<script src="js/branch-specific.js"></script>-->
+    <!--<script src="js/explaain.js"></script>-->
+</body>
+
+</html>
